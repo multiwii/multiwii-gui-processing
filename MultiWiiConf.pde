@@ -198,10 +198,10 @@ void setup() {
   magxSlider  =      controlP5.addSlider("magxSlider",-5000,+5000,0,x+20,y5+10,50,10);magxSlider.setDecimalPrecision(0);magxSlider.setLabel("");
   magySlider  =      controlP5.addSlider("magySlider",-5000,+5000,0,x+20,y5+20,50,10);magySlider.setDecimalPrecision(0);magySlider.setLabel("");
   magzSlider  =      controlP5.addSlider("magzSlider",-5000,+5000,0,x+20,y5+30,50,10);magzSlider.setDecimalPrecision(0);magzSlider.setLabel("");
-  debug1Slider  =  controlP5.addSlider("debug1Slider",-30000,+30000,0,x+130,y6,50,10);debug1Slider.setDecimalPrecision(1);debug1Slider.setLabel("");
-  debug2Slider  =    controlP5.addSlider("debug2Slider",-5000,+5000,0,x+250,y6,50,10);debug2Slider.setDecimalPrecision(0);debug2Slider.setLabel("");
-  debug3Slider  =    controlP5.addSlider("debug3Slider",-5000,+5000,0,x+370,y6,50,10);debug3Slider.setDecimalPrecision(0);debug3Slider.setLabel("");
-  debug4Slider  =    controlP5.addSlider("debug4Slider",-5000,+5000,0,x+490,y6,50,10);debug4Slider.setDecimalPrecision(0);debug4Slider.setLabel("");
+  debug1Slider  =    controlP5.addSlider("debug1Slider",-32000,+32000,0,x+130,y6,50,10);debug1Slider.setDecimalPrecision(1);debug1Slider.setLabel("");
+  debug2Slider  =    controlP5.addSlider("debug2Slider",-32000,+32000,0,x+250,y6,50,10);debug2Slider.setDecimalPrecision(0);debug2Slider.setLabel("");
+  debug3Slider  =    controlP5.addSlider("debug3Slider",-32000,+32000,0,x+370,y6,50,10);debug3Slider.setDecimalPrecision(0);debug3Slider.setLabel("");
+  debug4Slider  =    controlP5.addSlider("debug4Slider",-32000,+32000,0,x+490,y6,50,10);debug4Slider.setDecimalPrecision(0);debug4Slider.setLabel("");
 
   for(int i=0;i<7;i++) {
     confP[i] = (controlP5.Numberbox) hideLabel(controlP5.addNumberbox("confP"+i,0,xParam+40,yParam+20+i*20,30,14));

@@ -14,7 +14,8 @@ ControlP5 controlP5;
 Textlabel txtlblWhichcom,version; 
 ListBox commListbox;
 
-int frame_size = 125;
+int CHECKBOXITEMS=10;
+int frame_size = 116+CHECKBOXITEMS;
 
 cGraph g_graph;
 int windowsX    = 800;        int windowsY    = 540;
@@ -82,7 +83,6 @@ int nunchukPresent,i2cAccPresent,i2cBaroPresent,i2cMagnetoPresent,GPSPresent,lev
 float time1,time2;
 int cycleTime;
 
-int CHECKBOXITEMS=9;
 CheckBox checkbox[] = new CheckBox[CHECKBOXITEMS];
 int activation[] = new int[CHECKBOXITEMS];
 
@@ -560,6 +560,7 @@ void draw() {
   text("GPS HOME",xBox-5,yBox+108);
   text("GPS HOLD",xBox-5,yBox+121);
   text("PassThru",xBox-5,yBox+134);
+  text("Alarm ON",xBox-5,yBox+147);
   text("LOW",xBox+37,yBox+15);text("MID",xBox+57,yBox+15);text("HIGH",xBox+74,yBox+15);
   text("LOW",xBox+100,yBox+15);text("MID",xBox+123,yBox+15);text("HIGH",xBox+140,yBox+15);
 }
@@ -643,7 +644,7 @@ public void WRITE() {
   
   intPowerTrigger = (round(confPowerTrigger.value()));
 
-  int[] s = new int[35];
+  int[] s = new int[26+CHECKBOXITEMS];
   int p = 0;
    s[p++] = 'W'; //0 write to Eeprom @ arduino //1
    for(int i=0;i<5;i++) {s[p++] = byteP[i];  s[p++] = byteI[i];  s[p++] =  byteD[i];} //16
@@ -653,10 +654,10 @@ public void WRITE() {
    s[p++] = byteRollPitchRate; 
    s[p++] = byteYawRate;
    s[p++] = byteDynThrPID; //24
-   for(int i=0;i<CHECKBOXITEMS;i++) s[p++] = activation[i]; //33
+   for(int i=0;i<CHECKBOXITEMS;i++) s[p++] = activation[i]; //34
    s[p++] = intPowerTrigger;
-   s[p++] = intPowerTrigger >>8 &0xff; //35
-   for(int i =0;i<35;i++)    g_serial.write(char(s[i]));
+   s[p++] = intPowerTrigger >>8 &0xff; //36
+   for(int i =0;i<(26+CHECKBOXITEMS);i++)    g_serial.write(char(s[i]));
 }
 
 public void CALIB_ACC() {

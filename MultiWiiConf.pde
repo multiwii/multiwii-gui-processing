@@ -644,7 +644,7 @@ public void WRITE() {
   
   intPowerTrigger = (round(confPowerTrigger.value()));
 
-  int[] s = new int[26+CHECKBOXITEMS];
+  int[] s = new int[27+CHECKBOXITEMS];
   int p = 0;
    s[p++] = 'W'; //0 write to Eeprom @ arduino //1
    for(int i=0;i<5;i++) {s[p++] = byteP[i];  s[p++] = byteI[i];  s[p++] =  byteD[i];} //16
@@ -657,7 +657,8 @@ public void WRITE() {
    for(int i=0;i<CHECKBOXITEMS;i++) s[p++] = activation[i]; //34
    s[p++] = intPowerTrigger;
    s[p++] = intPowerTrigger >>8 &0xff; //36
-   for(int i =0;i<(26+CHECKBOXITEMS);i++)    g_serial.write(char(s[i]));
+   s[p++] = 'w'; // control char to identify correct end of transmission
+   for(int i =0;i<(27+CHECKBOXITEMS);i++)    g_serial.write(char(s[i]));
 }
 
 public void CALIB_ACC() {

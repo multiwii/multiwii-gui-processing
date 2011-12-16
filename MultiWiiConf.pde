@@ -196,9 +196,9 @@ void setup() {
   axSlider   =         controlP5.addSlider("axSlider",-1000,+1000,0,x+20,y1+10,50,10);axSlider.setDecimalPrecision(0);axSlider.setLabel("");
   aySlider   =         controlP5.addSlider("aySlider",-1000,+1000,0,x+20,y1+20,50,10);aySlider.setDecimalPrecision(0);aySlider.setLabel("");
   azSlider   =         controlP5.addSlider("azSlider",-1000,+1000,0,x+20,y1+30,50,10);azSlider.setDecimalPrecision(0);azSlider.setLabel("");
-  gxSlider   =           controlP5.addSlider("gxSlider",-500,+500,0,x+20,y2+10,50,10);gxSlider.setDecimalPrecision(0);gxSlider.setLabel("");
-  gySlider   =           controlP5.addSlider("gySlider",-500,+500,0,x+20,y2+20,50,10);gySlider.setDecimalPrecision(0);gySlider.setLabel("");
-  gzSlider   =           controlP5.addSlider("gzSlider",-500,+500,0,x+20,y2+30,50,10);gzSlider.setDecimalPrecision(0);gzSlider.setLabel("");
+  gxSlider   =           controlP5.addSlider("gxSlider",-5000,+5000,0,x+20,y2+10,50,10);gxSlider.setDecimalPrecision(0);gxSlider.setLabel("");
+  gySlider   =           controlP5.addSlider("gySlider",-5000,+5000,0,x+20,y2+20,50,10);gySlider.setDecimalPrecision(0);gySlider.setLabel("");
+  gzSlider   =           controlP5.addSlider("gzSlider",-5000,+5000,0,x+20,y2+30,50,10);gzSlider.setDecimalPrecision(0);gzSlider.setLabel("");
   baroSlider =        controlP5.addSlider("baroSlider",-30000,+30000,0,x+20,y3 ,50,10);baroSlider.setDecimalPrecision(1);baroSlider.setLabel("");
   headSlider  =          controlP5.addSlider("headSlider",-200,+200,0,x+20,y4  ,50,10);headSlider.setDecimalPrecision(0);headSlider.setLabel("");
   magxSlider  =      controlP5.addSlider("magxSlider",-5000,+5000,0,x+20,y5+10,50,10);magxSlider.setDecimalPrecision(0);magxSlider.setLabel("");
@@ -749,10 +749,10 @@ void processSerialData() {
       p=0;
       read8(); //version                                                              //1
       ax = read16();ay = read16();az = read16();
-      gx = read16();gy = read16();gz = read16();                                      //13
-      magx = read16();magy = read16();magz = read16();                                //19
+      gx = read16()/8;gy = read16()/8;gz = read16()/8;                                //13
+      magx = read16()/3;magy = read16()/3;magz = read16()/3;                          //19
       baro = read16();
-      head = read16();                                                                 //23
+      head = read16();                                                                //23
       servo0 = read16();servo1 = read16();servo2 = read16();servo3 = read16();        //31
       for(int i=0;i<8;i++) mot[i] = read16();                                         //47
       rcRoll = read16();rcPitch = read16();rcYaw = read16();rcThrottle = read16();    
@@ -760,7 +760,7 @@ void processSerialData() {
       present = read8(); 
       mode = read8();
       cycleTime = read16();
-      angx = read16();angy = read16();
+      angx = read16()/10;angy = read16()/10;
       multiType = read8();                                                            //72
       for(int i=0;i<5;i++) {byteP[i] = read8();byteI[i] = read8();byteD[i] = read8();}//87
       byteP[LEVEL] = read8();byteI[LEVEL] = read8();                                  //89

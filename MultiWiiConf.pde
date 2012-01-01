@@ -16,6 +16,7 @@ ListBox commListbox;
 
 int CHECKBOXITEMS=11;
 int PIDITEMS=8;
+int commListMax;
 int frame_size_read = 98+3*PIDITEMS+2*CHECKBOXITEMS;
 int frame_size_write = 8+3*PIDITEMS+2*CHECKBOXITEMS;
 
@@ -128,7 +129,9 @@ void setup() {
   for(int i=0;i<Serial.list().length;i++) {
     String pn = shortifyPortName(Serial.list()[i], 13);
     if (pn.length() >0 ) commListbox.addItem(pn,i); // addItem(name,value)
+    commListMax = i;
   }
+  commListbox.addItem("Close Comm",++commListMax); // addItem(name,value)
 
   // text label for which comm port selected
   txtlblWhichcom = controlP5.addTextlabel("txtlblWhichcom","No Port Selected",5,42); // textlabel(name,text,x,y)
@@ -720,13 +723,22 @@ public void CALIB_MAG() {
 
 // initialize the serial port selected in the listBox
 void InitSerial(float portValue) {
-  String portPos = Serial.list()[int(portValue)];
-  txtlblWhichcom.setValue("COM = " + shortifyPortName(portPos, 8));
-  g_serial = new Serial(this, portPos, 115200);
-  init_com=1;
-  buttonSTART.setColorBackground(green_);buttonSTOP.setColorBackground(green_);commListbox.setColorBackground(green_);
-  graphEnable = true;
-  g_serial.buffer(frame_size_read+1);
+  if (portValue < commListMax) {
+    String portPos = Serial.list()[int(portValue)];
+    txtlblWhichcom.setValue("COM = " + shortifyPortName(portPos, 8));
+    g_serial = new Serial(this, portPos, 115200);
+    init_com=1;
+    buttonSTART.setColorBackground(green_);buttonSTOP.setColorBackground(green_);commListbox.setColorBackground(green_);
+    graphEnable = true;
+    g_serial.buffer(frame_size_read+1);
+  } else {
+    txtlblWhichcom.setValue("Comm Closed");
+    init_com=0;
+    buttonSTART.setColorBackground(red_);buttonSTOP.setColorBackground(red_);commListbox.setColorBackground(red_);
+    graphEnable = false;
+    init_com=0;
+    g_serial.stop();
+  }
 }
 
 int p;

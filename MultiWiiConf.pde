@@ -133,7 +133,6 @@ void setup() {
     commListMax = i;
   }
   commListbox.addItem("Close Comm",++commListMax); // addItem(name,value)
-
   // text label for which comm port selected
   txtlblWhichcom = controlP5.addTextlabel("txtlblWhichcom","No Port Selected",5,42); // textlabel(name,text,x,y)
     
@@ -222,6 +221,7 @@ void setup() {
     confD[i] = (controlP5.Numberbox) hideLabel(controlP5.addNumberbox("confD"+i,0,xParam+120,yParam+20+i*20,30,14));
     confD[i].setColorBackground(red_);confD[i].setMin(0);confD[i].setDirection(Controller.HORIZONTAL);confD[i].setDecimalPrecision(0);confD[i].setMultiplier(1);confD[i].setMax(50);}
   confD[6].hide();confI[7].hide();confD[7].hide();
+  confP[4].hide();confI[4].hide();confD[4].hide();
 
   rollPitchRate = (controlP5.Numberbox) hideLabel(controlP5.addNumberbox("rollPitchRate",0,xParam+160,yParam+30,30,14));rollPitchRate.setDecimalPrecision(2);rollPitchRate.setMultiplier(0.01);
   rollPitchRate.setDirection(Controller.HORIZONTAL);rollPitchRate.setMin(0);rollPitchRate.setMax(1);rollPitchRate.setColorBackground(red_);
@@ -294,6 +294,7 @@ void draw() {
   textFont(font15);
   text("multiwii.com",0,16);
   text("V",0,32);text(version, 10, 32);
+//  text("v1.dev", 0, 32);
   text("Cycle Time:",xGraph+220,yGraph-10);text(cycleTime,xGraph+320,yGraph-10);
 
   textFont(font12);
@@ -561,7 +562,7 @@ void draw() {
   text("RATE",xParam+160,yParam+15);
   text("ROLL",xParam+3,yParam+32);text("PITCH",xParam+3,yParam+52);text("YAW",xParam+3,yParam+72);
   text("ALT",xParam+3,yParam+92);
-  text("VEL",xParam+3,yParam+112);
+//  text("VEL",xParam+3,yParam+112);
   text("GPS",xParam+3,yParam+132);
   text("LEVEL",xParam+1,yParam+152);
   text("MAG",xParam+3,yParam+172); 
@@ -761,6 +762,7 @@ void processSerialData() {
     g_serial.readBytes(inBuf);
     p=0;
     version = read8(); //version is read even if buffer length doesn't check          //1
+    versionMisMatch = 0;
     if (inBuf[frame_size_read-1] == 'M') {  // Multiwii @ arduino send all data to GUI
       ax = read16();ay = read16();az = read16();
       gx = read16()/8;gy = read16()/8;gz = read16()/8;                                //13

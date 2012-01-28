@@ -17,7 +17,7 @@ ListBox commListbox;
 int CHECKBOXITEMS=11;
 int PIDITEMS=8;
 int commListMax;
-int frame_size_read = 98+3*PIDITEMS+2*CHECKBOXITEMS;
+int frame_size_read = 106+3*PIDITEMS+2*CHECKBOXITEMS;
 int frame_size_write = 8+3*PIDITEMS+2*CHECKBOXITEMS;
 
 
@@ -54,8 +54,9 @@ int  byteRC_RATE,byteRC_EXPO, byteRollPitchRate,byteYawRate, byteDynThrPID;
 
 Slider rcStickThrottleSlider,rcStickRollSlider,rcStickPitchSlider,rcStickYawSlider,rcStickAUX1Slider,rcStickAUX2Slider,rcStickAUX3Slider,rcStickAUX4Slider;
 
-Slider motSliderV0,motSliderV1,motSliderV2,motSliderV3,motSliderV4,motSliderV5;
-Slider servoSliderH1,servoSliderH2,servoSliderH3,servoSliderH4,servoSliderV0,servoSliderV1,servoSliderV2;
+Slider servoSliderH[] = new Slider[8];
+Slider servoSliderV[] = new Slider[8];
+Slider motSlider[]   = new Slider[8];
 
 Slider axSlider,aySlider,azSlider,gxSlider,gySlider,gzSlider , magxSlider,magySlider,magzSlider , baroSlider,headSlider;
 Slider debug1Slider,debug2Slider,debug3Slider,debug4Slider;
@@ -79,8 +80,7 @@ int init_com,graph_on,pMeterSum,intPowerTrigger,bytevbat;
 Numberbox confPowerTrigger;
 
 float mot[] = new float[8];
-
-float servo0=1500,servo1=1500,servo2=1500,servo3=1500;
+float servo[] = new float[8];
 float rcThrottle = 1500,rcRoll = 1500,rcPitch = 1500,rcYaw =1500,
       rcAUX1=1500, rcAUX2=1500, rcAUX3=1500, rcAUX4=1500;
 int nunchukPresent,i2cAccPresent,i2cBaroPresent,i2cMagnetoPresent,GPSPresent,levelMode;
@@ -197,14 +197,14 @@ void setup() {
   controlP5.addTextlabel("debug3","debug3",x+330,y6);
   controlP5.addTextlabel("debug4","debug4",x+450,y6);
 
-  axSlider   =         controlP5.addSlider("axSlider",-1000,+1000,0,x+20,y1+10,50,10);axSlider.setDecimalPrecision(0);axSlider.setLabel("");
-  aySlider   =         controlP5.addSlider("aySlider",-1000,+1000,0,x+20,y1+20,50,10);aySlider.setDecimalPrecision(0);aySlider.setLabel("");
-  azSlider   =         controlP5.addSlider("azSlider",-1000,+1000,0,x+20,y1+30,50,10);azSlider.setDecimalPrecision(0);azSlider.setLabel("");
-  gxSlider   =           controlP5.addSlider("gxSlider",-5000,+5000,0,x+20,y2+10,50,10);gxSlider.setDecimalPrecision(0);gxSlider.setLabel("");
-  gySlider   =           controlP5.addSlider("gySlider",-5000,+5000,0,x+20,y2+20,50,10);gySlider.setDecimalPrecision(0);gySlider.setLabel("");
-  gzSlider   =           controlP5.addSlider("gzSlider",-5000,+5000,0,x+20,y2+30,50,10);gzSlider.setDecimalPrecision(0);gzSlider.setLabel("");
-  baroSlider =        controlP5.addSlider("baroSlider",-30000,+30000,0,x+20,y3 ,50,10);baroSlider.setDecimalPrecision(1);baroSlider.setLabel("");
-  headSlider  =          controlP5.addSlider("headSlider",-200,+200,0,x+20,y4  ,50,10);headSlider.setDecimalPrecision(0);headSlider.setLabel("");
+  axSlider   =       controlP5.addSlider("axSlider",-1000,+1000,0,x+20,y1+10,50,10);axSlider.setDecimalPrecision(0);axSlider.setLabel("");
+  aySlider   =       controlP5.addSlider("aySlider",-1000,+1000,0,x+20,y1+20,50,10);aySlider.setDecimalPrecision(0);aySlider.setLabel("");
+  azSlider   =       controlP5.addSlider("azSlider",-1000,+1000,0,x+20,y1+30,50,10);azSlider.setDecimalPrecision(0);azSlider.setLabel("");
+  gxSlider   =       controlP5.addSlider("gxSlider",-5000,+5000,0,x+20,y2+10,50,10);gxSlider.setDecimalPrecision(0);gxSlider.setLabel("");
+  gySlider   =       controlP5.addSlider("gySlider",-5000,+5000,0,x+20,y2+20,50,10);gySlider.setDecimalPrecision(0);gySlider.setLabel("");
+  gzSlider   =       controlP5.addSlider("gzSlider",-5000,+5000,0,x+20,y2+30,50,10);gzSlider.setDecimalPrecision(0);gzSlider.setLabel("");
+  baroSlider =       controlP5.addSlider("baroSlider",-30000,+30000,0,x+20,y3 ,50,10);baroSlider.setDecimalPrecision(1);baroSlider.setLabel("");
+  headSlider  =      controlP5.addSlider("headSlider",-200,+200,0,x+20,y4  ,50,10);headSlider.setDecimalPrecision(0);headSlider.setLabel("");
   magxSlider  =      controlP5.addSlider("magxSlider",-5000,+5000,0,x+20,y5+10,50,10);magxSlider.setDecimalPrecision(0);magxSlider.setLabel("");
   magySlider  =      controlP5.addSlider("magySlider",-5000,+5000,0,x+20,y5+20,50,10);magySlider.setDecimalPrecision(0);magySlider.setLabel("");
   magzSlider  =      controlP5.addSlider("magzSlider",-5000,+5000,0,x+20,y5+30,50,10);magzSlider.setDecimalPrecision(0);magzSlider.setLabel("");
@@ -219,8 +219,8 @@ void setup() {
     confI[i] = (controlP5.Numberbox) hideLabel(controlP5.addNumberbox("confI"+i,0,xParam+75,yParam+20+i*20,40,14));
     confI[i].setColorBackground(red_);confI[i].setMin(0);confI[i].setDirection(Controller.HORIZONTAL);confI[i].setDecimalPrecision(3);confI[i].setMultiplier(0.001);confI[i].setMax(0.250);
     confD[i] = (controlP5.Numberbox) hideLabel(controlP5.addNumberbox("confD"+i,0,xParam+120,yParam+20+i*20,30,14));
-    confD[i].setColorBackground(red_);confD[i].setMin(0);confD[i].setDirection(Controller.HORIZONTAL);confD[i].setDecimalPrecision(0);confD[i].setMultiplier(1);confD[i].setMax(50);}
-  confD[6].hide();confI[7].hide();confD[7].hide();
+    confD[i].setColorBackground(red_);confD[i].setMin(0);confD[i].setDirection(Controller.HORIZONTAL);confD[i].setDecimalPrecision(0);confD[i].setMultiplier(1);confD[i].setMax(100);}
+  confI[7].hide();confD[7].hide();
   confP[4].hide();confI[4].hide();confD[4].hide();
 
   rollPitchRate = (controlP5.Numberbox) hideLabel(controlP5.addNumberbox("rollPitchRate",0,xParam+160,yParam+30,30,14));rollPitchRate.setDecimalPrecision(2);rollPitchRate.setMultiplier(0.01);
@@ -265,20 +265,11 @@ void setup() {
   rcStickAUX3Slider =     controlP5.addSlider("AUX3",900,2100,1500,xRC,yRC+180,100,10);rcStickAUX3Slider.setDecimalPrecision(0);
   rcStickAUX4Slider =     controlP5.addSlider("AUX4",900,2100,1500,xRC,yRC+195,100,10);rcStickAUX4Slider.setDecimalPrecision(0);
 
-  motSliderV0  = controlP5.addSlider("motSliderV0",1000,2000,1500,0,0,10,100);motSliderV0.setDecimalPrecision(0);
-  motSliderV1  = controlP5.addSlider("motSliderV1",1000,2000,1500,0,0,10,100);motSliderV1.setDecimalPrecision(0);
-  motSliderV2  = controlP5.addSlider("motSliderV2",1000,2000,1500,0,0,10,100);motSliderV2.setDecimalPrecision(0);
-  motSliderV3  = controlP5.addSlider("motSliderV3",1000,2000,1500,0,0,10,100);motSliderV3.setDecimalPrecision(0);
-  motSliderV4  = controlP5.addSlider("motSliderV4",1000,2000,1500,0,0,10,100);motSliderV4.setDecimalPrecision(0);
-  motSliderV5  = controlP5.addSlider("motSliderV5",1000,2000,1500,0,0,10,100);motSliderV5.setDecimalPrecision(0);
-
-  servoSliderH1  = controlP5.addSlider("Servo0",1000,2000,1500,0,0,100,10);servoSliderH1.setDecimalPrecision(0);
-  servoSliderH2 = controlP5.addSlider("Servo1",1000,2000,1500,0,0,100,10);servoSliderH2.setDecimalPrecision(0);
-  servoSliderH3 = controlP5.addSlider("Servo2",1000,2000,1500,0,0,100,10);servoSliderH3.setDecimalPrecision(0);
-  servoSliderH4 = controlP5.addSlider("Servo3",1000,2000,1500,0,0,100,10);servoSliderH4.setDecimalPrecision(0);
-  servoSliderV0  = controlP5.addSlider("Servov0",1000,2000,1500,0,0,10,100);servoSliderV0.setDecimalPrecision(0);
-  servoSliderV1  = controlP5.addSlider("Servov1",1000,2000,1500,0,0,10,100);servoSliderV1.setDecimalPrecision(0);
-  servoSliderV2 = controlP5.addSlider("Servov2",1000,2000,1500,0,0,10,100);servoSliderV2.setDecimalPrecision(0);
+  for(int i=0;i<8;i++) {
+    motSlider[i]    = controlP5.addSlider("motSlider"+i,1000,2000,1500,0,0,10,100);motSlider[i].setDecimalPrecision(0);
+    servoSliderH[i]  = controlP5.addSlider("ServoH"+i,1000,2000,1500,0,0,100,10);servoSliderH[i].setDecimalPrecision(0);
+    servoSliderV[i]  = controlP5.addSlider("ServoV"+i,1000,2000,1500,0,0,10,100);servoSliderV[i].setDecimalPrecision(0);
+  }
 
   scaleSlider = controlP5.addSlider("SCALE",0,10,1,xGraph+400,yGraph-25,150,20);
  
@@ -319,10 +310,11 @@ void draw() {
   baroSlider.setValue(baro/10);headSlider.setValue(head);magxSlider.setValue(magx);magySlider.setValue(magy);magzSlider.setValue(magz);
   debug1Slider.setValue(debug1/10);debug2Slider.setValue(debug2);debug3Slider.setValue(debug3);debug4Slider.setValue(debug4);
 
-  motSliderV0.setValue(mot[0]);motSliderV1.setValue(mot[1]);motSliderV2.setValue(mot[2]);motSliderV3.setValue(mot[3]);motSliderV4.setValue(mot[4]);motSliderV5.setValue(mot[5]);
-
-  servoSliderH1.setValue(servo0);servoSliderH2.setValue(servo1);servoSliderH3.setValue(servo2);servoSliderH4.setValue(servo3);
-  servoSliderV0.setValue(servo0);servoSliderV1.setValue(servo1);servoSliderV2.setValue(servo2);
+  for(i=0;i<8;i++) {
+    motSlider[i].setValue(mot[i]);motSlider[i].hide();
+    servoSliderH[i].setValue(servo[i]);servoSliderH[i].hide();
+    servoSliderV[i].setValue(servo[i]);servoSliderV[i].hide();
+  }
 
   rcStickThrottleSlider.setValue(rcThrottle);rcStickRollSlider.setValue(rcRoll);rcStickPitchSlider.setValue(rcPitch);rcStickYawSlider.setValue(rcYaw);
   rcStickAUX1Slider.setValue(rcAUX1);rcStickAUX2Slider.setValue(rcAUX2);rcStickAUX3Slider.setValue(rcAUX3);rcStickAUX4Slider.setValue(rcAUX4);
@@ -345,53 +337,50 @@ void draw() {
   strokeWeight(0);sphere(size/3);strokeWeight(3);
   line(0,0, 10,0,-size-5,10);line(0,-size-5,10,+size/4,-size/2,10); line(0,-size-5,10,-size/4,-size/2,10);
   stroke(255);
- 
-  motSliderV0.hide(); motSliderV1.hide(); motSliderV2.hide(); motSliderV3.hide(); motSliderV4.hide(); motSliderV5.hide();
-  servoSliderH1.hide(); servoSliderH2.hide(); servoSliderH3.hide(); servoSliderH4.hide(); servoSliderV0.hide(); servoSliderV1.hide(); servoSliderV2.hide();
- 
+  
   textFont(font12);
   if (multiType == 1) { //TRI
     ellipse(-size, -size, size, size);ellipse(+size, -size, size, size);ellipse(0,  +size,size, size);
     line(-size,-size, 0,0);line(+size,-size, 0,0);line(0,+size, 0,0);
     noLights();text(" TRICOPTER", -40,-50);camera();popMatrix();
  
-    motSliderV0.setPosition(xMot+50,yMot+15);motSliderV0.setHeight(100);motSliderV0.setCaptionLabel("REAR");motSliderV0.show();
-    motSliderV1.setPosition(xMot+100,yMot-15);motSliderV1.setHeight(100);motSliderV1.setCaptionLabel("RIGHT");motSliderV1.show();
-    motSliderV2.setPosition(xMot,yMot-15);motSliderV2.setHeight(100);motSliderV2.setCaptionLabel("LEFT");motSliderV2.show();
-    servoSliderH1.setPosition(xMot,yMot+135);servoSliderH1.setCaptionLabel("SERVO");servoSliderH1.show(); 
+    motSlider[0].setPosition(xMot+50,yMot+15);motSlider[0].setHeight(100);motSlider[0].setCaptionLabel("REAR");motSlider[0].show();
+    motSlider[1].setPosition(xMot+100,yMot-15);motSlider[1].setHeight(100);motSlider[1].setCaptionLabel("RIGHT");motSlider[1].show();
+    motSlider[2].setPosition(xMot,yMot-15);motSlider[2].setHeight(100);motSlider[2].setCaptionLabel("LEFT");motSlider[2].show();
+    servoSliderH[4].setPosition(xMot,yMot+135);servoSliderH[4].setCaptionLabel("SERVO");servoSliderH[4].show(); 
   } else if (multiType == 2) { //QUAD+
     ellipse(0,  -size,   size,size);ellipse(0,  +size, size, size);ellipse(+size, 0,  size , size );ellipse(-size, 0,  size , size );
     line(-size,0, +size,0);line(0,-size, 0,+size);
     noLights();text("QUADRICOPTER +", -40,-50);camera();popMatrix();
     
-    motSliderV0.setPosition(xMot+50,yMot+75);motSliderV0.setHeight(60);motSliderV0.setCaptionLabel("REAR");motSliderV0.show();
-    motSliderV1.setPosition(xMot+100,yMot+35);motSliderV1.setHeight(60);motSliderV1.setCaptionLabel("RIGHT");motSliderV1.show();
-    motSliderV2.setPosition(xMot,yMot+35);motSliderV2.setHeight(60);motSliderV2.setCaptionLabel("LEFT");motSliderV2.show();
-    motSliderV3.setPosition(xMot+50,yMot-15);motSliderV3.setHeight(60);motSliderV3.setCaptionLabel("FRONT");motSliderV3.show();
+    motSlider[0].setPosition(xMot+50,yMot+75);motSlider[0].setHeight(60);motSlider[0].setCaptionLabel("REAR");motSlider[0].show();
+    motSlider[1].setPosition(xMot+100,yMot+35);motSlider[1].setHeight(60);motSlider[1].setCaptionLabel("RIGHT");motSlider[1].show();
+    motSlider[2].setPosition(xMot,yMot+35);motSlider[2].setHeight(60);motSlider[2].setCaptionLabel("LEFT");motSlider[2].show();
+    motSlider[3].setPosition(xMot+50,yMot-15);motSlider[3].setHeight(60);motSlider[3].setCaptionLabel("FRONT");motSlider[3].show();
   } else if (multiType == 3) { //QUAD X
     ellipse(-size,  -size, size, size);ellipse(+size,  -size, size, size);ellipse(-size,  +size, size, size);ellipse(+size,  +size, size, size);
     line(-size,-size, 0,0);line(+size,-size, 0,0);line(-size,+size, 0,0);line(+size,+size, 0,0);
     noLights();text("QUADRICOPTER X", -40,-50);camera();popMatrix();
     
-    motSliderV0.setPosition(xMot+90,yMot+75);motSliderV0.setHeight(60);motSliderV0.setCaptionLabel("REAR_R");motSliderV0.show();
-    motSliderV1.setPosition(xMot+90,yMot-15);motSliderV1.setHeight(60);motSliderV1.setCaptionLabel("FRONT_R");motSliderV1.show();
-    motSliderV2.setPosition(xMot+10,yMot+75);motSliderV2.setHeight(60);motSliderV2.setCaptionLabel("REAR_L");motSliderV2.show();
-    motSliderV3.setPosition(xMot+10,yMot-15);motSliderV3.setHeight(60);motSliderV3.setCaptionLabel("FRONT_L");motSliderV3.show(); 
+    motSlider[0].setPosition(xMot+90,yMot+75);motSlider[0].setHeight(60);motSlider[0].setCaptionLabel("REAR_R");motSlider[0].show();
+    motSlider[1].setPosition(xMot+90,yMot-15);motSlider[1].setHeight(60);motSlider[1].setCaptionLabel("FRONT_R");motSlider[1].show();
+    motSlider[2].setPosition(xMot+10,yMot+75);motSlider[2].setHeight(60);motSlider[2].setCaptionLabel("REAR_L");motSlider[2].show();
+    motSlider[3].setPosition(xMot+10,yMot-15);motSlider[3].setHeight(60);motSlider[3].setCaptionLabel("FRONT_L");motSlider[3].show(); 
   } else if (multiType == 4) { //BI
     ellipse(0-size,  0,   size, size);ellipse(0+size,  0,   size, size);
     line(0-size,0, 0,0);  line(0+size,0, 0,0);line(0,size*1.5, 0,0);
     noLights();text("BICOPTER", -30,-20);camera();popMatrix();
    
-    motSliderV0.setPosition(xMot,yMot+30);motSliderV0.setHeight(55);motSliderV0.setCaptionLabel("");motSliderV0.show();
-    motSliderV1.setPosition(xMot+100,yMot+30);motSliderV1.setHeight(55);motSliderV1.setCaptionLabel("");motSliderV1.show();
-    servoSliderH1.setPosition(xMot,yMot+100);servoSliderH1.setWidth(60);servoSliderH1.setCaptionLabel("");servoSliderH1.show();
-    servoSliderH2.setPosition(xMot+80,yMot+100);servoSliderH2.setWidth(60);servoSliderH2.setCaptionLabel("");servoSliderH2.show();
+    motSlider[0].setPosition(xMot,yMot+30);motSlider[0].setHeight(55);motSlider[0].setCaptionLabel("");motSlider[0].show();
+    motSlider[1].setPosition(xMot+100,yMot+30);motSlider[1].setHeight(55);motSlider[1].setCaptionLabel("");motSlider[1].show();
+    servoSliderH[4].setPosition(xMot,yMot+100);servoSliderH[4].setWidth(60);servoSliderH[4].setCaptionLabel("");servoSliderH[4].show();
+    servoSliderH[5].setPosition(xMot+80,yMot+100);servoSliderH[5].setWidth(60);servoSliderH[5].setCaptionLabel("");servoSliderH[5].show();
   } else if (multiType == 5) { //GIMBAL
     noLights();text("GIMBAL", -20,-10);camera();popMatrix();
     text("GIMBAL", xMot,yMot+25);
  
-    servoSliderH3.setPosition(xMot,yMot+75);servoSliderH3.setCaptionLabel("ROLL");servoSliderH3.show();
-    servoSliderH2.setPosition(xMot,yMot+35);servoSliderH2.setCaptionLabel("PITCH");servoSliderH2.show();
+    servoSliderH[1].setPosition(xMot,yMot+75);servoSliderH[1].setCaptionLabel("ROLL");servoSliderH[1].show();
+    servoSliderH[0].setPosition(xMot,yMot+35);servoSliderH[0].setCaptionLabel("PITCH");servoSliderH[0].show();
   } else if (multiType == 6) { //Y6
     ellipse(-size,-size,size,size);ellipse(size,-size,size,size);ellipse(0,-2+size,size,size);
     translate(0,0,7);
@@ -399,32 +388,32 @@ void draw() {
     line(-size,-size,0,0);line(+size,-size, 0,0);line(0,+size, 0,0);
     noLights();text("TRICOPTER Y6", -40,-55);camera();popMatrix();
 
-    motSliderV0.setPosition(xMot+50,yMot+23);motSliderV0.setHeight(50);motSliderV0.setCaptionLabel("REAR");motSliderV0.show();
-    motSliderV1.setPosition(xMot+100,yMot-18);motSliderV1.setHeight(50);motSliderV1.setCaptionLabel("RIGHT");motSliderV1.show();
-    motSliderV2.setPosition(xMot,yMot-18);motSliderV2.setHeight(50);motSliderV2.setCaptionLabel("LEFT");motSliderV2.show();
-    motSliderV3.setPosition(xMot+50,yMot+87);motSliderV3.setHeight(50);motSliderV3.setCaptionLabel("U_REAR");motSliderV3.show();
-    motSliderV4.setPosition(xMot+100,yMot+48);motSliderV4.setHeight(50);motSliderV4.setCaptionLabel("U_RIGHT");motSliderV4.show();
-    motSliderV5.setPosition(xMot,yMot+48);motSliderV5.setHeight(50);motSliderV5.setCaptionLabel("U_LEFT");motSliderV5.show();
+    motSlider[0].setPosition(xMot+50,yMot+23);motSlider[0].setHeight(50);motSlider[0].setCaptionLabel("REAR");motSlider[0].show();
+    motSlider[1].setPosition(xMot+100,yMot-18);motSlider[1].setHeight(50);motSlider[1].setCaptionLabel("RIGHT");motSlider[1].show();
+    motSlider[2].setPosition(xMot,yMot-18);motSlider[2].setHeight(50);motSlider[2].setCaptionLabel("LEFT");motSlider[2].show();
+    motSlider[3].setPosition(xMot+50,yMot+87);motSlider[3].setHeight(50);motSlider[3].setCaptionLabel("U_REAR");motSlider[3].show();
+    motSlider[4].setPosition(xMot+100,yMot+48);motSlider[4].setHeight(50);motSlider[4].setCaptionLabel("U_RIGHT");motSlider[4].show();
+    motSlider[5].setPosition(xMot,yMot+48);motSlider[5].setHeight(50);motSlider[5].setCaptionLabel("U_LEFT");motSlider[5].show();
   } else if (multiType == 7) { //HEX6
     ellipse(-size,-0.55*size,size,size);ellipse(size,-0.55*size,size,size);ellipse(-size,+0.55*size,size,size);
     ellipse(size,+0.55*size,size,size);ellipse(0,-size,size,size);ellipse(0,+size,size,size);
     line(-size,-0.55*size,0,0);line(size,-0.55*size,0,0);line(-size,+0.55*size,0,0);line(size,+0.55*size,0,0);line(0,+size,0,0);line(0,-size,0,0);
     noLights();text("HEXACOPTER", -40,-50);camera();popMatrix();
 
-    motSliderV0.setPosition(xMot+90,yMot+65);motSliderV0.setHeight(50);motSliderV0.setCaptionLabel("REAR_R");motSliderV0.show();
-    motSliderV1.setPosition(xMot+90,yMot-5);motSliderV1.setHeight(50);motSliderV1.setCaptionLabel("FRONT_R");motSliderV1.show();
-    motSliderV2.setPosition(xMot+5,yMot+65);motSliderV2.setHeight(50);motSliderV2.setCaptionLabel("REAR_L");motSliderV2.show();
-    motSliderV3.setPosition(xMot+5,yMot-5);motSliderV3.setHeight(50);motSliderV3.setCaptionLabel("FRONT_L");motSliderV3.show(); 
-    motSliderV4.setPosition(xMot+50,yMot-20);motSliderV4.setHeight(50);motSliderV4.setCaptionLabel("FRONT");motSliderV4.show(); 
-    motSliderV5.setPosition(xMot+50,yMot+90);motSliderV5.setHeight(50);motSliderV5.setCaptionLabel("REAR");motSliderV5.show(); 
+    motSlider[0].setPosition(xMot+90,yMot+65);motSlider[0].setHeight(50);motSlider[0].setCaptionLabel("REAR_R");motSlider[0].show();
+    motSlider[1].setPosition(xMot+90,yMot-5);motSlider[1].setHeight(50);motSlider[1].setCaptionLabel("FRONT_R");motSlider[1].show();
+    motSlider[2].setPosition(xMot+5,yMot+65);motSlider[2].setHeight(50);motSlider[2].setCaptionLabel("REAR_L");motSlider[2].show();
+    motSlider[3].setPosition(xMot+5,yMot-5);motSlider[3].setHeight(50);motSlider[3].setCaptionLabel("FRONT_L");motSlider[3].show(); 
+    motSlider[4].setPosition(xMot+50,yMot-20);motSlider[4].setHeight(50);motSlider[4].setCaptionLabel("FRONT");motSlider[4].show(); 
+    motSlider[5].setPosition(xMot+50,yMot+90);motSlider[5].setHeight(50);motSlider[5].setCaptionLabel("REAR");motSlider[5].show(); 
   } else if (multiType == 8) { //FLYING_WING
     line(0,0, 1.8*size,size);line(1.8*size,size,1.8*size,size-30);  line(1.8*size,size-30,0,-1.5*size);
     line(0,0, -1.8*size,+size);line(-1.8*size,size,-1.8*size,+size-30);    line(-1.8*size,size-30,0,-1.5*size);
     noLights();text("FLYING WING", -40,-50);camera();popMatrix();
 
-    servoSliderV1.setPosition(xMot+5,yMot+10);servoSliderV1.setCaptionLabel("LEFT");servoSliderV1.show(); 
-    servoSliderV2.setPosition(xMot+100,yMot+10);servoSliderV2.setCaptionLabel("RIGHT");servoSliderV2.show();
-    motSliderV0.setPosition(xMot+50,yMot+30);motSliderV0.setHeight(90);motSliderV0.setCaptionLabel("Mot");motSliderV0.show();
+    servoSliderV[0].setPosition(xMot+5,yMot+10);servoSliderV[0].setCaptionLabel("LEFT");servoSliderV[0].show(); 
+    servoSliderV[1].setPosition(xMot+100,yMot+10);servoSliderV[1].setCaptionLabel("RIGHT");servoSliderV[1].show();
+    motSlider[0].setPosition(xMot+50,yMot+30);motSlider[0].setHeight(90);motSlider[0].setCaptionLabel("Mot");motSlider[0].show();
   } else if (multiType == 9) { //Y4
     ellipse(-size,  -size, size, size);ellipse(+size,  -size, size, size);ellipse(0,  +size, size+2, size+2);
     line(-size,-size, 0,0);line(+size,-size, 0,0);line(0,+size, 0,0);
@@ -432,22 +421,22 @@ void draw() {
     ellipse(0,  +size, size, size);
     noLights();text("Y4", -5,-50);camera();popMatrix();
     
-    motSliderV0.setPosition(xMot+80,yMot+75);motSliderV0.setHeight(60);motSliderV0.setCaptionLabel("REAR_1");motSliderV0.show();
-    motSliderV1.setPosition(xMot+90,yMot-15);motSliderV1.setHeight(60);motSliderV1.setCaptionLabel("FRONT_R");motSliderV1.show();
-    motSliderV2.setPosition(xMot+30,yMot+75);motSliderV2.setHeight(60);motSliderV2.setCaptionLabel("REAR_2");motSliderV2.show();
-    motSliderV3.setPosition(xMot+10,yMot-15);motSliderV3.setHeight(60);motSliderV3.setCaptionLabel("FRONT_L");motSliderV3.show(); 
+    motSlider[0].setPosition(xMot+80,yMot+75);motSlider[0].setHeight(60);motSlider[0].setCaptionLabel("REAR_1");motSlider[0].show();
+    motSlider[1].setPosition(xMot+90,yMot-15);motSlider[1].setHeight(60);motSlider[1].setCaptionLabel("FRONT_R");motSlider[1].show();
+    motSlider[2].setPosition(xMot+30,yMot+75);motSlider[2].setHeight(60);motSlider[2].setCaptionLabel("REAR_2");motSlider[2].show();
+    motSlider[3].setPosition(xMot+10,yMot-15);motSlider[3].setHeight(60);motSlider[3].setCaptionLabel("FRONT_L");motSlider[3].show(); 
   } else if (multiType == 10) { //HEX6 X
     ellipse(-0.55*size,-size,size,size);ellipse(-0.55*size,size,size,size);ellipse(+0.55*size,-size,size,size);
     ellipse(+0.55*size,size,size,size);ellipse(-size,0,size,size);ellipse(+size,0,size,size);
     line(-0.55*size,-size,0,0);line(-0.55*size,size,0,0);line(+0.55*size,-size,0,0);line(+0.55*size,size,0,0);line(+size,0,0,0);  line(-size,0,0,0);
     noLights();text("HEXACOPTER X", -45,-50);camera();popMatrix();
 
-    motSliderV0.setPosition(xMot+80,yMot+90);motSliderV0.setHeight(45);motSliderV0.setCaptionLabel("REAR_R");motSliderV0.show();
-    motSliderV1.setPosition(xMot+80,yMot-20);motSliderV1.setHeight(45);motSliderV1.setCaptionLabel("FRONT_R");motSliderV1.show();
-    motSliderV2.setPosition(xMot+25,yMot+90);motSliderV2.setHeight(45);motSliderV2.setCaptionLabel("REAR_L");motSliderV2.show();
-    motSliderV3.setPosition(xMot+25,yMot-20);motSliderV3.setHeight(45);motSliderV3.setCaptionLabel("FRONT_L");motSliderV3.show(); 
-    motSliderV4.setPosition(xMot+90,yMot+35);motSliderV4.setHeight(45);motSliderV4.setCaptionLabel("RIGHT");motSliderV4.show(); 
-    motSliderV5.setPosition(xMot+5,yMot+35);motSliderV5.setHeight(45);motSliderV5.setCaptionLabel("LEFT");motSliderV5.show(); 
+    motSlider[0].setPosition(xMot+80,yMot+90);motSlider[0].setHeight(45);motSlider[0].setCaptionLabel("REAR_R");motSlider[0].show();
+    motSlider[1].setPosition(xMot+80,yMot-20);motSlider[1].setHeight(45);motSlider[1].setCaptionLabel("FRONT_R");motSlider[1].show();
+    motSlider[2].setPosition(xMot+25,yMot+90);motSlider[2].setHeight(45);motSlider[2].setCaptionLabel("REAR_L");motSlider[2].show();
+    motSlider[3].setPosition(xMot+25,yMot-20);motSlider[3].setHeight(45);motSlider[3].setCaptionLabel("FRONT_L");motSlider[3].show(); 
+    motSlider[4].setPosition(xMot+90,yMot+35);motSlider[4].setHeight(45);motSlider[4].setCaptionLabel("RIGHT");motSlider[4].show(); 
+    motSlider[5].setPosition(xMot+5,yMot+35);motSlider[5].setHeight(45);motSlider[5].setCaptionLabel("LEFT");motSlider[5].show(); 
   } else if (multiType == 11) { //OCTOX8
     noLights();text("OCTOCOPTER X8", -45,-50);camera();popMatrix();
   } else {
@@ -600,8 +589,8 @@ void draw() {
     for( i=0;i<CHECKBOXITEMS;i++) {
       checkbox2[i].show();
     }
-    motSliderV0.hide(); motSliderV1.hide(); motSliderV2.hide(); motSliderV3.hide(); motSliderV4.hide(); motSliderV5.hide();
-    servoSliderH1.hide(); servoSliderH2.hide(); servoSliderH3.hide(); servoSliderH4.hide(); servoSliderV0.hide(); servoSliderV1.hide(); servoSliderV2.hide();
+    motSlider[0].hide(); motSlider[1].hide(); motSlider[2].hide(); motSlider[3].hide(); motSlider[4].hide(); motSlider[5].hide();
+    servoSliderH[1].hide(); servoSliderH[2].hide(); servoSliderH[3].hide(); servoSliderH[4].hide(); servoSliderV[0].hide(); servoSliderV[1].hide(); servoSliderV[2].hide();
     buttonNunchuk.hide();buttonI2cAcc.hide();buttonI2cBaro.hide();buttonI2cMagneto.hide();buttonGPS.hide();
     buttonI2cAccActive.hide();buttonI2cBaroActive.hide();buttonI2cMagnetoActive.hide();buttonGPSActive.hide();
   } else {
@@ -769,21 +758,21 @@ void processSerialData() {
       magx = read16()/3;magy = read16()/3;magz = read16()/3;                          //19
       baro = read16();
       head = read16();                                                                //23
-      servo0 = read16();servo1 = read16();servo2 = read16();servo3 = read16();        //31
-      for(int i=0;i<8;i++) mot[i] = read16();                                         //47
+      for(int i=0;i<8;i++) servo[i] = read16();
+      for(int i=0;i<8;i++) mot[i] = read16();
       rcRoll = read16();rcPitch = read16();rcYaw = read16();rcThrottle = read16();    
-      rcAUX1 = read16();rcAUX2 = read16();rcAUX3 = read16();rcAUX4 = read16();        //63
+      rcAUX1 = read16();rcAUX2 = read16();rcAUX3 = read16();rcAUX4 = read16();
       present = read8(); 
       mode = read8();
       cycleTime = read16();
       angx = read16()/10;angy = read16()/10;
-      multiType = read8();                                                            //72
-      for(int i=0;i<PIDITEMS;i++) {byteP[i] = read8();byteI[i] = read8();byteD[i] = read8();}//87
+      multiType = read8();                                                            
+      for(int i=0;i<PIDITEMS;i++) {byteP[i] = read8();byteI[i] = read8();byteD[i] = read8();}
       byteRC_RATE = read8();
       byteRC_EXPO = read8();
       byteRollPitchRate = read8();
       byteYawRate = read8();
-      byteDynThrPID = read8();                                                        //95
+      byteDynThrPID = read8();                                                        
       for(int i=0;i<CHECKBOXITEMS;i++) {activation1[i] = read8();activation2[i] = read8();}
       GPS_distanceToHome = read16();
       GPS_directionToHome = read16();

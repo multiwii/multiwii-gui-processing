@@ -439,7 +439,24 @@ void draw() {
     motSlider[5].setPosition(xMot+5,yMot+35);motSlider[5].setHeight(45);motSlider[5].setCaptionLabel("LEFT");motSlider[5].show(); 
   } else if (multiType == 11) { //OCTOX8
     noLights();text("OCTOCOPTER X8", -45,-50);camera();popMatrix();
-  } else {
+  }   else if (multiType == 15) { //Vtail   
+    ellipse(-0.55*size,size,size,size); ellipse(+0.55*size,size,size,size);
+    line(-0.55*size,size,0,0);line(+0.55*size,size,0,0);    
+    ellipse(-size, -size, size, size);ellipse(+size, -size, size, size);
+    line(-size,-size, 0,0); line(+size,-size, 0,0);  
+    noLights();
+    textFont(font12);
+    text("Vtail", -10,-50);camera();popMatrix();
+    motSlider[0].setPosition(xMot+80,yMot+70 );motSlider[0].setHeight(60);motSlider[0].setCaptionLabel("REAR_R");motSlider[0].show();
+    motSlider[1].setPosition(xMot+100,yMot-15);motSlider[1].setHeight(60);motSlider[1].setCaptionLabel("RIGHT" );motSlider[1].show();
+    motSlider[2].setPosition(xMot+25,yMot+70 );motSlider[2].setHeight(60);motSlider[2].setCaptionLabel("REAR_L");motSlider[2].show();
+    motSlider[3].setPosition(xMot+2,yMot-15  );motSlider[3].setHeight(60);motSlider[3].setCaptionLabel("LEFT"  );motSlider[3].show(); 
+    
+    motSlider[4].hide();motSlider[5].hide();
+    servoSliderH[1].hide();servoSliderH[2].hide();servoSliderH[3].hide();servoSliderH[4].hide();
+    servoSliderV[0].hide();servoSliderV[1].hide();servoSliderV[2].hide();
+
+  }else {
     noLights();camera();popMatrix();
   }
   

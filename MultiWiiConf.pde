@@ -92,8 +92,8 @@ CheckBox checkbox1[] = new CheckBox[CHECKBOXITEMS];
 CheckBox checkbox2[] = new CheckBox[CHECKBOXITEMS];
 int activation1[] = new int[CHECKBOXITEMS];
 int activation2[] = new int[CHECKBOXITEMS];
-
-
+Button buttonCheckbox[] = new Button[CHECKBOXITEMS];
+String buttonCheckboxLabel[] = {   "LEVEL",  "BARO",  "MAG",  "ARM",  "CAMSTAB",  "CAMTRIG",  "GPS HOME",  "GPS HOLD",  "PASSTHRU",  "HEADFREE",  "BEEPER", }; 
 PFont font8,font12,font15;
 
 // coded by Eberhard Rensch
@@ -236,6 +236,8 @@ void setup() {
   confRC_EXPO.setDirection(Controller.HORIZONTAL);confRC_EXPO.setMin(0);confRC_EXPO.setMax(1);confRC_EXPO.setColorBackground(red_);
 
   for(int i=0;i<CHECKBOXITEMS;i++) {
+    buttonCheckbox[i] = controlP5.addButton("bcb"+i,1,xBox-30,yBox+20+13*i,68,12);
+    buttonCheckbox[i].setColorBackground(red_);buttonCheckbox[i].setLabel(buttonCheckboxLabel[i]);
     checkbox1[i] =  controlP5.addCheckBox("cb"+i,xBox+40,yBox+20+13*i);
     checkbox1[i].setColorActive(color(255));checkbox1[i].setColorBackground(color(120));
     checkbox1[i].setItemsPerRow(6);checkbox1[i].setSpacingColumn(10);
@@ -574,7 +576,7 @@ void draw() {
   text("MAG",xParam+3,yParam+172); 
   text("Throttle PID",xParam+220,yParam+15);text("attenuation",xParam+220,yParam+30);
   text("AUX1",xBox+55,yBox+5);text("AUX2",xBox+105,yBox+5);
-  text("LEVEL",xBox,yBox+30);
+/*  text("LEVEL",xBox,yBox+30);
   text("BARO",xBox,yBox+43);
   text("MAG",xBox,yBox+56);
   text("ARM",xBox,yBox+95);
@@ -585,7 +587,8 @@ void draw() {
   //text("GPS HOLD",xBox-5,yBox+121); //not yet
   text("PASSTHRU",xBox-5,yBox+134);
   text("HEADFREE",xBox-5,yBox+147);
-  text("BEEPER",xBox-5,yBox+160);
+  text("BEEPER",xBox-5,yBox+160); */
+  textFont(font8);
   text("LOW",xBox+37,yBox+15);text("MID",xBox+57,yBox+15);text("HIGH",xBox+74,yBox+15);
   text("LOW",xBox+100,yBox+15);text("MID",xBox+123,yBox+15);text("HIGH",xBox+140,yBox+15);
 
@@ -678,6 +681,10 @@ public void READ() {
     if ((byte(activation2[i])&(1<<a))>0) checkbox2[i].activate(a); else checkbox2[i].deactivate(a);
   }
 
+/* updating bg-color here is only executed, when READ button gets pressed - not live
+  for(int i=0;i<CHECKBOXITEMS;i++)  { // highest bit contains mwc state for this item xxx
+    if ((byte(activation2[i])&(1<<7))>0) buttonCheckbox[i].setColorBackground(green_); else buttonCheckbox[i].setColorBackground(red_);
+  } */
   confPowerTrigger.setValue(intPowerTrigger);
 
   writeEnable = true;  
@@ -825,6 +832,10 @@ void processSerialData() {
       if (i2cMagnetoPresent>0) {buttonI2cMagneto.setColorBackground(green_);} else {buttonI2cMagneto.setColorBackground(red_);}
       if (GPSPresent>0) {buttonGPS.setColorBackground(green_);} else {buttonGPS.setColorBackground(red_);}
 
+      for(int i=0;i<CHECKBOXITEMS;i++)  { // highest bit contains mwc state for this item xxx
+        if ((byte(activation2[i])&(1<<7))>0) buttonCheckbox[i].setColorBackground(green_); else buttonCheckbox[i].setColorBackground(red_);
+      }
+      
       accROLL.addVal(ax);accPITCH.addVal(ay);accYAW.addVal(az);gyroROLL.addVal(gx);gyroPITCH.addVal(gy);gyroYAW.addVal(gz);
       baroData.addVal(baro);headData.addVal(head);magxData.addVal(magx);magyData.addVal(magy);magzData.addVal(magz);
       debug1Data.addVal(debug1);debug2Data.addVal(debug2);debug3Data.addVal(debug3);debug4Data.addVal(debug4);

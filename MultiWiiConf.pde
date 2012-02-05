@@ -339,7 +339,7 @@ void draw() {
   strokeWeight(0);sphere(size/3);strokeWeight(3);
   line(0,0, 10,0,-size-5,10);line(0,-size-5,10,+size/4,-size/2,10); line(0,-size-5,10,-size/4,-size/2,10);
   stroke(255);
-  
+
   textFont(font12);
   if (multiType == 1) { //TRI
     ellipse(-size, -size, size, size);ellipse(+size, -size, size, size);ellipse(0,  +size,size, size);
@@ -441,7 +441,7 @@ void draw() {
     motSlider[5].setPosition(xMot+5,yMot+35);motSlider[5].setHeight(45);motSlider[5].setCaptionLabel("LEFT");motSlider[5].show(); 
   } else if (multiType == 11) { //OCTOX8
     noLights();text("OCTOCOPTER X8", -45,-50);camera();popMatrix();
-  }   else if (multiType == 15) { //Vtail   
+  } else if (multiType == 15) { //Vtail   
     ellipse(-0.55*size,size,size,size); ellipse(+0.55*size,size,size,size);
     line(-0.55*size,size,0,0);line(+0.55*size,size,0,0);    
     ellipse(-size, -size, size, size);ellipse(+size, -size, size, size);
@@ -457,8 +457,7 @@ void draw() {
     motSlider[4].hide();motSlider[5].hide();
     servoSliderH[1].hide();servoSliderH[2].hide();servoSliderH[3].hide();servoSliderH[4].hide();
     servoSliderV[0].hide();servoSliderV[1].hide();servoSliderV[2].hide();
-
-  }else {
+  } else {
     noLights();camera();popMatrix();
   }
   
@@ -576,18 +575,6 @@ void draw() {
   text("MAG",xParam+3,yParam+172); 
   text("Throttle PID",xParam+220,yParam+15);text("attenuation",xParam+220,yParam+30);
   text("AUX1",xBox+55,yBox+5);text("AUX2",xBox+105,yBox+5);
-/*  text("LEVEL",xBox,yBox+30);
-  text("BARO",xBox,yBox+43);
-  text("MAG",xBox,yBox+56);
-  text("ARM",xBox,yBox+95);
-  textFont(font8);
-  text("CAMSTAB",xBox-5,yBox+69);
-  text("CAMTRIG",xBox-5,yBox+82);
-  text("GPS HOME",xBox-5,yBox+108);
-  //text("GPS HOLD",xBox-5,yBox+121); //not yet
-  text("PASSTHRU",xBox-5,yBox+134);
-  text("HEADFREE",xBox-5,yBox+147);
-  text("BEEPER",xBox-5,yBox+160); */
   textFont(font8);
   text("LOW",xBox+37,yBox+15);text("MID",xBox+57,yBox+15);text("HIGH",xBox+74,yBox+15);
   text("LOW",xBox+100,yBox+15);text("MID",xBox+123,yBox+15);text("HIGH",xBox+140,yBox+15);
@@ -680,8 +667,8 @@ public void READ() {
     if ((byte(activation1[i])&(1<<a))>0) checkbox1[i].activate(a); else checkbox1[i].deactivate(a);
     if ((byte(activation2[i])&(1<<a))>0) checkbox2[i].activate(a); else checkbox2[i].deactivate(a);
   }
-
-/* updating bg-color here is only executed, when READ button gets pressed - not live
+  
+  /* updating bg-color here is only executed, when READ button gets pressed - not live
   for(int i=0;i<CHECKBOXITEMS;i++)  { // highest bit contains mwc state for this item xxx
     if ((byte(activation2[i])&(1<<7))>0) buttonCheckbox[i].setColorBackground(green_); else buttonCheckbox[i].setColorBackground(red_);
   } */

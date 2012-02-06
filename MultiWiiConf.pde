@@ -93,7 +93,8 @@ CheckBox checkbox2[] = new CheckBox[CHECKBOXITEMS];
 int activation1[] = new int[CHECKBOXITEMS];
 int activation2[] = new int[CHECKBOXITEMS];
 Button buttonCheckbox[] = new Button[CHECKBOXITEMS];
-String buttonCheckboxLabel[] = {   "LEVEL",  "BARO",  "MAG",  "ARM",  "CAMSTAB",  "CAMTRIG",  "GPS HOME",  "GPS HOLD",  "PASSTHRU",  "HEADFREE",  "BEEPER", }; 
+//String buttonCheckboxLabel[] = {   "LEVEL",  "BARO",  "MAG",  "ARM",  "CAMSTAB",  "CAMTRIG",  "GPS HOME",  "GPS HOLD",  "PASSTHRU",  "HEADFREE",  "BEEPER", }; 
+String buttonCheckboxLabel[] = {   "LEVEL",  "BARO",  "MAG",  "CAMTRIG",  "CAMSTAB",  "ARM",  "GPS HOME",  "GPS HOLD",  "PASSTHRU",  "HEADFREE",  "BEEPER", }; 
 PFont font8,font12,font15;
 
 // coded by Eberhard Rensch

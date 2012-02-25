@@ -441,20 +441,20 @@ void draw() {
     motSlider[4].setPosition(xMot+90,yMot+35);motSlider[4].setHeight(45);motSlider[4].setCaptionLabel("RIGHT");motSlider[4].show(); 
     motSlider[5].setPosition(xMot+5,yMot+35);motSlider[5].setHeight(45);motSlider[5].setCaptionLabel("LEFT");motSlider[5].show(); 
   } else if (multiType >= 11 && multiType <= 13) { //OCTOX8
-  // GUI is the same for all 8 motor configs. multiType 11-13
+    // GUI is the same for all 8 motor configs. multiType 11-13
     noLights();text("OCTOCOPTER X8", -45,-50);camera();popMatrix();
   } else if (multiType == 14) { //AIRPLANE
-  float Span = size*1.3;  
-  float VingRoot = Span*0.25;  
-  // Wing
+    float Span = size*1.3;  
+    float VingRoot = Span*0.25;  
+    // Wing
     line(0,0,  Span,0);   line(Span,0, Span, VingRoot);       line(Span, VingRoot, 0,VingRoot); 
     line(0,0,  -Span,0);   line(-Span,0, -Span, VingRoot);       line(-Span, VingRoot, 0,VingRoot);    
-  // Stab
+    // Stab
     line(-(size*0.4),size,  (size*0.4),size);   line(-(size*0.4),size+5,  (size*0.4),size+5); 
     line(-(size*0.4),size,  -(size*0.4),size+5);      line((size*0.4),size,  (size*0.4),size+5);     
-  // Body  
+    // Body  
     line(-2,size,  -2,-size+5); line(2,size,  2,-size+5); line( -2,-size+5,  2,-size+5);    
-  // Fin 
+    // Fin 
     line(0,size-3,0,  0,size,15); line(0,size,15,  0,size+5,15);line(0,size+5,15,  0,size+5,0);       
     noLights();
     textFont(font12);
@@ -469,52 +469,48 @@ void draw() {
     motSlider[0].hide();motSlider[1].hide();motSlider[2].hide();motSlider[3].hide();motSlider[4].hide();motSlider[5].hide();
     servoSliderH[1].hide();servoSliderH[2].hide();
   }else if (multiType == 15) { //Heli 120 
-    
-// HeliGraphics    
-float scalesize=size*0.8;
-  // Rotor
+    // HeliGraphics    
+    float scalesize=size*0.8;
+    // Rotor
     ellipse(0, 0, 2*scalesize, 2*scalesize);
-  // Body  
+    // Body  
     line(0,1.5*scalesize,  -2,-0.5*scalesize); line(0,1.5*scalesize,  2,-0.5*scalesize); line( -2,-0.5*scalesize,  2,-0.5*scalesize);    
-  // Fin 
-  float finpos = scalesize * 1.3;
-  int HFin=5;
-  int LFin=10;  
+    // Fin 
+    float finpos = scalesize * 1.3;
+    int HFin=5;
+    int LFin=10;  
     line(0,finpos-3,0,  0,finpos+7,-LFin); line(0,finpos+7,-LFin,  0,finpos+10,-LFin);line(0,finpos+10,-LFin,  0,finpos+5,0); 
     line(0,finpos-3,0,  0,finpos,HFin); line(0,finpos,HFin,  0,finpos+5,HFin);line(0,finpos+5,HFin,  0,finpos+5,0); 
  
-   // Stab
+    // Stab
     line(-(scalesize*0.3),scalesize,  (scalesize*0.3),scalesize);   line(-(scalesize*0.3),scalesize+3, (scalesize*0.3),scalesize+3); 
     line(-(scalesize*0.3),scalesize, -(scalesize*0.3),scalesize+3); line((scalesize*0.3),scalesize,    (scalesize*0.3),scalesize+3);  
- 
-      
+   
     noLights();
     textFont(font12);
     text("Heli 120 CCPM", -42,-50);camera();popMatrix();
 	
- // Sliders
- 
-   
+    // Sliders
     servoSliderH[3].setPosition(xMot,yMot-5) ;servoSliderH[3].setCaptionLabel("Nick");servoSliderH[3].show();
     servoSliderH[4].setPosition(xMot,yMot+25);servoSliderH[4].setCaptionLabel("Left");servoSliderH[4].show();
     servoSliderH[5].setPosition(xMot,yMot+55);servoSliderH[5].setCaptionLabel("Yaw");servoSliderH[5].show();
     servoSliderH[6].setPosition(xMot,yMot+85);servoSliderH[6].setCaptionLabel("Right");servoSliderH[6].show();
     servoSliderH[7].setPosition(xMot,yMot+115);servoSliderH[7].setCaptionLabel("Thro");servoSliderH[7].show();  
   } else if (multiType == 16) { //Heli 90 
-// HeliGraphics    
-float scalesize=size*0.8;
-  // Rotor
+    // HeliGraphics    
+    float scalesize=size*0.8;
+    // Rotor
     ellipse(0, 0, 2*scalesize, 2*scalesize);
-  // Body  
+    // Body  
     line(0,1.5*scalesize,  -2,-0.5*scalesize); line(0,1.5*scalesize,  2,-0.5*scalesize); line( -2,-0.5*scalesize,  2,-0.5*scalesize);    
-  // Fin 
-  float finpos = scalesize * 1.3;
-  int HFin=5;
-  int LFin=10;  
+    // Fin 
+    float finpos = scalesize * 1.3;
+    int HFin=5;
+    int LFin=10;  
     line(0,finpos-3,0,  0,finpos+7,-LFin); line(0,finpos+7,-LFin,  0,finpos+10,-LFin);line(0,finpos+10,-LFin,  0,finpos+5,0); 
     line(0,finpos-3,0,  0,finpos,HFin); line(0,finpos,HFin,  0,finpos+5,HFin);line(0,finpos+5,HFin,  0,finpos+5,0); 
  
-   // Stab
+     // Stab
     line(-(scalesize*0.3),scalesize,  (scalesize*0.3),scalesize);   line(-(scalesize*0.3),scalesize+3, (scalesize*0.3),scalesize+3); 
     line(-(scalesize*0.3),scalesize, -(scalesize*0.3),scalesize+3); line((scalesize*0.3),scalesize,    (scalesize*0.3),scalesize+3);  
  
@@ -522,8 +518,8 @@ float scalesize=size*0.8;
     textFont(font12);
     text("Heli 90", -16,-50);camera();popMatrix();
 	
- // Sliders
-     servoSliderH[3].setPosition(xMot,yMot-5) ;servoSliderH[3].setCaptionLabel("NICK");servoSliderH[3].show();
+    // Sliders
+    servoSliderH[3].setPosition(xMot,yMot-5) ;servoSliderH[3].setCaptionLabel("NICK");servoSliderH[3].show();
     servoSliderH[4].setPosition(xMot,yMot+25);servoSliderH[4].setCaptionLabel("ROLL");servoSliderH[4].show();
     servoSliderH[5].setPosition(xMot,yMot+55);servoSliderH[5].setCaptionLabel("YAW");servoSliderH[5].show();
     servoSliderH[6].setPosition(xMot,yMot+85);servoSliderH[6].setCaptionLabel("COLL");servoSliderH[6].show();

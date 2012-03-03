@@ -93,7 +93,7 @@ CheckBox checkbox2[] = new CheckBox[CHECKBOXITEMS];
 int activation1[] = new int[CHECKBOXITEMS];
 int activation2[] = new int[CHECKBOXITEMS];
 Button buttonCheckbox[] = new Button[CHECKBOXITEMS];
-String buttonCheckboxLabel[] = {   "LEVEL",  "BARO",  "MAG",  "CAMTRIG",  "CAMSTAB",  "ARM",  "GPS HOME",  "GPS HOLD",  "PASSTHRU",  "HEADFREE",  "BEEPER", }; 
+String buttonCheckboxLabel[] = {   "LEVEL",  "BARO",  "MAG",  "CAMSTAB",  "CAMTRIG",  "ARM",  "GPS HOME",  "GPS HOLD",  "PASSTHRU",  "HEADFREE",  "BEEPER", }; 
 PFont font8,font12,font15;
 
 // coded by Eberhard Rensch
@@ -350,7 +350,7 @@ void draw() {
     motSlider[0].setPosition(xMot+50,yMot+15);motSlider[0].setHeight(100);motSlider[0].setCaptionLabel("REAR");motSlider[0].show();
     motSlider[1].setPosition(xMot+100,yMot-15);motSlider[1].setHeight(100);motSlider[1].setCaptionLabel("RIGHT");motSlider[1].show();
     motSlider[2].setPosition(xMot,yMot-15);motSlider[2].setHeight(100);motSlider[2].setCaptionLabel("LEFT");motSlider[2].show();
-    servoSliderH[4].setPosition(xMot,yMot+135);servoSliderH[4].setCaptionLabel("SERVO");servoSliderH[4].show(); 
+    servoSliderH[5].setPosition(xMot,yMot+135);servoSliderH[5].setCaptionLabel("SERVO");servoSliderH[5].show(); 
   } else if (multiType == 2) { //QUAD+
     ellipse(0,  -size,   size,size);ellipse(0,  +size, size, size);ellipse(+size, 0,  size , size );ellipse(-size, 0,  size , size );
     line(-size,0, +size,0);line(0,-size, 0,+size);
@@ -676,11 +676,14 @@ void draw() {
     text("LOW",xBox+37+130,yBox+15);text("MID",xBox+57+130,yBox+15);text("HIGH",xBox+74+130,yBox+15);
     text("LOW",xBox+100+130,yBox+15);text("MID",xBox+123+130,yBox+15);text("HIGH",xBox+140+130,yBox+15);
 
-    for( i=0;i<CHECKBOXITEMS;i++) {
+    for(i=0;i<CHECKBOXITEMS;i++) {
       checkbox2[i].show();
     }
-    motSlider[0].hide(); motSlider[1].hide(); motSlider[2].hide(); motSlider[3].hide(); motSlider[4].hide(); motSlider[5].hide();
-    servoSliderH[1].hide(); servoSliderH[2].hide(); servoSliderH[3].hide(); servoSliderH[4].hide(); servoSliderV[0].hide(); servoSliderV[1].hide(); servoSliderV[2].hide();
+    for(i=0;i<8;i++) {
+      motSlider[i].hide();
+      servoSliderH[i].hide();
+      servoSliderV[i].hide();
+    }
     buttonNunchuk.hide();buttonI2cAcc.hide();buttonI2cBaro.hide();buttonI2cMagneto.hide();buttonGPS.hide();
     buttonI2cAccActive.hide();buttonI2cBaroActive.hide();buttonI2cMagnetoActive.hide();buttonGPSActive.hide();
   } else {
@@ -894,7 +897,7 @@ void processSerialData() {
       if ((mode&4) >0) {buttonI2cMagnetoActive.setCaptionLabel("ACTIVE");buttonI2cMagnetoActive.setColorBackground(green_);}
       else {buttonI2cMagnetoActive.setCaptionLabel("OFF");buttonI2cMagnetoActive.setColorBackground(red_);}
 
-      if ((mode&8) >0) {buttonGPSActive.setCaptionLabel("ACTIVE");buttonGPSActive.setColorBackground(green_);}
+      if (((mode&8) >0) || ((mode&16) >0)) {buttonGPSActive.setCaptionLabel("ACTIVE");buttonGPSActive.setColorBackground(green_);}
       else {buttonGPSActive.setCaptionLabel("OFF");buttonGPSActive.setColorBackground(red_);}
 
       if (nunchukPresent>0) {buttonNunchuk.setColorBackground(green_);} else {buttonNunchuk.setColorBackground(red_);}

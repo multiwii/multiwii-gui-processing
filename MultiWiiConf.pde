@@ -66,7 +66,6 @@ Slider scaleSlider;
 Button buttonREAD,buttonWRITE,buttonCALIBRATE_ACC,buttonCALIBRATE_MAG,buttonSTART,buttonSTOP;
 
 Button buttonNunchuk,buttonI2cAcc,buttonI2cBaro,buttonI2cMagneto,buttonGPS;
-Button buttonI2cAccActive,buttonI2cBaroActive,buttonI2cMagnetoActive,buttonGPSActive;
 
 color yellow_ = color(200, 200, 20), green_ = color(30, 120, 30), red_ = color(120, 30, 30);
 boolean graphEnable = false;boolean readEnable = false;boolean writeEnable = false;boolean calibrateEnable = false;
@@ -101,7 +100,7 @@ PFont font8,font12,font15;
 String shortifyPortName(String portName, int maxlen)  {
   String shortName = portName;
   if(shortName.startsWith("/dev/")) shortName = shortName.substring(5);  
-  if(shortName.startsWith("tty.")) shortName = shortName.substring(4); // get rid off leading tty. part of device name
+  if(shortName.startsWith("tty.")) shortName = shortName.substring(4); // get rid of leading tty. part of device name
   if(portName.length()>maxlen) shortName = shortName.substring(0,(maxlen-1)/2) + "~" +shortName.substring(shortName.length()-(maxlen-(maxlen-1)/2));
   if(shortName.startsWith("cu.")) shortName = "";// only collect the corresponding tty. devices
   return shortName;
@@ -144,11 +143,6 @@ void setup() {
   buttonI2cBaro = controlP5.addButton("bBARO",1,xButton,yButton+34,70,15); buttonI2cBaro.setColorBackground(red_);buttonI2cBaro.setLabel("BARO");
   buttonI2cMagneto = controlP5.addButton("bMAG",1,xButton,yButton+51,70,15); buttonI2cMagneto.setColorBackground(red_);buttonI2cMagneto.setLabel("MAG");
   buttonGPS = controlP5.addButton("bGPS",1,xButton,yButton+68,70,15); buttonGPS.setColorBackground(red_);buttonGPS.setLabel("GPS");
-
-  buttonI2cAccActive = controlP5.addButton("accOFF",1,xButton+75,yButton,70,32);buttonI2cAccActive.setColorBackground(red_);buttonI2cAccActive.setLabel("OFF");
-  buttonI2cBaroActive = controlP5.addButton("baroOFF",1,xButton+75,yButton+34,70,15);buttonI2cBaroActive.setColorBackground(red_);buttonI2cBaroActive.setLabel("OFF");
-  buttonI2cMagnetoActive = controlP5.addButton("magnetoOFF",1,xButton+75,yButton+51,70,15);buttonI2cMagnetoActive.setColorBackground(red_);buttonI2cMagnetoActive.setLabel("OFF");
-  buttonGPSActive = controlP5.addButton("GPSOFF",1,xButton+75,yButton+68,70,15); buttonGPSActive.setColorBackground(red_);buttonGPSActive.setLabel("OFF");
 
   color c,black;
   black = color(0,0,0);
@@ -685,13 +679,11 @@ void draw() {
       servoSliderV[i].hide();
     }
     buttonNunchuk.hide();buttonI2cAcc.hide();buttonI2cBaro.hide();buttonI2cMagneto.hide();buttonGPS.hide();
-    buttonI2cAccActive.hide();buttonI2cBaroActive.hide();buttonI2cMagnetoActive.hide();buttonGPSActive.hide();
   } else {
     for( i=0;i<CHECKBOXITEMS;i++) {
       checkbox2[i].hide();
     }
     buttonNunchuk.show();buttonI2cAcc.show();buttonI2cBaro.show();buttonI2cMagneto.show();buttonGPS.show();
-    buttonI2cAccActive.show();buttonI2cBaroActive.show();buttonI2cMagnetoActive.show();buttonGPSActive.show();
   }
   popMatrix();
   if (versionMisMatch == 1) {textFont(font15);fill(#000000);text("GUI vs. Arduino: Version or Buffer size mismatch",180,420); return;}
@@ -887,18 +879,6 @@ void processSerialData() {
       if ((present&4) >0) i2cBaroPresent = 1;    else  i2cBaroPresent = 0;
       if ((present&8) >0) i2cMagnetoPresent = 1; else  i2cMagnetoPresent = 0;
       if ((present&16)>0) GPSPresent = 1;        else  GPSPresent = 0;
-      
-      if ((mode&1) >0) {buttonI2cAccActive.setCaptionLabel("ACTIVE");buttonI2cAccActive.setColorBackground(green_);}
-      else {buttonI2cAccActive.setCaptionLabel("OFF");buttonI2cAccActive.setColorBackground(red_);}
- 
-      if ((mode&2) >0) {buttonI2cBaroActive.setCaptionLabel("ACTIVE");buttonI2cBaroActive.setColorBackground(green_);}
-      else {buttonI2cBaroActive.setCaptionLabel("OFF");buttonI2cBaroActive.setColorBackground(red_);}
-
-      if ((mode&4) >0) {buttonI2cMagnetoActive.setCaptionLabel("ACTIVE");buttonI2cMagnetoActive.setColorBackground(green_);}
-      else {buttonI2cMagnetoActive.setCaptionLabel("OFF");buttonI2cMagnetoActive.setColorBackground(red_);}
-
-      if (((mode&8) >0) || ((mode&16) >0)) {buttonGPSActive.setCaptionLabel("ACTIVE");buttonGPSActive.setColorBackground(green_);}
-      else {buttonGPSActive.setCaptionLabel("OFF");buttonGPSActive.setColorBackground(red_);}
 
       if (nunchukPresent>0) {buttonNunchuk.setColorBackground(green_);} else {buttonNunchuk.setColorBackground(red_);}
       if (i2cAccPresent>0) {buttonI2cAcc.setColorBackground(green_);} else {buttonI2cAcc.setColorBackground(red_);}
@@ -907,9 +887,10 @@ void processSerialData() {
       if (GPSPresent>0) {buttonGPS.setColorBackground(green_);} else {buttonGPS.setColorBackground(red_);}
 
       for(int i=0;i<CHECKBOXITEMS;i++)  { // highest bit contains mwc state for this item xxx
-        if ((byte(activation2[i])&(1<<7))>0) buttonCheckbox[i].setColorBackground(green_); else buttonCheckbox[i].setColorBackground(red_);
+        // use mode settings to factor in the activity state of sensors.
+        if ( ((mode&(1<<i))>0) || ((byte(activation2[i])&(1<<7))>0) ) buttonCheckbox[i].setColorBackground(green_); else buttonCheckbox[i].setColorBackground(red_);
       }
-      
+       
       accROLL.addVal(ax);accPITCH.addVal(ay);accYAW.addVal(az);gyroROLL.addVal(gx);gyroPITCH.addVal(gy);gyroYAW.addVal(gz);
       baroData.addVal(baro);headData.addVal(head);magxData.addVal(magx);magyData.addVal(magy);magzData.addVal(magz);
       debug1Data.addVal(debug1);debug2Data.addVal(debug2);debug3Data.addVal(debug3);debug4Data.addVal(debug4);

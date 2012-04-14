@@ -11,7 +11,6 @@ int CHECKBOXITEMS=11;
 int PIDITEMS=8;
 int commListMax;
 
-
 cGraph g_graph;
 int windowsX    = 800;        int windowsY    = 540;
 int xGraph      = 10;         int yGraph      = 325;
@@ -22,17 +21,16 @@ int xMot        = 490;        int yMot        = 30;
 int xButton     = 485;        int yButton     = 185;
 int xBox        = xParam+190; int yBox        = yParam+70;
 
-boolean axGraph =true,ayGraph=true,azGraph=true,gxGraph=true,gyGraph=true,gzGraph=true,baroGraph=true,headGraph=true, magxGraph =true,magyGraph=true,magzGraph=true;
-boolean debug1Graph = false,debug2Graph = false,debug3Graph = false,debug4Graph = false;
+boolean axGraph =true,ayGraph=true,azGraph=true,gxGraph=true,gyGraph=true,gzGraph=true,altGraph=true,headGraph=true, magxGraph =true,magyGraph=true,magzGraph=true,
+        debug1Graph = false,debug2Graph = false,debug3Graph = false,debug4Graph = false;
 
 int multiType;  // 1 for tricopter, 2 for quad+, 3 for quadX, ...
 
-cDataArray accPITCH   = new cDataArray(100), accROLL    = new cDataArray(100), accYAW     = new cDataArray(100);
-cDataArray gyroPITCH  = new cDataArray(100), gyroROLL   = new cDataArray(100), gyroYAW    = new cDataArray(100);
-cDataArray magxData   = new cDataArray(100), magyData   = new cDataArray(100), magzData   = new cDataArray(100);
-cDataArray baroData   = new cDataArray(100);
-cDataArray headData    = new cDataArray(100);
-cDataArray debug1Data   = new cDataArray(100),debug2Data   = new cDataArray(100),debug3Data   = new cDataArray(100),debug4Data   = new cDataArray(100);
+cDataArray accPITCH   = new cDataArray(100), accROLL    = new cDataArray(100), accYAW     = new cDataArray(100),
+           gyroPITCH  = new cDataArray(100), gyroROLL   = new cDataArray(100), gyroYAW    = new cDataArray(100),
+           magxData   = new cDataArray(100), magyData   = new cDataArray(100), magzData   = new cDataArray(100),
+           altData    = new cDataArray(100), headData   = new cDataArray(100),
+           debug1Data = new cDataArray(100), debug2Data = new cDataArray(100), debug3Data = new cDataArray(100),debug4Data = new cDataArray(100);
 
 private static final int ROLL = 0, PITCH = 1, YAW = 2, ALT = 3, VEL = 4, LEVEL = 5, MAG = 6;
 
@@ -45,41 +43,40 @@ int  byteRC_RATE,byteRC_EXPO, byteRollPitchRate,byteYawRate, byteDynThrPID;
 
 Slider rcStickThrottleSlider,rcStickRollSlider,rcStickPitchSlider,rcStickYawSlider,rcStickAUX1Slider,rcStickAUX2Slider,rcStickAUX3Slider,rcStickAUX4Slider;
 
-Slider servoSliderH[] = new Slider[8];
-Slider servoSliderV[] = new Slider[8];
-Slider motSlider[]   = new Slider[8];
+Slider servoSliderH[] = new Slider[8],
+       servoSliderV[] = new Slider[8],
+       motSlider[]   = new Slider[8];
 
-Slider axSlider,aySlider,azSlider,gxSlider,gySlider,gzSlider , magxSlider,magySlider,magzSlider , baroSlider,headSlider;
-Slider debug1Slider,debug2Slider,debug3Slider,debug4Slider;
+Slider axSlider,aySlider,azSlider,gxSlider,gySlider,gzSlider , magxSlider,magySlider,magzSlider , altSlider,headSlider,
+       debug1Slider,debug2Slider,debug3Slider,debug4Slider;
 
 Slider scaleSlider;
 
-Button buttonREAD,buttonRESET,buttonWRITE,buttonCALIBRATE_ACC,buttonCALIBRATE_MAG,buttonSTART,buttonSTOP;
-
-Button buttonAcc,buttonBaro,buttonMag,buttonGPS,buttonSonar,buttonOptic;
+Button buttonREAD,buttonRESET,buttonWRITE,buttonCALIBRATE_ACC,buttonCALIBRATE_MAG,buttonSTART,buttonSTOP,
+       buttonAcc,buttonBaro,buttonMag,buttonGPS,buttonSonar,buttonOptic;
 
 color yellow_ = color(200, 200, 20), green_ = color(30, 120, 30), red_ = color(120, 30, 30),
 grey_ = color(30, 30, 30);
 boolean graphEnable = false;
 
 int version,versionMisMatch;
-float gx,gy,gz,ax,ay,az,magx,magy,magz,baro,head,angx,angy,debug1,debug2,debug3,debug4;
-int GPS_distanceToHome, GPS_directionToHome;
-int GPS_numSat,GPS_fix,GPS_update,GPS_altitude,GPS_speed;
-int GPS_latitude,GPS_longitude;
-int init_com,graph_on,pMeterSum,intPowerTrigger,bytevbat;
+float gx,gy,gz,ax,ay,az,magx,magy,magz,alt,head,angx,angy,debug1,debug2,debug3,debug4;
+int GPS_distanceToHome, GPS_directionToHome,
+    GPS_numSat,GPS_fix,GPS_update,GPS_altitude,GPS_speed,
+    GPS_latitude,GPS_longitude,
+    init_com,graph_on,pMeterSum,intPowerTrigger,bytevbat;
 
 Numberbox confPowerTrigger;
 
-float mot[] = new float[8];
-float servo[] = new float[8];
-float rcThrottle = 1500,rcRoll = 1500,rcPitch = 1500,rcYaw =1500,
+float mot[] = new float[8],
+      servo[] = new float[8],
+      rcThrottle = 1500,rcRoll = 1500,rcPitch = 1500,rcYaw =1500,
       rcAUX1=1500, rcAUX2=1500, rcAUX3=1500, rcAUX4=1500;
 
 int cycleTime,i2cError;
 
-CheckBox checkbox1[] = new CheckBox[CHECKBOXITEMS];
-CheckBox checkbox2[] = new CheckBox[CHECKBOXITEMS];
+CheckBox checkbox1[] = new CheckBox[CHECKBOXITEMS],
+         checkbox2[] = new CheckBox[CHECKBOXITEMS];
 int activation[] = new int[CHECKBOXITEMS];
 
 Button buttonCheckbox[] = new Button[CHECKBOXITEMS];
@@ -189,12 +186,12 @@ void setup() {
   gxSlider   =       controlP5.addSlider("gxSlider",-5000,+5000,0,x+20,y2+10,50,10);gxSlider.setDecimalPrecision(0);gxSlider.setLabel("");
   gySlider   =       controlP5.addSlider("gySlider",-5000,+5000,0,x+20,y2+20,50,10);gySlider.setDecimalPrecision(0);gySlider.setLabel("");
   gzSlider   =       controlP5.addSlider("gzSlider",-5000,+5000,0,x+20,y2+30,50,10);gzSlider.setDecimalPrecision(0);gzSlider.setLabel("");
-  baroSlider =       controlP5.addSlider("baroSlider",-30000,+30000,0,x+20,y3 ,50,10);baroSlider.setDecimalPrecision(1);baroSlider.setLabel("");
+  altSlider  =       controlP5.addSlider("altSlider",-30000,+30000,0,x+20,y3 ,50,10);altSlider.setDecimalPrecision(2);altSlider.setLabel("");
   headSlider  =      controlP5.addSlider("headSlider",-200,+200,0,x+20,y4  ,50,10);headSlider.setDecimalPrecision(0);headSlider.setLabel("");
   magxSlider  =      controlP5.addSlider("magxSlider",-5000,+5000,0,x+20,y5+10,50,10);magxSlider.setDecimalPrecision(0);magxSlider.setLabel("");
   magySlider  =      controlP5.addSlider("magySlider",-5000,+5000,0,x+20,y5+20,50,10);magySlider.setDecimalPrecision(0);magySlider.setLabel("");
   magzSlider  =      controlP5.addSlider("magzSlider",-5000,+5000,0,x+20,y5+30,50,10);magzSlider.setDecimalPrecision(0);magzSlider.setLabel("");
-  debug1Slider  =    controlP5.addSlider("debug1Slider",-32000,+32000,0,x+130,y6,50,10);debug1Slider.setDecimalPrecision(1);debug1Slider.setLabel("");
+  debug1Slider  =    controlP5.addSlider("debug1Slider",-32000,+32000,0,x+130,y6,50,10);debug1Slider.setDecimalPrecision(0);debug1Slider.setLabel("");
   debug2Slider  =    controlP5.addSlider("debug2Slider",-32000,+32000,0,x+250,y6,50,10);debug2Slider.setDecimalPrecision(0);debug2Slider.setLabel("");
   debug3Slider  =    controlP5.addSlider("debug3Slider",-32000,+32000,0,x+370,y6,50,10);debug3Slider.setDecimalPrecision(0);debug3Slider.setLabel("");
   debug4Slider  =    controlP5.addSlider("debug4Slider",-32000,+32000,0,x+490,y6,50,10);debug4Slider.setDecimalPrecision(0);debug4Slider.setLabel("");
@@ -215,8 +212,8 @@ void setup() {
   dynamic_THR_PID = (controlP5.Numberbox) hideLabel(controlP5.addNumberbox("dynamic_THR_PID",0,xParam+300,yParam+12,30,14));dynamic_THR_PID.setDecimalPrecision(2);dynamic_THR_PID.setMultiplier(0.01);
   dynamic_THR_PID.setDirection(Controller.HORIZONTAL);dynamic_THR_PID.setMin(0);dynamic_THR_PID.setMax(1);dynamic_THR_PID.setColorBackground(red_);
 
-  confRC_RATE = controlP5.addNumberbox("RC RATE",1,xParam+40,yParam+213,30,14);confRC_RATE.setDecimalPrecision(2);confRC_RATE.setMultiplier(0.02);confRC_RATE.setLabel("");
-  confRC_RATE.setDirection(Controller.HORIZONTAL);confRC_RATE.setMin(0);confRC_RATE.setMax(5);confRC_RATE.setColorBackground(red_);
+  confRC_RATE = controlP5.addNumberbox("RC RATE",1,xParam+40,yParam+213,30,14);confRC_RATE.setDecimalPrecision(2);confRC_RATE.setMultiplier(0.01);confRC_RATE.setLabel("");
+  confRC_RATE.setDirection(Controller.HORIZONTAL);confRC_RATE.setMin(0);confRC_RATE.setMax(2.5);confRC_RATE.setColorBackground(red_);
   confRC_EXPO = controlP5.addNumberbox("RC EXPO",0,xParam+40,yParam+240,30,14);confRC_EXPO.setDecimalPrecision(2);confRC_EXPO.setMultiplier(0.01);confRC_EXPO.setLabel("");
   confRC_EXPO.setDirection(Controller.HORIZONTAL);confRC_EXPO.setMin(0);confRC_EXPO.setMax(1);confRC_EXPO.setColorBackground(red_);
 
@@ -238,9 +235,9 @@ void setup() {
     hideLabel(checkbox2[i].addItem(i + "4_",4));hideLabel(checkbox2[i].addItem(i + "5_",5));hideLabel(checkbox2[i].addItem(i + "6_",6));
   }
   
-  buttonREAD =      controlP5.addButton("READ",1,xParam+5,yParam+260,50,16);buttonREAD.setColorBackground(red_);
-  buttonRESET =      controlP5.addButton("RESET",1,xParam+60,yParam+260,60,16);buttonRESET.setColorBackground(red_);
-  buttonWRITE =     controlP5.addButton("WRITE",1,xParam+290,yParam+260,60,16);buttonWRITE.setColorBackground(red_);
+  buttonREAD =          controlP5.addButton("READ",1,xParam+5,yParam+260,50,16);buttonREAD.setColorBackground(red_);
+  buttonRESET =         controlP5.addButton("RESET",1,xParam+60,yParam+260,60,16);buttonRESET.setColorBackground(red_);
+  buttonWRITE =         controlP5.addButton("WRITE",1,xParam+290,yParam+260,60,16);buttonWRITE.setColorBackground(red_);
   buttonCALIBRATE_ACC = controlP5.addButton("CALIB_ACC",1,xParam+210,yParam+260,70,16);buttonCALIBRATE_ACC.setColorBackground(red_);
   buttonCALIBRATE_MAG = controlP5.addButton("CALIB_MAG",1,xParam+130,yParam+260,70,16);buttonCALIBRATE_MAG.setColorBackground(red_);
 
@@ -283,19 +280,17 @@ private static final int
   MSP_BOX                  =113,
   MSP_MISC                 =114,
 
+  MSP_SET_RAW_RC           =200,
+  MSP_SET_RAW_GPS          =201,
+  MSP_SET_PID              =202,
+  MSP_SET_BOX              =203,
+  MSP_SET_RC_TUNING        =204,
+  MSP_ACC_CALIBRATION      =205,
+  MSP_MAG_CALIBRATION      =206,
+  MSP_SET_MISC             =207,
+  MSP_RESET_CONF           =208,
 
-  MSP_SET_RAW_RC           =205,
-  MSP_SET_RAW_GPS          =206,
-  MSP_SET_PID              =212,
-  MSP_SET_BOX              =213,
-  MSP_SET_RC_TUNING        =214,
-  MSP_ACC_CALIBRATION      =215,
-  MSP_MAG_CALIBRATION      =216,
-  MSP_SET_MISC             =217,
-  MSP_RESET_CONF           =218,
-
-
-  MSP_EEPROM_WRITE         =220,
+  MSP_EEPROM_WRITE         =250,
 
   MSP_DEBUG                =254
 ;
@@ -305,8 +300,8 @@ int time,time2,time3;
 
 byte checksum=0;
 int stateMSP=0,offset=0,dataSize=0,indTX=0;
-byte[] inBuf   = new byte[128];
-byte[] outBuf_ = new byte[128];
+byte[] inBuf   = new byte[128],
+       outBuf_ = new byte[128];
 String outBuf;
 
 void serialize16(int a) {
@@ -324,7 +319,7 @@ int read16() {return (inBuf[p++]&0xff) + ((inBuf[p++])<<8); }
 int read8()  {return inBuf[p++]&0xff;}
 
 int mode;
-boolean toggleRead = false,toggleReset = false,toggleCalibAcc = false,toggleCalibMag = false,toggleWrite    = false;
+boolean toggleRead = false,toggleReset = false,toggleCalibAcc = false,toggleCalibMag = false,toggleWrite = false;
 
 
 void draw() {
@@ -336,14 +331,14 @@ void draw() {
     time=millis();
     if ((time-time2)>50) {
       time2=time;
-      outBuf =  "$M<"+char(MSP_IDENT)+ "$M<"+char(MSP_STATUS)+ "$M<"+char(MSP_RAW_IMU)+ "$M<"+char(MSP_SERVO)
-              + "$M<"+char(MSP_MOTOR)+ "$M<"+char(MSP_RC) + "$M<"+char(MSP_RAW_GPS) + "$M<"+char(MSP_COMP_GPS)
-              + "$M<"+char(MSP_ALTITUDE)+ "$M<"+char(MSP_BAT)+ "$M<"+char(MSP_DEBUG);
+      outBuf =  "$M<"+char(MSP_IDENT)+ "$M<"+char(MSP_STATUS)+ "$M<"+char(MSP_RAW_IMU)+ "$M<"+char(MSP_SERVO)+ "$M<"+char(MSP_MOTOR)
+              + "$M<"+char(MSP_RC)+ "$M<"+char(MSP_RAW_GPS)+ "$M<"+char(MSP_COMP_GPS)+ "$M<"+char(MSP_ALTITUDE)+ "$M<"+char(MSP_BAT)
+              + "$M<"+char(MSP_DEBUG);
       g_serial.write(outBuf);
       
       accROLL.addVal(ax);accPITCH.addVal(ay);accYAW.addVal(az);gyroROLL.addVal(gx);gyroPITCH.addVal(gy);gyroYAW.addVal(gz);
       magxData.addVal(magx);magyData.addVal(magy);magzData.addVal(magz);
-      baroData.addVal(baro);headData.addVal(head);
+      altData.addVal(alt);headData.addVal(head);
       debug1Data.addVal(debug1);debug2Data.addVal(debug2);debug3Data.addVal(debug3);debug4Data.addVal(debug4);
 
     }
@@ -377,13 +372,13 @@ void draw() {
     if (toggleWrite) {
       toggleWrite=false;
 
-      byteRC_RATE       = (round(confRC_RATE.value()*50));
+      byteRC_RATE       = (round(confRC_RATE.value()*100));
       byteRC_EXPO       = (round(confRC_EXPO.value()*100));
       byteRollPitchRate = (round(rollPitchRate.value()*100));
       byteYawRate       = (round(yawRate.value()*100));
       byteDynThrPID     = (round(dynamic_THR_PID.value()*100));
       indTX=0;
-      serialize8('$');serialize8('M');serialize8('<');serialize8(MSP_SET_RC_TUNING);
+      serialize8('$');serialize8('M');serialize8('<');serialize8(5);serialize8(MSP_SET_RC_TUNING);
       checksum=0;
       serialize8(byteRC_RATE);serialize8(byteRC_EXPO);serialize8(byteRollPitchRate);
       serialize8(byteYawRate);serialize8(byteDynThrPID);
@@ -396,17 +391,11 @@ void draw() {
         byteD[i] = (round(confD[i].value()));
       }
       indTX=0;
-      serialize8('$');serialize8('M');serialize8('<');serialize8(MSP_SET_PID);
+      serialize8('$');serialize8('M');serialize8('<');serialize8(3*PIDITEMS);serialize8(MSP_SET_PID);
       checksum=0;
-      for(i=0;i<PIDITEMS;i++) {
-        serialize8(byteP[i]);serialize8(byteI[i]);serialize8(byteD[i]);
-      }
-      for(i=0;i<16-PIDITEMS;i++) { //future use
-        serialize8(0);serialize8(0);serialize8(0);
-      }
+      for(i=0;i<PIDITEMS;i++) {serialize8(byteP[i]);serialize8(byteI[i]);serialize8(byteD[i]);}
       serialize8(checksum);
       for(i=0;i<indTX;i++) {g_serial.write(char(outBuf_[i]));}
-
 
       for(i=0;i<CHECKBOXITEMS;i++) {
         activation[i] = 0;
@@ -415,25 +404,17 @@ void draw() {
         }
       }
       indTX=0;
-      serialize8('$');serialize8('M');serialize8('<');serialize8(MSP_SET_BOX);
+      serialize8('$');serialize8('M');serialize8('<');serialize8(2*CHECKBOXITEMS);serialize8(MSP_SET_BOX);
       checksum=0;
-      for(i=0;i<CHECKBOXITEMS;i++) {
-        serialize16(activation[i]);
-      }
-      for(i=0;i<16-CHECKBOXITEMS;i++) {
-        serialize16(0);
-      }
-
+      for(i=0;i<CHECKBOXITEMS;i++) {serialize16(activation[i]);}
       serialize8(checksum);
       for(i=0;i<indTX;i++) {g_serial.write(char(outBuf_[i]));}
 
-
       intPowerTrigger = (round(confPowerTrigger.value()));
       indTX=0;
-      serialize8('$');serialize8('M');serialize8('<');serialize8(MSP_SET_MISC);
+      serialize8('$');serialize8('M');serialize8('<');serialize8(2);serialize8(MSP_SET_MISC);
       checksum=0;
       serialize16(intPowerTrigger);
-      for(i=0;i<8;i++) {serialize8(0);} //futur use
       serialize8(checksum);
       for(i=0;i<indTX;i++) {g_serial.write(char(outBuf_[i]));}
       
@@ -442,193 +423,137 @@ void draw() {
       for(i=0;i<indTX;i++) {g_serial.write(char(outBuf_[i]));}
     }
 
-
     while (g_serial.available()>0) {
       c = (g_serial.read());
-      
-      if (stateMSP > 3) {
-        if (offset < dataSize+1) {
+      if (stateMSP > 99) {
+        if (offset <= dataSize) {
+          if (offset < dataSize) checksum ^= c;
           inBuf[offset++] = byte(c);
-          if (offset <dataSize+1) checksum ^= c;
-        } else {stateMSP = 0;}
-        if ( offset == (dataSize+1) && checksum == inBuf[offset-1] && stateMSP>0) {
-          switch(stateMSP) {
-            case MSP_IDENT:
-              stateMSP = 0;
-              version = read8();
-              multiType = read8();
-              break;
-            case MSP_STATUS:
-              stateMSP = 0;
-              cycleTime = read16();
-              i2cError = read16();
-              present = read16();
-              mode = read16();
-              if ((present&1) >0) {buttonAcc.setColorBackground(green_);} else {buttonAcc.setColorBackground(red_);}
-              if ((present&2) >0) {buttonBaro.setColorBackground(green_);} else {buttonBaro.setColorBackground(red_);}
-              if ((present&4) >0) {buttonMag.setColorBackground(green_);} else {buttonMag.setColorBackground(red_);}
-              if ((present&8) >0) {buttonGPS.setColorBackground(green_);} else {buttonGPS.setColorBackground(red_);}
-              if ((present&16)>0) {buttonSonar.setColorBackground(green_);} else {buttonSonar.setColorBackground(red_);}
-              for(i=0;i<CHECKBOXITEMS;i++)  {
-                if ((mode&(1<<i))>0) buttonCheckbox[i].setColorBackground(green_); else buttonCheckbox[i].setColorBackground(red_);
-              }
-              break;
-            case MSP_RAW_IMU:
-              stateMSP = 0;
-              ax = read16();ay = read16();az = read16();
-              gx = read16()/8;gy = read16()/8;gz = read16()/8;
-              magx = read16()/3;magy = read16()/3;magz = read16()/3;
-              break;
-            case MSP_SERVO:
-              stateMSP = 0;
-              for(i=0;i<8;i++) servo[i] = read16();
-              break;
-            case MSP_MOTOR:
-              stateMSP = 0;
-              for(i=0;i<8;i++) mot[i] = read16();
-              break;
-            case MSP_RC:
-              stateMSP = 0;
-              rcRoll = read16();rcPitch = read16();rcYaw = read16();rcThrottle = read16();    
-              rcAUX1 = read16();rcAUX2 = read16();rcAUX3 = read16();rcAUX4 = read16();
-              break;
-            case MSP_RAW_GPS:
-              stateMSP = 0;
-              GPS_fix = read8();  //fix
-              GPS_numSat = read8();  //numsat
-              GPS_latitude = read32(); //lat
-              GPS_longitude = read32(); //long
-              GPS_altitude = read16(); //alt
-              GPS_speed = read16(); //speed
-              break;
-            case MSP_COMP_GPS:
-              stateMSP = 0;
-              GPS_distanceToHome = read16();
-              GPS_directionToHome = read16();
-              GPS_update = read8();
-              break;
-            case MSP_ATTITUDE:
-              stateMSP = 0;
-              angx = read16()/10;angy = read16()/10;
-              head = read16();
-              break;
-            case MSP_ALTITUDE:
-              stateMSP = 0;
-              baro = read16();
-              break;
-            case MSP_BAT:
-              stateMSP = 0;
-              bytevbat = read8();
-              pMeterSum = read16();
-              break;
-            case MSP_RC_TUNING:
-              stateMSP = 0;
-              byteRC_RATE = read8();byteRC_EXPO = read8();byteRollPitchRate = read8();
-              byteYawRate = read8();byteDynThrPID = read8();
-              confRC_RATE.setValue(byteRC_RATE/50.0);
-              confRC_EXPO.setValue(byteRC_EXPO/100.0);
-              rollPitchRate.setValue(byteRollPitchRate/100.0);
-              yawRate.setValue(byteYawRate/100.0);
-              dynamic_THR_PID.setValue(byteDynThrPID/100.0);
-              confRC_RATE.setColorBackground(green_);confRC_EXPO.setColorBackground(green_);rollPitchRate.setColorBackground(green_);yawRate.setColorBackground(green_);dynamic_THR_PID.setColorBackground(green_);
-              break;
-            case MSP_ACC_CALIBRATION:
-              stateMSP = 0;
-              break;
-            case MSP_MAG_CALIBRATION:
-              stateMSP = 0;
-              break;
-            case MSP_PID:
-              stateMSP = 0;
-              for( i=0;i<PIDITEMS;i++) {
-                byteP[i] = read8();byteI[i] = read8();byteD[i] = read8();
-                confP[i].setValue(byteP[i]/10.0);confI[i].setValue(byteI[i]/1000.0);confD[i].setValue(byteD[i]);
-                confP[i].setColorBackground(green_);
-                confI[i].setColorBackground(green_);
-                confD[i].setColorBackground(green_);
-              }
-              break;
-            case MSP_BOX:
-              stateMSP = 0;
-              for( i=0;i<CHECKBOXITEMS;i++) {
-                activation[i] = read16();
-                for( aa=0;aa<6;aa++) {
-                  if ((activation[i]&(1<<aa))>0)     checkbox1[i].activate(aa); else checkbox1[i].deactivate(aa);
-                  if ((activation[i]&(1<<(aa+6)))>0) checkbox2[i].activate(aa); else checkbox2[i].deactivate(aa);
-                }
-              }
-              break;
-            case MSP_MISC:
-              stateMSP = 0;
-              intPowerTrigger = read16();
-              confPowerTrigger.setValue(intPowerTrigger);
-              break;
-            case MSP_DEBUG:
-              stateMSP = 0;
-              debug1 = read16();debug2 = read16();debug3 = read16();debug4 = read16();
-              break;
+        } else {
+          if ( checksum == inBuf[dataSize] ) {
+            switch(stateMSP) {
+              case MSP_IDENT:
+                stateMSP = 0;
+                version = read8();
+                multiType = read8(); break;
+              case MSP_STATUS:
+                stateMSP = 0;
+                cycleTime = read16();
+                i2cError = read16();
+                present = read16();
+                mode = read16();
+                if ((present&1) >0) {buttonAcc.setColorBackground(green_);} else {buttonAcc.setColorBackground(red_);}
+                if ((present&2) >0) {buttonBaro.setColorBackground(green_);} else {buttonBaro.setColorBackground(red_);}
+                if ((present&4) >0) {buttonMag.setColorBackground(green_);} else {buttonMag.setColorBackground(red_);}
+                if ((present&8) >0) {buttonGPS.setColorBackground(green_);} else {buttonGPS.setColorBackground(red_);}
+                if ((present&16)>0) {buttonSonar.setColorBackground(green_);} else {buttonSonar.setColorBackground(red_);}
+                for(i=0;i<CHECKBOXITEMS;i++) {
+                  if ((mode&(1<<i))>0) buttonCheckbox[i].setColorBackground(green_); else buttonCheckbox[i].setColorBackground(red_);
+                } break;
+              case MSP_RAW_IMU:
+                stateMSP = 0;
+                ax = read16();ay = read16();az = read16();
+                gx = read16()/8;gy = read16()/8;gz = read16()/8;
+                magx = read16()/3;magy = read16()/3;magz = read16()/3; break;
+              case MSP_SERVO:
+                stateMSP = 0;
+                for(i=0;i<8;i++) servo[i] = read16(); break;
+              case MSP_MOTOR:
+                stateMSP = 0;
+                for(i=0;i<8;i++) mot[i] = read16(); break;
+              case MSP_RC:
+                stateMSP = 0;
+                rcRoll = read16();rcPitch = read16();rcYaw = read16();rcThrottle = read16();    
+                rcAUX1 = read16();rcAUX2 = read16();rcAUX3 = read16();rcAUX4 = read16(); break;
+              case MSP_RAW_GPS:
+                stateMSP = 0;
+                GPS_fix = read8();
+                GPS_numSat = read8();
+                GPS_latitude = read32();
+                GPS_longitude = read32();
+                GPS_altitude = read16();
+                GPS_speed = read16(); break;
+              case MSP_COMP_GPS:
+                stateMSP = 0;
+                GPS_distanceToHome = read16();
+                GPS_directionToHome = read16();
+                GPS_update = read8(); break;
+              case MSP_ATTITUDE:
+                stateMSP = 0;
+                angx = read16()/10;angy = read16()/10;
+                head = read16(); break;
+              case MSP_ALTITUDE:
+                stateMSP = 0;
+                alt = read32(); break;
+              case MSP_BAT:
+                stateMSP = 0;
+                bytevbat = read8();
+                pMeterSum = read16(); break;
+              case MSP_RC_TUNING:
+                stateMSP = 0;
+                byteRC_RATE = read8();byteRC_EXPO = read8();byteRollPitchRate = read8();
+                byteYawRate = read8();byteDynThrPID = read8();
+                confRC_RATE.setValue(byteRC_RATE/100.0);
+                confRC_EXPO.setValue(byteRC_EXPO/100.0);
+                rollPitchRate.setValue(byteRollPitchRate/100.0);
+                yawRate.setValue(byteYawRate/100.0);
+                dynamic_THR_PID.setValue(byteDynThrPID/100.0);
+                confRC_RATE.setColorBackground(green_);confRC_EXPO.setColorBackground(green_);rollPitchRate.setColorBackground(green_);yawRate.setColorBackground(green_);dynamic_THR_PID.setColorBackground(green_); break;
+              case MSP_ACC_CALIBRATION:
+                stateMSP = 0; break;
+              case MSP_MAG_CALIBRATION:
+                stateMSP = 0; break;
+              case MSP_PID:
+                stateMSP = 0;
+                for( i=0;i<PIDITEMS;i++) {
+                  byteP[i] = read8();byteI[i] = read8();byteD[i] = read8();
+                  confP[i].setValue(byteP[i]/10.0);confI[i].setValue(byteI[i]/1000.0);confD[i].setValue(byteD[i]);
+                  confP[i].setColorBackground(green_);
+                  confI[i].setColorBackground(green_);
+                  confD[i].setColorBackground(green_);
+                } break;
+              case MSP_BOX:
+                stateMSP = 0;
+                for( i=0;i<CHECKBOXITEMS;i++) {
+                  activation[i] = read16();
+                  for( aa=0;aa<6;aa++) {
+                    if ((activation[i]&(1<<aa))>0)     checkbox1[i].activate(aa); else checkbox1[i].deactivate(aa);
+                    if ((activation[i]&(1<<(aa+6)))>0) checkbox2[i].activate(aa); else checkbox2[i].deactivate(aa);
+                  }
+                } break;
+              case MSP_MISC:
+                stateMSP = 0;
+                intPowerTrigger = read16();
+                confPowerTrigger.setValue(intPowerTrigger); break;
+              case MSP_DEBUG:
+                stateMSP = 0;
+                debug1 = read16();debug2 = read16();debug3 = read16();debug4 = read16(); break;
+            }
           }
+          stateMSP = 0;
         }
-      } else {
-        offset = 0;checksum = 0;p=0;
       }
 
-      if (stateMSP == 3) {
-        switch(int(c)) {
-          case MSP_IDENT:
-            stateMSP = MSP_IDENT;
-            dataSize = 2;break;
-          case MSP_STATUS:
-            stateMSP = MSP_STATUS;
-            dataSize = 8;break;
-          case MSP_RAW_IMU:
-            stateMSP = MSP_RAW_IMU;
-            dataSize = 18;break;
-          case MSP_SERVO:
-            stateMSP = MSP_SERVO;
-            dataSize = 16;break;
-          case MSP_MOTOR:
-            stateMSP = MSP_MOTOR;
-            dataSize = 16;break;
-          case MSP_RC:
-            stateMSP = MSP_RC;
-            dataSize = 16;break;
-          case MSP_RAW_GPS:
-            stateMSP = MSP_RAW_GPS;
-            dataSize = 14;break;
-          case MSP_COMP_GPS:
-            stateMSP = MSP_COMP_GPS;
-            dataSize = 5;break;
-          case MSP_ATTITUDE:
-            stateMSP = MSP_ATTITUDE;
-            dataSize = 6;break;
-          case MSP_ALTITUDE:
-            stateMSP = MSP_ALTITUDE;
-            dataSize = 2;break;
-          case MSP_BAT:
-            stateMSP = MSP_BAT;
-            dataSize = 3;break;
-          case MSP_RC_TUNING:
-            stateMSP = MSP_RC_TUNING;
-            dataSize = 5;break;
-          case MSP_PID:
-            stateMSP = MSP_PID;
-            dataSize = 48;break;
-          case MSP_BOX:
-            stateMSP = MSP_BOX;
-            dataSize = 32;break;
-          case MSP_MISC:
-            stateMSP = MSP_MISC;
-            dataSize = 10;break;
-          case MSP_DEBUG:
-            stateMSP = MSP_DEBUG;
-            dataSize = 8;break;
+      if (stateMSP <5) {
+        if (stateMSP == 4) {
+          if (c > 99) {
+            stateMSP = c;
+            offset = 0;checksum = 0;p=0;
+          } else {
+            stateMSP = 0;
+          } 
         }
-      }
-      
-      if (stateMSP <3) {
+        if (stateMSP == 3) {
+          if (c<100) {
+            stateMSP++;
+            dataSize = c;
+            if (dataSize>63) dataSize=63;
+          } else {
+            stateMSP = c;
+          }
+        }
         switch(c) {
-          case '$':                                         //header detection $MW<
+          case '$':                                         //header detection $MW>
             if (stateMSP == 0) stateMSP++;break;
           case 'M':
             if (stateMSP == 1) stateMSP++;break;
@@ -676,7 +601,7 @@ void draw() {
   fill(255,255,255);
 
   axSlider.setValue(ax);aySlider.setValue(ay);azSlider.setValue(az);gxSlider.setValue(gx);gySlider.setValue(gy);gzSlider.setValue(gz);
-  baroSlider.setValue(baro/10);headSlider.setValue(head);magxSlider.setValue(magx);magySlider.setValue(magy);magzSlider.setValue(magz);
+  altSlider.setValue(alt/100);headSlider.setValue(head);magxSlider.setValue(magx);magySlider.setValue(magy);magzSlider.setValue(magz);
   debug1Slider.setValue(debug1/10);debug2Slider.setValue(debug2);debug3Slider.setValue(debug3);debug4Slider.setValue(debug4);
 
   for(i=0;i<8;i++) {
@@ -963,20 +888,20 @@ void draw() {
     else g_graph.drawLine(accYAW, 200*scaleSlider.value()-1000,200*scaleSlider.value()+500);
   }
   
-  float BaroMin = (baroData.getMinVal() + baroData.getRange() / 2) - 10;
-  float BaroMax = (baroData.getMaxVal() + baroData.getRange() / 2) + 10;
+  float altMin = (altData.getMinVal() + altData.getRange() / 2) - 100;
+  float altMax = (altData.getMaxVal() + altData.getRange() / 2) + 100;
 
   stroke(200, 200, 0);  if (gxGraph)   g_graph.drawLine(gyroROLL, -300, +300);
   stroke(0, 255, 255);  if (gyGraph)   g_graph.drawLine(gyroPITCH, -300, +300);
   stroke(255, 0, 255);  if (gzGraph)   g_graph.drawLine(gyroYAW, -300, +300);
-  stroke(125, 125, 125);if (baroGraph) g_graph.drawLine(baroData, BaroMin, BaroMax);
+  stroke(125, 125, 125);if (altGraph) g_graph.drawLine(altData, altMin, altMax);
   stroke(225, 225, 125);if (headGraph)  g_graph.drawLine(headData, -370, +370);
   stroke(50, 100, 150); if (magxGraph) g_graph.drawLine(magxData, -500, +500);
   stroke(100, 50, 150); if (magyGraph) g_graph.drawLine(magyData, -500, +500);
   stroke(150, 100, 50); if (magzGraph) g_graph.drawLine(magzData, -500, +500);
 
   stroke(0, 0, 0);
-  if (debug1Graph)  g_graph.drawLine(debug1Data, BaroMin, BaroMax);
+  if (debug1Graph)  g_graph.drawLine(debug1Data, -5000, +5000);
   if (debug2Graph)  g_graph.drawLine(debug2Data, -5000, +5000);
   if (debug3Graph)  g_graph.drawLine(debug3Data, -5000, +5000);
   if (debug4Graph)  g_graph.drawLine(debug4Data, -5000, +5000);
@@ -1067,7 +992,7 @@ void ACC_Z(boolean theFlag) {azGraph = theFlag;}
 void GYRO_ROLL(boolean theFlag) {gxGraph = theFlag;}
 void GYRO_PITCH(boolean theFlag) {gyGraph = theFlag;}
 void GYRO_YAW(boolean theFlag) {gzGraph = theFlag;}
-void BARO(boolean theFlag) {baroGraph = theFlag;}
+void ALT(boolean theFlag) {altGraph = theFlag;}
 void HEAD(boolean theFlag) {headGraph = theFlag;}
 void MAGX(boolean theFlag) {magxGraph = theFlag;}
 void MAGY(boolean theFlag) {magyGraph = theFlag;}

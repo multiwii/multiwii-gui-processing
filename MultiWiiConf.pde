@@ -55,6 +55,9 @@ Slider scaleSlider;
 Button buttonREAD,buttonRESET,buttonWRITE,buttonCALIBRATE_ACC,buttonCALIBRATE_MAG,buttonSTART,buttonSTOP,
        buttonAcc,buttonBaro,buttonMag,buttonGPS,buttonSonar,buttonOptic;
 
+Toggle tACC_ROLL, tACC_PITCH, tACC_Z, tGYRO_ROLL, tGYRO_PITCH, tGYRO_YAW, tBARO,tHEAD, tMAGX, tMAGY, tMAGZ, 
+        tDEBUG1, tDEBUG2, tDEBUG3, tDEBUG4;
+        
 color yellow_ = color(200, 200, 20), green_ = color(30, 120, 30), red_ = color(120, 30, 30),
 grey_ = color(30, 30, 30);
 boolean graphEnable = false;
@@ -145,21 +148,21 @@ void setup() {
   int y7= yGraph+185; //GPS
   int y6= yGraph+205; //DEBUG
 
-  Toggle tACC_ROLL =     controlP5.addToggle("ACC_ROLL",true,x,y1+10,20,10);tACC_ROLL.setColorActive(color(255, 0, 0));tACC_ROLL.setColorBackground(black);tACC_ROLL.setLabel(""); 
-  Toggle tACC_PITCH =   controlP5.addToggle("ACC_PITCH",true,x,y1+20,20,10);tACC_PITCH.setColorActive(color(0, 255, 0));tACC_PITCH.setColorBackground(black);tACC_PITCH.setLabel(""); 
-  Toggle tACC_Z =           controlP5.addToggle("ACC_Z",true,x,y1+30,20,10);tACC_Z.setColorActive(color(0, 0, 255));tACC_Z.setColorBackground(black);tACC_Z.setLabel(""); 
-  Toggle tGYRO_ROLL =   controlP5.addToggle("GYRO_ROLL",true,x,y2+10,20,10);tGYRO_ROLL.setColorActive(color(200, 200, 0));tGYRO_ROLL.setColorBackground(black);tGYRO_ROLL.setLabel(""); 
-  Toggle tGYRO_PITCH = controlP5.addToggle("GYRO_PITCH",true,x,y2+20,20,10);tGYRO_PITCH.setColorActive(color(0, 255, 255));tGYRO_PITCH.setColorBackground(black);tGYRO_PITCH.setLabel(""); 
-  Toggle tGYRO_YAW =     controlP5.addToggle("GYRO_YAW",true,x,y2+30,20,10);tGYRO_YAW.setColorActive(color(255, 0, 255));tGYRO_YAW.setColorBackground(black);tGYRO_YAW.setLabel(""); 
-  Toggle tBARO =               controlP5.addToggle("BARO",true,x,y3 ,20,10);tBARO.setColorActive(color(125, 125, 125));tBARO.setColorBackground(black);tBARO.setLabel(""); 
-  Toggle tHEAD =               controlP5.addToggle("HEAD",true,x,y4 ,20,10);tHEAD.setColorActive(color(225, 225, 125));tHEAD.setColorBackground(black);tHEAD.setLabel(""); 
-  Toggle tMAGX =             controlP5.addToggle("MAGX",true,x,y5+10,20,10);tMAGX.setColorActive(color(50, 100, 150));tMAGX.setColorBackground(black);tMAGX.setLabel(""); 
-  Toggle tMAGY =             controlP5.addToggle("MAGY",true,x,y5+20,20,10);tMAGY.setColorActive(color(100, 50, 150));tMAGY.setColorBackground(black);tMAGY.setLabel(""); 
-  Toggle tMAGZ =             controlP5.addToggle("MAGZ",true,x,y5+30,20,10);tMAGZ.setColorActive(color(150, 100, 50));tMAGZ.setColorBackground(black);tMAGZ.setLabel(""); 
-  Toggle tDEBUG1 =         controlP5.addToggle("DEBUG1",true,x+70,y6,20,10);tDEBUG1.setColorActive(color(150, 100, 50));tDEBUG1.setColorBackground(black);tDEBUG1.setLabel("");tDEBUG1.setValue(0);
-  Toggle tDEBUG2 =         controlP5.addToggle("DEBUG2",true,x+190,y6,20,10);tDEBUG2.setColorActive(color(150, 100, 50));tDEBUG2.setColorBackground(black);tDEBUG2.setLabel("");tDEBUG2.setValue(0);
-  Toggle tDEBUG3 =         controlP5.addToggle("DEBUG3",true,x+310,y6,20,10);tDEBUG3.setColorActive(color(150, 100, 50));tDEBUG3.setColorBackground(black);tDEBUG3.setLabel("");tDEBUG3.setValue(0);
-  Toggle tDEBUG4 =         controlP5.addToggle("DEBUG4",true,x+430,y6,20,10);tDEBUG4.setColorActive(color(150, 100, 50));tDEBUG4.setColorBackground(black);tDEBUG4.setLabel("");tDEBUG4.setValue(0);
+   tACC_ROLL =     controlP5.addToggle("ACC_ROLL",true,x,y1+10,20,10);tACC_ROLL.setColorActive(color(255, 0, 0));tACC_ROLL.setColorBackground(black);tACC_ROLL.setLabel(""); 
+   tACC_PITCH =   controlP5.addToggle("ACC_PITCH",true,x,y1+20,20,10);tACC_PITCH.setColorActive(color(0, 255, 0));tACC_PITCH.setColorBackground(black);tACC_PITCH.setLabel(""); 
+   tACC_Z =           controlP5.addToggle("ACC_Z",true,x,y1+30,20,10);tACC_Z.setColorActive(color(0, 0, 255));tACC_Z.setColorBackground(black);tACC_Z.setLabel(""); 
+   tGYRO_ROLL =   controlP5.addToggle("GYRO_ROLL",true,x,y2+10,20,10);tGYRO_ROLL.setColorActive(color(200, 200, 0));tGYRO_ROLL.setColorBackground(black);tGYRO_ROLL.setLabel(""); 
+   tGYRO_PITCH = controlP5.addToggle("GYRO_PITCH",true,x,y2+20,20,10);tGYRO_PITCH.setColorActive(color(0, 255, 255));tGYRO_PITCH.setColorBackground(black);tGYRO_PITCH.setLabel(""); 
+   tGYRO_YAW =     controlP5.addToggle("GYRO_YAW",true,x,y2+30,20,10);tGYRO_YAW.setColorActive(color(255, 0, 255));tGYRO_YAW.setColorBackground(black);tGYRO_YAW.setLabel(""); 
+   tBARO =               controlP5.addToggle("BARO",true,x,y3 ,20,10);tBARO.setColorActive(color(125, 125, 125));tBARO.setColorBackground(black);tBARO.setLabel(""); 
+   tHEAD =               controlP5.addToggle("HEAD",true,x,y4 ,20,10);tHEAD.setColorActive(color(225, 225, 125));tHEAD.setColorBackground(black);tHEAD.setLabel(""); 
+   tMAGX =             controlP5.addToggle("MAGX",true,x,y5+10,20,10);tMAGX.setColorActive(color(50, 100, 150));tMAGX.setColorBackground(black);tMAGX.setLabel(""); 
+   tMAGY =             controlP5.addToggle("MAGY",true,x,y5+20,20,10);tMAGY.setColorActive(color(100, 50, 150));tMAGY.setColorBackground(black);tMAGY.setLabel(""); 
+   tMAGZ =             controlP5.addToggle("MAGZ",true,x,y5+30,20,10);tMAGZ.setColorActive(color(150, 100, 50));tMAGZ.setColorBackground(black);tMAGZ.setLabel(""); 
+   tDEBUG1 =         controlP5.addToggle("DEBUG1",true,x+70,y6,20,10);tDEBUG1.setColorActive(color(150, 100, 50));tDEBUG1.setColorBackground(black);tDEBUG1.setLabel("");tDEBUG1.setValue(0);
+   tDEBUG2 =         controlP5.addToggle("DEBUG2",true,x+190,y6,20,10);tDEBUG2.setColorActive(color(150, 100, 50));tDEBUG2.setColorBackground(black);tDEBUG2.setLabel("");tDEBUG2.setValue(0);
+   tDEBUG3 =         controlP5.addToggle("DEBUG3",true,x+310,y6,20,10);tDEBUG3.setColorActive(color(150, 100, 50));tDEBUG3.setColorBackground(black);tDEBUG3.setLabel("");tDEBUG3.setValue(0);
+   tDEBUG4 =         controlP5.addToggle("DEBUG4",true,x+430,y6,20,10);tDEBUG4.setColorActive(color(150, 100, 50));tDEBUG4.setColorBackground(black);tDEBUG4.setLabel("");tDEBUG4.setValue(0);
 
   controlP5.addTextlabel("acclabel","ACC",xo,y1);
   controlP5.addTextlabel("accrolllabel","   ROLL",xo,y1+10);
@@ -442,10 +445,10 @@ void draw() {
                 i2cError = read16();
                 present = read16();
                 mode = read16();
-                if ((present&1) >0) {buttonAcc.setColorBackground(green_);} else {buttonAcc.setColorBackground(red_);}
-                if ((present&2) >0) {buttonBaro.setColorBackground(green_);} else {buttonBaro.setColorBackground(red_);}
-                if ((present&4) >0) {buttonMag.setColorBackground(green_);} else {buttonMag.setColorBackground(red_);}
-                if ((present&8) >0) {buttonGPS.setColorBackground(green_);} else {buttonGPS.setColorBackground(red_);}
+                if ((present&1) >0) {buttonAcc.setColorBackground(green_);} else {buttonAcc.setColorBackground(red_);tACC_ROLL.setState(false); tACC_PITCH.setState(false); tACC_Z.setState(false);}
+                if ((present&2) >0) {buttonBaro.setColorBackground(green_);} else {buttonBaro.setColorBackground(red_); tBARO.setState(false); }
+                if ((present&4) >0) {buttonMag.setColorBackground(green_);} else {buttonMag.setColorBackground(red_); tMAGX.setState(false); tMAGY.setState(false); tMAGZ.setState(false); }
+                if ((present&8) >0) {buttonGPS.setColorBackground(green_);} else {buttonGPS.setColorBackground(red_); tHEAD.setState(false);}
                 if ((present&16)>0) {buttonSonar.setColorBackground(green_);} else {buttonSonar.setColorBackground(red_);}
                 for(i=0;i<CHECKBOXITEMS;i++) {
                   if ((mode&(1<<i))>0) buttonCheckbox[i].setColorBackground(green_); else buttonCheckbox[i].setColorBackground(red_);
@@ -782,11 +785,12 @@ void draw() {
     text("Heli 120 CCPM", -42,-50);camera();popMatrix();
 	
     // Sliders
-    servoSliderH[3].setPosition(xMot,yMot-5) ;servoSliderH[3].setCaptionLabel("Nick");servoSliderH[3].show();
-    servoSliderH[4].setPosition(xMot,yMot+25);servoSliderH[4].setCaptionLabel("Left");servoSliderH[4].show();
-    servoSliderH[5].setPosition(xMot,yMot+55);servoSliderH[5].setCaptionLabel("Yaw");servoSliderH[5].show();
-    servoSliderH[6].setPosition(xMot,yMot+85);servoSliderH[6].setCaptionLabel("Right");servoSliderH[6].show();
-    servoSliderH[7].setPosition(xMot,yMot+115);servoSliderH[7].setCaptionLabel("Thro");servoSliderH[7].show();  
+     motSlider[0].setPosition(xMot,yMot);motSlider[0].setHeight(120);motSlider[0].setCaptionLabel("Thro");motSlider[0].show();
+     servoSliderV[0].setPosition(xMot+40,yMot-15);servoSliderV[0].setCaptionLabel("LEFT");servoSliderV[0].show(); 
+     servoSliderV[2].setPosition(xMot+70,yMot) ;servoSliderV[2].setCaptionLabel("Nick");servoSliderV[2].show();
+     servoSliderV[1].setPosition(xMot+100,yMot-15);servoSliderV[1].setCaptionLabel("RIGHT");servoSliderV[1].show();
+     servoSliderH[3].setPosition(xMot+24,yMot+130);servoSliderH[3].setCaptionLabel("Yaw");servoSliderH[3].show();
+
   } else if (multiType == 16) { //Heli 90 
     // HeliGraphics    
     float scalesize=size*0.8;

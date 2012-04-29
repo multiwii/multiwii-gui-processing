@@ -15,9 +15,9 @@ cGraph g_graph;
 int windowsX    = 800;        int windowsY    = 540;
 int xGraph      = 10;         int yGraph      = 325;
 int xObj        = 700;        int yObj        = 450;
-int xParam      = 120;        int yParam      = 10;
-int xRC         = 650;        int yRC         = 15;
-int xMot        = 490;        int yMot        = 30;
+int xParam      = 120;        int yParam      = 5;
+int xRC         = 650;        int yRC         = 10;
+int xMot        = 490;        int yMot        = 25;
 int xButton     = 485;        int yButton     = 185;
 int xBox        = xParam+190; int yBox        = yParam+70;
 
@@ -37,9 +37,9 @@ private static final int ROLL = 0, PITCH = 1, YAW = 2, ALT = 3, VEL = 4, LEVEL =
 Numberbox confP[] = new Numberbox[PIDITEMS], confI[] = new Numberbox[PIDITEMS], confD[] = new Numberbox[PIDITEMS];
 int       byteP[] = new int[PIDITEMS],       byteI[] = new int[PIDITEMS],       byteD[] = new int[PIDITEMS];
 
-Numberbox confRC_RATE, confRC_EXPO, rollPitchRate, yawRate, dynamic_THR_PID;
+Numberbox confRC_RATE, confRC_EXPO, rollPitchRate, yawRate, dynamic_THR_PID, throttle_EXPO, throttle_MID;
 
-int  byteRC_RATE,byteRC_EXPO, byteRollPitchRate,byteYawRate, byteDynThrPID;
+int  byteRC_RATE,byteRC_EXPO, byteRollPitchRate,byteYawRate, byteDynThrPID,byteThrottle_EXPO, byteThrottle_MID;
 
 Slider rcStickThrottleSlider,rcStickRollSlider,rcStickPitchSlider,rcStickYawSlider,rcStickAUX1Slider,rcStickAUX2Slider,rcStickAUX3Slider,rcStickAUX4Slider;
 
@@ -57,7 +57,7 @@ Button buttonREAD,buttonRESET,buttonWRITE,buttonCALIBRATE_ACC,buttonCALIBRATE_MA
 
 Toggle tACC_ROLL, tACC_PITCH, tACC_Z, tGYRO_ROLL, tGYRO_PITCH, tGYRO_YAW, tBARO,tHEAD, tMAGX, tMAGY, tMAGZ, 
         tDEBUG1, tDEBUG2, tDEBUG3, tDEBUG4;
-        
+
 color yellow_ = color(200, 200, 20), green_ = color(30, 120, 30), red_ = color(120, 30, 30),
 grey_ = color(30, 30, 30);
 boolean graphEnable = false;
@@ -148,21 +148,21 @@ void setup() {
   int y7= yGraph+185; //GPS
   int y6= yGraph+205; //DEBUG
 
-   tACC_ROLL =     controlP5.addToggle("ACC_ROLL",true,x,y1+10,20,10);tACC_ROLL.setColorActive(color(255, 0, 0));tACC_ROLL.setColorBackground(black);tACC_ROLL.setLabel(""); 
-   tACC_PITCH =   controlP5.addToggle("ACC_PITCH",true,x,y1+20,20,10);tACC_PITCH.setColorActive(color(0, 255, 0));tACC_PITCH.setColorBackground(black);tACC_PITCH.setLabel(""); 
-   tACC_Z =           controlP5.addToggle("ACC_Z",true,x,y1+30,20,10);tACC_Z.setColorActive(color(0, 0, 255));tACC_Z.setColorBackground(black);tACC_Z.setLabel(""); 
-   tGYRO_ROLL =   controlP5.addToggle("GYRO_ROLL",true,x,y2+10,20,10);tGYRO_ROLL.setColorActive(color(200, 200, 0));tGYRO_ROLL.setColorBackground(black);tGYRO_ROLL.setLabel(""); 
-   tGYRO_PITCH = controlP5.addToggle("GYRO_PITCH",true,x,y2+20,20,10);tGYRO_PITCH.setColorActive(color(0, 255, 255));tGYRO_PITCH.setColorBackground(black);tGYRO_PITCH.setLabel(""); 
-   tGYRO_YAW =     controlP5.addToggle("GYRO_YAW",true,x,y2+30,20,10);tGYRO_YAW.setColorActive(color(255, 0, 255));tGYRO_YAW.setColorBackground(black);tGYRO_YAW.setLabel(""); 
-   tBARO =               controlP5.addToggle("BARO",true,x,y3 ,20,10);tBARO.setColorActive(color(125, 125, 125));tBARO.setColorBackground(black);tBARO.setLabel(""); 
-   tHEAD =               controlP5.addToggle("HEAD",true,x,y4 ,20,10);tHEAD.setColorActive(color(225, 225, 125));tHEAD.setColorBackground(black);tHEAD.setLabel(""); 
-   tMAGX =             controlP5.addToggle("MAGX",true,x,y5+10,20,10);tMAGX.setColorActive(color(50, 100, 150));tMAGX.setColorBackground(black);tMAGX.setLabel(""); 
-   tMAGY =             controlP5.addToggle("MAGY",true,x,y5+20,20,10);tMAGY.setColorActive(color(100, 50, 150));tMAGY.setColorBackground(black);tMAGY.setLabel(""); 
-   tMAGZ =             controlP5.addToggle("MAGZ",true,x,y5+30,20,10);tMAGZ.setColorActive(color(150, 100, 50));tMAGZ.setColorBackground(black);tMAGZ.setLabel(""); 
-   tDEBUG1 =         controlP5.addToggle("DEBUG1",true,x+70,y6,20,10);tDEBUG1.setColorActive(color(150, 100, 50));tDEBUG1.setColorBackground(black);tDEBUG1.setLabel("");tDEBUG1.setValue(0);
-   tDEBUG2 =         controlP5.addToggle("DEBUG2",true,x+190,y6,20,10);tDEBUG2.setColorActive(color(150, 100, 50));tDEBUG2.setColorBackground(black);tDEBUG2.setLabel("");tDEBUG2.setValue(0);
-   tDEBUG3 =         controlP5.addToggle("DEBUG3",true,x+310,y6,20,10);tDEBUG3.setColorActive(color(150, 100, 50));tDEBUG3.setColorBackground(black);tDEBUG3.setLabel("");tDEBUG3.setValue(0);
-   tDEBUG4 =         controlP5.addToggle("DEBUG4",true,x+430,y6,20,10);tDEBUG4.setColorActive(color(150, 100, 50));tDEBUG4.setColorBackground(black);tDEBUG4.setLabel("");tDEBUG4.setValue(0);
+  tACC_ROLL =     controlP5.addToggle("ACC_ROLL",true,x,y1+10,20,10);tACC_ROLL.setColorActive(color(255, 0, 0));tACC_ROLL.setColorBackground(black);tACC_ROLL.setLabel(""); 
+  tACC_PITCH =   controlP5.addToggle("ACC_PITCH",true,x,y1+20,20,10);tACC_PITCH.setColorActive(color(0, 255, 0));tACC_PITCH.setColorBackground(black);tACC_PITCH.setLabel(""); 
+  tACC_Z =           controlP5.addToggle("ACC_Z",true,x,y1+30,20,10);tACC_Z.setColorActive(color(0, 0, 255));tACC_Z.setColorBackground(black);tACC_Z.setLabel(""); 
+  tGYRO_ROLL =   controlP5.addToggle("GYRO_ROLL",true,x,y2+10,20,10);tGYRO_ROLL.setColorActive(color(200, 200, 0));tGYRO_ROLL.setColorBackground(black);tGYRO_ROLL.setLabel(""); 
+  tGYRO_PITCH = controlP5.addToggle("GYRO_PITCH",true,x,y2+20,20,10);tGYRO_PITCH.setColorActive(color(0, 255, 255));tGYRO_PITCH.setColorBackground(black);tGYRO_PITCH.setLabel(""); 
+  tGYRO_YAW =     controlP5.addToggle("GYRO_YAW",true,x,y2+30,20,10);tGYRO_YAW.setColorActive(color(255, 0, 255));tGYRO_YAW.setColorBackground(black);tGYRO_YAW.setLabel(""); 
+  tBARO =               controlP5.addToggle("BARO",true,x,y3 ,20,10);tBARO.setColorActive(color(125, 125, 125));tBARO.setColorBackground(black);tBARO.setLabel(""); 
+  tHEAD =               controlP5.addToggle("HEAD",true,x,y4 ,20,10);tHEAD.setColorActive(color(225, 225, 125));tHEAD.setColorBackground(black);tHEAD.setLabel(""); 
+  tMAGX =             controlP5.addToggle("MAGX",true,x,y5+10,20,10);tMAGX.setColorActive(color(50, 100, 150));tMAGX.setColorBackground(black);tMAGX.setLabel(""); 
+  tMAGY =             controlP5.addToggle("MAGY",true,x,y5+20,20,10);tMAGY.setColorActive(color(100, 50, 150));tMAGY.setColorBackground(black);tMAGY.setLabel(""); 
+  tMAGZ =             controlP5.addToggle("MAGZ",true,x,y5+30,20,10);tMAGZ.setColorActive(color(150, 100, 50));tMAGZ.setColorBackground(black);tMAGZ.setLabel(""); 
+  tDEBUG1 =         controlP5.addToggle("DEBUG1",true,x+70,y6,20,10);tDEBUG1.setColorActive(color(150, 100, 50));tDEBUG1.setColorBackground(black);tDEBUG1.setLabel("");tDEBUG1.setValue(0);
+  tDEBUG2 =         controlP5.addToggle("DEBUG2",true,x+190,y6,20,10);tDEBUG2.setColorActive(color(150, 100, 50));tDEBUG2.setColorBackground(black);tDEBUG2.setLabel("");tDEBUG2.setValue(0);
+  tDEBUG3 =         controlP5.addToggle("DEBUG3",true,x+310,y6,20,10);tDEBUG3.setColorActive(color(150, 100, 50));tDEBUG3.setColorBackground(black);tDEBUG3.setLabel("");tDEBUG3.setValue(0);
+  tDEBUG4 =         controlP5.addToggle("DEBUG4",true,x+430,y6,20,10);tDEBUG4.setColorActive(color(150, 100, 50));tDEBUG4.setColorBackground(black);tDEBUG4.setLabel("");tDEBUG4.setValue(0);
 
   controlP5.addTextlabel("acclabel","ACC",xo,y1);
   controlP5.addTextlabel("accrolllabel","   ROLL",xo,y1+10);
@@ -200,25 +200,30 @@ void setup() {
   debug4Slider  =    controlP5.addSlider("debug4Slider",-32000,+32000,0,x+490,y6,50,10);debug4Slider.setDecimalPrecision(0);debug4Slider.setLabel("");
 
   for(int i=0;i<8;i++) {
-    confP[i] = (controlP5.Numberbox) hideLabel(controlP5.addNumberbox("confP"+i,0,xParam+40,yParam+20+i*20,30,14));
+    confP[i] = (controlP5.Numberbox) hideLabel(controlP5.addNumberbox("confP"+i,0,xParam+40,yParam+20+i*17,30,14));
     confP[i].setColorBackground(red_);confP[i].setMin(0);confP[i].setDirection(Controller.HORIZONTAL);confP[i].setDecimalPrecision(1);confP[i].setMultiplier(0.1);confP[i].setMax(20);
-    confI[i] = (controlP5.Numberbox) hideLabel(controlP5.addNumberbox("confI"+i,0,xParam+75,yParam+20+i*20,40,14));
+    confI[i] = (controlP5.Numberbox) hideLabel(controlP5.addNumberbox("confI"+i,0,xParam+75,yParam+20+i*17,40,14));
     confI[i].setColorBackground(red_);confI[i].setMin(0);confI[i].setDirection(Controller.HORIZONTAL);confI[i].setDecimalPrecision(3);confI[i].setMultiplier(0.001);confI[i].setMax(0.250);
-    confD[i] = (controlP5.Numberbox) hideLabel(controlP5.addNumberbox("confD"+i,0,xParam+120,yParam+20+i*20,30,14));
+    confD[i] = (controlP5.Numberbox) hideLabel(controlP5.addNumberbox("confD"+i,0,xParam+120,yParam+20+i*17,30,14));
     confD[i].setColorBackground(red_);confD[i].setMin(0);confD[i].setDirection(Controller.HORIZONTAL);confD[i].setDecimalPrecision(0);confD[i].setMultiplier(1);confD[i].setMax(100);}
   confI[7].hide();confD[7].hide();
 
   rollPitchRate = (controlP5.Numberbox) hideLabel(controlP5.addNumberbox("rollPitchRate",0,xParam+160,yParam+30,30,14));rollPitchRate.setDecimalPrecision(2);rollPitchRate.setMultiplier(0.01);
   rollPitchRate.setDirection(Controller.HORIZONTAL);rollPitchRate.setMin(0);rollPitchRate.setMax(1);rollPitchRate.setColorBackground(red_);
-  yawRate = (controlP5.Numberbox) hideLabel(controlP5.addNumberbox("yawRate",0,xParam+160,yParam+60,30,14));yawRate.setDecimalPrecision(2);yawRate.setMultiplier(0.01);
+  yawRate = (controlP5.Numberbox) hideLabel(controlP5.addNumberbox("yawRate",0,xParam+160,yParam+54,30,14));yawRate.setDecimalPrecision(2);yawRate.setMultiplier(0.01);
   yawRate.setDirection(Controller.HORIZONTAL);yawRate.setMin(0);yawRate.setMax(1);yawRate.setColorBackground(red_); 
   dynamic_THR_PID = (controlP5.Numberbox) hideLabel(controlP5.addNumberbox("dynamic_THR_PID",0,xParam+300,yParam+12,30,14));dynamic_THR_PID.setDecimalPrecision(2);dynamic_THR_PID.setMultiplier(0.01);
   dynamic_THR_PID.setDirection(Controller.HORIZONTAL);dynamic_THR_PID.setMin(0);dynamic_THR_PID.setMax(1);dynamic_THR_PID.setColorBackground(red_);
 
-  confRC_RATE = controlP5.addNumberbox("RC RATE",1,xParam+40,yParam+213,30,14);confRC_RATE.setDecimalPrecision(2);confRC_RATE.setMultiplier(0.01);confRC_RATE.setLabel("");
+  confRC_RATE = controlP5.addNumberbox("RC RATE",1,xParam+40,yParam+220,30,14);confRC_RATE.setDecimalPrecision(2);confRC_RATE.setMultiplier(0.01);confRC_RATE.setLabel("");
   confRC_RATE.setDirection(Controller.HORIZONTAL);confRC_RATE.setMin(0);confRC_RATE.setMax(2.5);confRC_RATE.setColorBackground(red_);
-  confRC_EXPO = controlP5.addNumberbox("RC EXPO",0,xParam+40,yParam+240,30,14);confRC_EXPO.setDecimalPrecision(2);confRC_EXPO.setMultiplier(0.01);confRC_EXPO.setLabel("");
+  confRC_EXPO = controlP5.addNumberbox("RC EXPO",0,xParam+40,yParam+237,30,14);confRC_EXPO.setDecimalPrecision(2);confRC_EXPO.setMultiplier(0.01);confRC_EXPO.setLabel("");
   confRC_EXPO.setDirection(Controller.HORIZONTAL);confRC_EXPO.setMin(0);confRC_EXPO.setMax(1);confRC_EXPO.setColorBackground(red_);
+
+  throttle_MID = controlP5.addNumberbox("T MID",0.5,xParam+40,yParam+180,30,14);throttle_MID.setDecimalPrecision(2);throttle_MID.setMultiplier(0.01);throttle_MID.setLabel("");
+  throttle_MID.setDirection(Controller.HORIZONTAL);throttle_MID.setMin(0);throttle_MID.setMax(1);throttle_MID.setColorBackground(red_);
+  throttle_EXPO = controlP5.addNumberbox("T EXPO",0,xParam+40,yParam+197,30,14);throttle_EXPO.setDecimalPrecision(2);throttle_EXPO.setMultiplier(0.01);throttle_EXPO.setLabel("");
+  throttle_EXPO.setDirection(Controller.HORIZONTAL);throttle_EXPO.setMin(0);throttle_EXPO.setMax(1);throttle_EXPO.setColorBackground(red_);
 
   for(int i=0;i<CHECKBOXITEMS;i++) {
     buttonCheckbox[i] = controlP5.addButton("bcb"+i,1,xBox-30,yBox+20+13*i,68,12);
@@ -236,6 +241,13 @@ void setup() {
     checkbox2[i].setLabel("");
     hideLabel(checkbox2[i].addItem(i + "1_",1));hideLabel(checkbox2[i].addItem(i + "2_",2));hideLabel(checkbox2[i].addItem(i + "3_",3));
     hideLabel(checkbox2[i].addItem(i + "4_",4));hideLabel(checkbox2[i].addItem(i + "5_",5));hideLabel(checkbox2[i].addItem(i + "6_",6));
+/*
+    for (int j=1; j<=6; j++) {
+      checkbox1[i].addItem(i + "_cb1_" + j, j);
+      checkbox2[i].addItem(i + "_cb2_" + j, j);
+    }
+    checkbox1[i].hideLabels();	
+    checkbox2[i].hideLabels();*/
   }
   
   buttonREAD =          controlP5.addButton("READ",1,xParam+5,yParam+260,50,16);buttonREAD.setColorBackground(red_);
@@ -380,11 +392,14 @@ void draw() {
       byteRollPitchRate = (round(rollPitchRate.value()*100));
       byteYawRate       = (round(yawRate.value()*100));
       byteDynThrPID     = (round(dynamic_THR_PID.value()*100));
+      byteThrottle_MID   = (round(throttle_MID.value()*100));
+      byteThrottle_EXPO  = (round(throttle_EXPO.value()*100));
       indTX=0;
-      serialize8('$');serialize8('M');serialize8('<');serialize8(5);serialize8(MSP_SET_RC_TUNING);
+      serialize8('$');serialize8('M');serialize8('<');serialize8(7);serialize8(MSP_SET_RC_TUNING);
       checksum=0;
       serialize8(byteRC_RATE);serialize8(byteRC_EXPO);serialize8(byteRollPitchRate);
       serialize8(byteYawRate);serialize8(byteDynThrPID);
+      serialize8(byteThrottle_MID);serialize8(byteThrottle_EXPO);
       serialize8(checksum);
       for(i=0;i<indTX;i++) {g_serial.write(char(outBuf_[i]));}
 
@@ -496,12 +511,18 @@ void draw() {
                 stateMSP = 0;
                 byteRC_RATE = read8();byteRC_EXPO = read8();byteRollPitchRate = read8();
                 byteYawRate = read8();byteDynThrPID = read8();
+                byteThrottle_MID = read8();byteThrottle_EXPO = read8();
                 confRC_RATE.setValue(byteRC_RATE/100.0);
                 confRC_EXPO.setValue(byteRC_EXPO/100.0);
                 rollPitchRate.setValue(byteRollPitchRate/100.0);
                 yawRate.setValue(byteYawRate/100.0);
                 dynamic_THR_PID.setValue(byteDynThrPID/100.0);
-                confRC_RATE.setColorBackground(green_);confRC_EXPO.setColorBackground(green_);rollPitchRate.setColorBackground(green_);yawRate.setColorBackground(green_);dynamic_THR_PID.setColorBackground(green_); break;
+                throttle_MID.setValue(byteThrottle_MID/100.0);
+                throttle_EXPO.setValue(byteThrottle_EXPO/100.0);
+                confRC_RATE.setColorBackground(green_);confRC_EXPO.setColorBackground(green_);rollPitchRate.setColorBackground(green_);
+                yawRate.setColorBackground(green_);dynamic_THR_PID.setColorBackground(green_);
+                throttle_MID.setColorBackground(green_);throttle_EXPO.setColorBackground(green_);
+                break;
               case MSP_ACC_CALIBRATION:
                 stateMSP = 0; break;
               case MSP_MAG_CALIBRATION:
@@ -579,7 +600,7 @@ void draw() {
 
   text(GPS_altitude,530,260);
   text(GPS_latitude,530,275);
-  text(GPS_latitude,530,290);
+  text(GPS_longitude,530,290);
   text(GPS_speed,530,305);
   text(GPS_numSat,530,320);
   text(GPS_distanceToHome,630,260);
@@ -605,7 +626,7 @@ void draw() {
 
   axSlider.setValue(ax);aySlider.setValue(ay);azSlider.setValue(az);gxSlider.setValue(gx);gySlider.setValue(gy);gzSlider.setValue(gz);
   altSlider.setValue(alt/100);headSlider.setValue(head);magxSlider.setValue(magx);magySlider.setValue(magy);magzSlider.setValue(magz);
-  debug1Slider.setValue(debug1/10);debug2Slider.setValue(debug2);debug3Slider.setValue(debug3);debug4Slider.setValue(debug4);
+  debug1Slider.setValue(debug1);debug2Slider.setValue(debug2);debug3Slider.setValue(debug3);debug4Slider.setValue(debug4);
 
   for(i=0;i<8;i++) {
     motSlider[i].setValue(mot[i]);motSlider[i].hide();
@@ -736,7 +757,7 @@ void draw() {
     motSlider[5].setPosition(xMot+5,yMot+35);motSlider[5].setHeight(45);motSlider[5].setCaptionLabel("LEFT");motSlider[5].show(); 
   } else if (multiType >= 11 && multiType <= 13) { //OCTOX8
     // GUI is the same for all 8 motor configs. multiType 11-13
-    noLights();text("OCTOCOPTER X8", -45,-50);camera();popMatrix();
+    noLights();text("OCTOCOPTER", -45,-50);camera();popMatrix();
   } else if (multiType == 14) { //AIRPLANE
     float Span = size*1.3;  
     float VingRoot = Span*0.25;  
@@ -785,18 +806,18 @@ void draw() {
     text("Heli 120 CCPM", -42,-50);camera();popMatrix();
 	
     // Sliders
- /*    
-     motSlider[0].setPosition(xMot,yMot);motSlider[0].setHeight(120);motSlider[0].setCaptionLabel("Thro");motSlider[0].show();
-     servoSliderV[0].setPosition(xMot+40,yMot-15);servoSliderV[0].setCaptionLabel("LEFT");servoSliderV[0].show(); 
-     servoSliderV[2].setPosition(xMot+70,yMot) ;servoSliderV[2].setCaptionLabel("Nick");servoSliderV[2].show();
-     servoSliderV[1].setPosition(xMot+100,yMot-15);servoSliderV[1].setCaptionLabel("RIGHT");servoSliderV[1].show();
-     servoSliderH[3].setPosition(xMot+24,yMot+130);servoSliderH[3].setCaptionLabel("Yaw");servoSliderH[3].show();
- */
-     servoSliderV[7].setPosition(xMot,yMot)        ;servoSliderV[7].setCaptionLabel("Thro");servoSliderV[7].show();     
-     servoSliderV[4].setPosition(xMot+40,yMot-15)  ;servoSliderV[4].setCaptionLabel("LEFT");servoSliderV[4].show(); 
-     servoSliderV[3].setPosition(xMot+70,yMot+10)  ;servoSliderV[3].setCaptionLabel("Nick");servoSliderV[3].show();
-     servoSliderH[5].setPosition(xMot+15,yMot+130) ;servoSliderH[5].setCaptionLabel("Yaw") ;servoSliderH[5].show();
-     servoSliderV[6].setPosition(xMot+100,yMot-15);servoSliderV[6].setCaptionLabel("RIGHT");servoSliderV[6].show();
+    /*    
+    motSlider[0].setPosition(xMot,yMot);motSlider[0].setHeight(120);motSlider[0].setCaptionLabel("Thro");motSlider[0].show();
+    servoSliderV[0].setPosition(xMot+40,yMot-15);servoSliderV[0].setCaptionLabel("LEFT");servoSliderV[0].show(); 
+    servoSliderV[2].setPosition(xMot+70,yMot) ;servoSliderV[2].setCaptionLabel("Nick");servoSliderV[2].show();
+    servoSliderV[1].setPosition(xMot+100,yMot-15);servoSliderV[1].setCaptionLabel("RIGHT");servoSliderV[1].show();
+    servoSliderH[3].setPosition(xMot+24,yMot+130);servoSliderH[3].setCaptionLabel("Yaw");servoSliderH[3].show();
+    */
+    servoSliderV[7].setPosition(xMot,yMot)        ;servoSliderV[7].setCaptionLabel("Thro");servoSliderV[7].show();     
+    servoSliderV[4].setPosition(xMot+40,yMot-15)  ;servoSliderV[4].setCaptionLabel("LEFT");servoSliderV[4].show(); 
+    servoSliderV[3].setPosition(xMot+70,yMot+10)  ;servoSliderV[3].setCaptionLabel("Nick");servoSliderV[3].show();
+    servoSliderH[5].setPosition(xMot+15,yMot+130) ;servoSliderH[5].setCaptionLabel("Yaw") ;servoSliderH[5].show();
+    servoSliderV[6].setPosition(xMot+100,yMot-15);servoSliderV[6].setCaptionLabel("RIGHT");servoSliderV[6].show();
   } else if (multiType == 16) { //Heli 90 
     // HeliGraphics    
     float scalesize=size*0.8;
@@ -820,11 +841,11 @@ void draw() {
     text("Heli 90", -16,-50);camera();popMatrix();
 	
     // Sliders
-     servoSliderV[7].setPosition(xMot,yMot-15)    ;servoSliderV[7].setCaptionLabel("Thro");servoSliderV[7].show();     
-     servoSliderV[4].setPosition(xMot+120,yMot-15);servoSliderV[4].setCaptionLabel("ROLL");servoSliderV[4].show(); 
-     servoSliderV[3].setPosition(xMot+80,yMot+10) ;servoSliderV[3].setCaptionLabel("Nick");servoSliderV[3].show();
-     servoSliderH[5].setPosition(xMot+15,yMot+130);servoSliderH[5].setCaptionLabel("Yaw") ;servoSliderH[5].show();
-     servoSliderV[6].setPosition(xMot+40,yMot)    ;servoSliderV[6].setCaptionLabel("COLL");servoSliderV[6].show();
+    servoSliderV[7].setPosition(xMot,yMot-15)    ;servoSliderV[7].setCaptionLabel("Thro");servoSliderV[7].show();     
+    servoSliderV[4].setPosition(xMot+120,yMot-15);servoSliderV[4].setCaptionLabel("ROLL");servoSliderV[4].show(); 
+    servoSliderV[3].setPosition(xMot+80,yMot+10) ;servoSliderV[3].setCaptionLabel("Nick");servoSliderV[3].show();
+    servoSliderH[5].setPosition(xMot+15,yMot+130);servoSliderH[5].setCaptionLabel("Yaw") ;servoSliderH[5].show();
+    servoSliderV[6].setPosition(xMot+40,yMot)    ;servoSliderV[6].setCaptionLabel("COLL");servoSliderV[6].show();
   }  else if (multiType == 17) { //Vtail   
     ellipse(-0.55*size,size,size,size); ellipse(+0.55*size,size,size,size);
     line(-0.55*size,size,0,0);line(+0.55*size,size,0,0);    
@@ -924,39 +945,80 @@ void draw() {
   rect(xRC-5,yRC-5, xRC+185, yRC+210);
   rect(xParam,yParam, xParam+355, yParam+280);
 
-  int xSens       = xParam + 80;
-  int ySens       = yParam + 210;
+  int xSens1       = xParam + 80;
+  int ySens1       = yParam + 220;
   stroke(255);
   a=min(confRC_RATE.value(),1);
   b=confRC_EXPO.value();
   strokeWeight(1);
-  line(xSens,ySens,xSens,ySens+40);
-  line(xSens,ySens+40,xSens+70,ySens+40);
+  line(xSens1,ySens1,xSens1,ySens1+35);
+  line(xSens1,ySens1+35,xSens1+70,ySens1+35);
   strokeWeight(3);stroke(30,120,30);
+  
+  int lookupR[] = new int[6];
+  for(i=0;i<6;i++) lookupR[i] = int( (2500+b*100*(i*i-25))*i*a*100/2500 );
+  
   for(i=0;i<70;i++) {
-    inter = 10*i;
-    val = a*inter*(1-b+inter*inter*b/490000);
-    point(xSens+i,ySens+(70-val/10)*4/7);
+    int tmp = 500/70*i;
+    int tmp2 = tmp/100;
+    int rccommand = 2*lookupR[tmp2] + 2*(tmp-tmp2*100) * (lookupR[tmp2+1]-lookupR[tmp2]) / 100;
+    val = rccommand*70/1000;
+    point(xSens1+i,ySens1+(70-val)*3.5/7);
   }
   if (confRC_RATE.value()>1) { 
     stroke(220,100,100);
-    ellipse(xSens+70, ySens, 7, 7);
+    ellipse(xSens1+70, ySens1, 7, 7);
   }
   
+  a=throttle_MID.value();
+  b=throttle_EXPO.value();
+  
+  int xSens2       = xParam + 80;
+  int ySens2       = yParam + 180;
+  strokeWeight(1);stroke(255);
+  line(xSens2,ySens2,xSens2,ySens2+35);
+  line(xSens2,ySens2+35,xSens2+70,ySens2+35);
+  strokeWeight(3);stroke(30,100,250);
+
+  int lookupT[] = new int[11];
+  for(i=0;i<11;i++) {
+    int mid = int(100*a);
+    int expo = int(100*b);
+    int tmp = 10*i-mid;
+    int y=1;
+    if (tmp>0) y = 100-mid;
+    if (tmp<0) y = mid;
+    lookupT[i] = int( 10*mid +  tmp*( 100-expo+tmp*tmp*expo/(y*y) )/10  );
+  }
+  for(i=0;i<70;i++) {
+    int tmp = 1000/70*i;
+    int tmp2 = tmp/100;
+    int rccommand = lookupT[tmp2] + (tmp-tmp2*100) * (lookupT[tmp2+1]-lookupT[tmp2]) / 100;
+    val = rccommand*70/1000;
+    point(xSens2+i,ySens2+(70-val)*3.5/7);
+  }
+
   fill(255);
   textFont(font15);    
   text("P",xParam+45,yParam+15);text("I",xParam+90,yParam+15);text("D",xParam+130,yParam+15);
+  textFont(font8);
+  text("PITCH",xSens1+2,ySens1+10);
+  text("ROLL",xSens1+2,ySens1+20);
+  text("THROTTLE",xSens2+2,ySens2+10);
   textFont(font12);
-  text("    RC",xParam+3,yParam+220);
   text("RATE",xParam+3,yParam+232);
-  text("EXPO",xParam+3,yParam+250);
+  text("EXPO",xParam+3,yParam+249);
+  text("MID",xParam+3,yParam+193);
+  text("EXPO",xParam+3,yParam+210);
   text("RATE",xParam+160,yParam+15);
-  text("ROLL",xParam+3,yParam+32);text("PITCH",xParam+3,yParam+52);text("YAW",xParam+3,yParam+72);
-  text("ALT",xParam+3,yParam+92);
-  text("VEL",xParam+3,yParam+112);
-  text("GPS",xParam+3,yParam+132);
-  text("LEVEL",xParam+1,yParam+152);
-  text("MAG",xParam+3,yParam+172); 
+  text("ROLL",xParam+3,yParam+32);
+  text("PITCH",xParam+3,yParam+32+1*17);
+  text("YAW",xParam+3,yParam+32+2*17);
+  text("ALT",xParam+3,yParam+32+3*17);
+  text("VEL",xParam+3,yParam+32+4*17);
+  text("GPS",xParam+3,yParam+32+5*17);
+  text("LEVEL",xParam+1,yParam+32+6*17);
+  text("MAG",xParam+3,yParam+32+7*17); 
   text("Throttle PID",xParam+220,yParam+15);text("attenuation",xParam+220,yParam+30);
   text("AUX1",xBox+55,yBox+5);text("AUX2",xBox+105,yBox+5);
   textFont(font8);
@@ -1002,7 +1064,7 @@ void ACC_Z(boolean theFlag) {azGraph = theFlag;}
 void GYRO_ROLL(boolean theFlag) {gxGraph = theFlag;}
 void GYRO_PITCH(boolean theFlag) {gyGraph = theFlag;}
 void GYRO_YAW(boolean theFlag) {gzGraph = theFlag;}
-void ALT(boolean theFlag) {altGraph = theFlag;}
+void BARO(boolean theFlag) {altGraph = theFlag;}
 void HEAD(boolean theFlag) {headGraph = theFlag;}
 void MAGX(boolean theFlag) {magxGraph = theFlag;}
 void MAGY(boolean theFlag) {magyGraph = theFlag;}

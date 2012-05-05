@@ -336,53 +336,55 @@ int read8()  {return inBuf[p++]&0xff;}
 int mode;
 boolean toggleRead = false,toggleReset = false,toggleCalibAcc = false,toggleCalibMag = false,toggleWrite = false;
 
+void requestMSP(int msp) {
+  g_serial.write("$M<");
+  g_serial.write(byte(msp & 0xFF));
+}
+
+void requestMSP(int[] msps) {
+  for (int m : msps) {
+    requestMSP(m);
+  }
+}
 
 void draw() {
   int i,present=0,aa;
   float val,inter,a,b,h;
   int c;
-  
   if (init_com==1 && graph_on==1) {
     time=millis();
     if ((time-time2)>50) {
       time2=time;
-      outBuf =  "$M<"+char(MSP_IDENT)+ "$M<"+char(MSP_STATUS)+ "$M<"+char(MSP_RAW_IMU)+ "$M<"+char(MSP_SERVO)+ "$M<"+char(MSP_MOTOR)
-              + "$M<"+char(MSP_RC)+ "$M<"+char(MSP_RAW_GPS)+ "$M<"+char(MSP_COMP_GPS)+ "$M<"+char(MSP_ALTITUDE)+ "$M<"+char(MSP_BAT)
-              + "$M<"+char(MSP_DEBUG);
-      g_serial.write(outBuf);
+      int[] requests = {MSP_IDENT, MSP_STATUS, MSP_RAW_IMU, MSP_SERVO, MSP_MOTOR, MSP_RC, MSP_RAW_GPS, MSP_COMP_GPS, MSP_ALTITUDE, MSP_BAT, MSP_DEBUG};
+      requestMSP(requests);
       
       accROLL.addVal(ax);accPITCH.addVal(ay);accYAW.addVal(az);gyroROLL.addVal(gx);gyroPITCH.addVal(gy);gyroYAW.addVal(gz);
       magxData.addVal(magx);magyData.addVal(magy);magzData.addVal(magz);
       altData.addVal(alt);headData.addVal(head);
       debug1Data.addVal(debug1);debug2Data.addVal(debug2);debug3Data.addVal(debug3);debug4Data.addVal(debug4);
-
     }
     if ((time-time3)>20) {
-      outBuf =  "$M<"+char(MSP_ATTITUDE);
-      g_serial.write(outBuf);
+      requestMSP(MSP_ATTITUDE);
       time3=time;
     }
     if (toggleReset) {
       toggleReset=false;
       toggleRead=true;
-      outBuf =  "$M<"+char(MSP_RESET_CONF);
-      g_serial.write(outBuf);
+      requestMSP(MSP_RESET_CONF);
     }
     if (toggleRead) {
       toggleRead=false;
-      outBuf =  "$M<"+char(MSP_RC_TUNING)+ "$M<"+char(MSP_PID)+ "$M<"+char(MSP_BOX)+ "$M<"+char(MSP_MISC);
-      g_serial.write(outBuf);
+      int[] requests = {MSP_RC_TUNING, MSP_PID, MSP_BOX, MSP_MISC};
+      requestMSP(requests);
       buttonWRITE.setColorBackground(green_);
     }
     if (toggleCalibAcc) {
       toggleCalibAcc=false;
-      outBuf =  "$M<"+char(MSP_ACC_CALIBRATION);
-      g_serial.write(outBuf);
+      requestMSP(MSP_ACC_CALIBRATION);
     }
     if (toggleCalibMag) {
       toggleCalibMag=false;
-      outBuf =  "$M<"+char(MSP_MAG_CALIBRATION);
-      g_serial.write(outBuf);
+      requestMSP(MSP_MAG_CALIBRATION);
     }
     if (toggleWrite) {
       toggleWrite=false;

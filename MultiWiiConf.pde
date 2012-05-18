@@ -25,6 +25,7 @@ boolean axGraph =true,ayGraph=true,azGraph=true,gxGraph=true,gyGraph=true,gzGrap
         debug1Graph = false,debug2Graph = false,debug3Graph = false,debug4Graph = false;
 
 int multiType;  // 1 for tricopter, 2 for quad+, 3 for quadX, ...
+int byteMP[] = new int[8];  // Motor Pins.  Varies by multiType and Arduino model (pro Mini, Mega, etc).
 
 cDataArray accPITCH   = new cDataArray(100), accROLL    = new cDataArray(100), accYAW     = new cDataArray(100),
            gyroPITCH  = new cDataArray(100), gyroROLL   = new cDataArray(100), gyroYAW    = new cDataArray(100),
@@ -294,6 +295,7 @@ private static final int
   MSP_PID                  =112,
   MSP_BOX                  =113,
   MSP_MISC                 =114,
+  MSP_MOTOR_PINS           =115,
 
   MSP_SET_RAW_RC           =200,
   MSP_SET_RAW_GPS          =201,
@@ -347,6 +349,27 @@ void requestMSP(int[] msps) {
   }
 }
 
+void drawMotor(float x1, float y1, int mot_num, char dir) {   //Code by Danal
+  float size = 30.0;
+  pushStyle();
+  float d = 0;
+  if (dir == 'L') {d = +5; fill(254, 221, 44);} 
+  if (dir == 'R') {d = -5; fill(256, 152, 12);}
+  ellipse(x1, y1, size, size);
+  textFont(font15);
+  textAlign(CENTER);
+  fill(0,0,0);
+  text(mot_num,x1,y1+5,3);
+  float y2 = y1-(size/2);
+  stroke(255,0,0);
+  line(x1, y2, 3, x1+d, y2-5, 3);
+  line(x1, y2, 3, x1+d, y2+5, 3);
+  line(x1, y2, 3, x1+d*2, y2, 3); 
+  popStyle();
+}
+
+
+
 void draw() {
   int i,present=0,aa;
   float val,inter,a,b,h;
@@ -355,7 +378,7 @@ void draw() {
     time=millis();
     if ((time-time2)>50) {
       time2=time;
-      int[] requests = {MSP_IDENT, MSP_STATUS, MSP_RAW_IMU, MSP_SERVO, MSP_MOTOR, MSP_RC, MSP_RAW_GPS, MSP_COMP_GPS, MSP_ALTITUDE, MSP_BAT, MSP_DEBUG};
+      int[] requests = {MSP_IDENT, MSP_MOTOR_PINS, MSP_STATUS, MSP_RAW_IMU, MSP_SERVO, MSP_MOTOR, MSP_RC, MSP_RAW_GPS, MSP_COMP_GPS, MSP_ALTITUDE, MSP_BAT, MSP_DEBUG};
       requestMSP(requests);
       
       accROLL.addVal(ax);accPITCH.addVal(ay);accYAW.addVal(az);gyroROLL.addVal(gx);gyroPITCH.addVal(gy);gyroYAW.addVal(gz);
@@ -551,6 +574,11 @@ void draw() {
                 stateMSP = 0;
                 intPowerTrigger = read16();
                 confPowerTrigger.setValue(intPowerTrigger); break;
+              case MSP_MOTOR_PINS:
+                stateMSP = 0;
+                for( i=0;i<8;i++) {
+                  byteMP[i] = read8();
+                } break;
               case MSP_DEBUG:
                 stateMSP = 0;
                 debug1 = read16();debug2 = read16();debug3 = read16();debug4 = read16(); break;
@@ -660,7 +688,10 @@ void draw() {
 
   textFont(font12);
   if (multiType == 1) { //TRI
-    ellipse(-size, -size, size, size);ellipse(+size, -size, size, size);ellipse(0,  +size,size, size);
+//    ellipse(-size, -size, size, size);ellipse(+size, -size, size, size);ellipse(0,  +size,size, size);
+    drawMotor(    0, +size, byteMP[0], 'L');
+    drawMotor(+size, -size, byteMP[1], 'L');
+    drawMotor(-size, -size, byteMP[2], 'R');
     line(-size,-size, 0,0);line(+size,-size, 0,0);line(0,+size, 0,0);
     noLights();text(" TRICOPTER", -40,-50);camera();popMatrix();
  
@@ -669,7 +700,11 @@ void draw() {
     motSlider[2].setPosition(xMot,yMot-15);motSlider[2].setHeight(100);motSlider[2].setCaptionLabel("LEFT");motSlider[2].show();
     servoSliderH[5].setPosition(xMot,yMot+135);servoSliderH[5].setCaptionLabel("SERVO");servoSliderH[5].show(); 
   } else if (multiType == 2) { //QUAD+
-    ellipse(0,  -size,   size,size);ellipse(0,  +size, size, size);ellipse(+size, 0,  size , size );ellipse(-size, 0,  size , size );
+//    ellipse(0,  -size,   size,size);ellipse(0,  +size, size, size);ellipse(+size, 0,  size , size );ellipse(-size, 0,  size , size );
+    drawMotor(0,     +size, byteMP[0], 'R');
+    drawMotor(+size, 0,     byteMP[1], 'L');
+    drawMotor(-size, 0,     byteMP[2], 'L');
+    drawMotor(0,     -size, byteMP[3], 'R');
     line(-size,0, +size,0);line(0,-size, 0,+size);
     noLights();text("QUADRICOPTER +", -40,-50);camera();popMatrix();
     
@@ -678,7 +713,11 @@ void draw() {
     motSlider[2].setPosition(xMot,yMot+35);motSlider[2].setHeight(60);motSlider[2].setCaptionLabel("LEFT");motSlider[2].show();
     motSlider[3].setPosition(xMot+50,yMot-15);motSlider[3].setHeight(60);motSlider[3].setCaptionLabel("FRONT");motSlider[3].show();
   } else if (multiType == 3) { //QUAD X
-    ellipse(-size,  -size, size, size);ellipse(+size,  -size, size, size);ellipse(-size,  +size, size, size);ellipse(+size,  +size, size, size);
+//   ellipse(-size,  -size, size, size);ellipse(+size,  -size, size, size);ellipse(-size,  +size, size, size);ellipse(+size,  +size, size, size);
+    drawMotor(+size, +size, byteMP[0], 'R');
+    drawMotor(+size, -size, byteMP[1], 'L');
+    drawMotor(-size, +size, byteMP[2], 'L');
+    drawMotor(-size, -size, byteMP[3], 'R');
     line(-size,-size, 0,0);line(+size,-size, 0,0);line(-size,+size, 0,0);line(+size,+size, 0,0);
     noLights();text("QUADRICOPTER X", -40,-50);camera();popMatrix();
     
@@ -687,7 +726,9 @@ void draw() {
     motSlider[2].setPosition(xMot+10,yMot+75);motSlider[2].setHeight(60);motSlider[2].setCaptionLabel("REAR_L");motSlider[2].show();
     motSlider[3].setPosition(xMot+10,yMot-15);motSlider[3].setHeight(60);motSlider[3].setCaptionLabel("FRONT_L");motSlider[3].show(); 
   } else if (multiType == 4) { //BI
-    ellipse(0-size,  0,   size, size);ellipse(0+size,  0,   size, size);
+//    ellipse(0-size,  0,   size, size);ellipse(0+size,  0,   size, size);
+    drawMotor(-size, 0, byteMP[0], 'R');
+    drawMotor(+size, 0, byteMP[1], 'L');
     line(0-size,0, 0,0);  line(0+size,0, 0,0);line(0,size*1.5, 0,0);
     noLights();text("BICOPTER", -30,-20);camera();popMatrix();
    
@@ -702,9 +743,15 @@ void draw() {
     servoSliderH[1].setPosition(xMot,yMot+75);servoSliderH[1].setCaptionLabel("ROLL");servoSliderH[1].show();
     servoSliderH[0].setPosition(xMot,yMot+35);servoSliderH[0].setCaptionLabel("PITCH");servoSliderH[0].show();
   } else if (multiType == 6) { //Y6
-    ellipse(-size,-size,size,size);ellipse(size,-size,size,size);ellipse(0,-2+size,size,size);
-    translate(0,0,7);
-    ellipse(-5-size,-5-size,size,size);ellipse(5+size,-5-size,size,size);ellipse(0,3+size,size,size);
+//    ellipse(-size,-size,size,size);ellipse(size,-size,size,size);ellipse(0,-2+size,size,size);
+    drawMotor(       +7+0,   +7+size, byteMP[0], 'L');
+    drawMotor(    +7+size,   +7-size, byteMP[1], 'R');
+    drawMotor(    +7-size,   +7-size, byteMP[2], 'R');
+    translate(0,0,-7);
+//    ellipse(-5-size,-5-size,size,size);ellipse(5+size,-5-size,size,size);ellipse(0,3+size,size,size);
+    drawMotor(       -7+0,   -7+size, byteMP[3], 'R');
+    drawMotor(    -7+size,   -7-size, byteMP[4], 'L');
+    drawMotor(    -7-size,   -7-size, byteMP[5], 'L');
     line(-size,-size,0,0);line(+size,-size, 0,0);line(0,+size, 0,0);
     noLights();text("TRICOPTER Y6", -40,-55);camera();popMatrix();
 
@@ -715,8 +762,14 @@ void draw() {
     motSlider[4].setPosition(xMot+100,yMot+48);motSlider[4].setHeight(50);motSlider[4].setCaptionLabel("U_RIGHT");motSlider[4].show();
     motSlider[5].setPosition(xMot,yMot+48);motSlider[5].setHeight(50);motSlider[5].setCaptionLabel("U_LEFT");motSlider[5].show();
   } else if (multiType == 7) { //HEX6
-    ellipse(-size,-0.55*size,size,size);ellipse(size,-0.55*size,size,size);ellipse(-size,+0.55*size,size,size);
-    ellipse(size,+0.55*size,size,size);ellipse(0,-size,size,size);ellipse(0,+size,size,size);
+//    ellipse(-size,-0.55*size,size,size);ellipse(size,-0.55*size,size,size);ellipse(-size,+0.55*size,size,size);
+//    ellipse(size,+0.55*size,size,size);ellipse(0,-size,size,size);ellipse(0,+size,size,size);
+    drawMotor(+size, +0.55*size, byteMP[0], 'L');
+    drawMotor(+size, -0.55*size, byteMP[1], 'R');
+    drawMotor(-size, +0.55*size, byteMP[2], 'L');
+    drawMotor(-size, -0.55*size, byteMP[3], 'R');
+    drawMotor(    0,      -size, byteMP[4], 'L');
+    drawMotor(    0,      +size, byteMP[5], 'R');
     line(-size,-0.55*size,0,0);line(size,-0.55*size,0,0);line(-size,+0.55*size,0,0);line(size,+0.55*size,0,0);line(0,+size,0,0);line(0,-size,0,0);
     noLights();text("HEXACOPTER", -40,-50);camera();popMatrix();
 
@@ -735,10 +788,14 @@ void draw() {
     servoSliderV[1].setPosition(xMot+100,yMot+10);servoSliderV[1].setCaptionLabel("RIGHT");servoSliderV[1].show();
     motSlider[0].setPosition(xMot+50,yMot+30);motSlider[0].setHeight(90);motSlider[0].setCaptionLabel("Mot");motSlider[0].show();
   } else if (multiType == 9) { //Y4
-    ellipse(-size,  -size, size, size);ellipse(+size,  -size, size, size);ellipse(0,  +size, size+2, size+2);
+//    ellipse(-size,  -size, size, size);ellipse(+size,  -size, size, size);ellipse(0,  +size, size+2, size+2);
+    drawMotor(       +15+0,      +size, byteMP[0], 'R');
+    drawMotor(       +size,      -size, byteMP[1], 'L');
+    drawMotor(       -size,      -size, byteMP[3], 'R');
     line(-size,-size, 0,0);line(+size,-size, 0,0);line(0,+size, 0,0);
-    translate(0,0,7);
-    ellipse(0,  +size, size, size);
+    translate(0,0,-7);
+//    ellipse(0,  +size, size, size);
+    drawMotor(       -15+0,      +size, byteMP[2], 'L');
     noLights();text("Y4", -5,-50);camera();popMatrix();
     
     motSlider[0].setPosition(xMot+80,yMot+75);motSlider[0].setHeight(60);motSlider[0].setCaptionLabel("REAR_1");motSlider[0].show();
@@ -746,8 +803,16 @@ void draw() {
     motSlider[2].setPosition(xMot+30,yMot+75);motSlider[2].setHeight(60);motSlider[2].setCaptionLabel("REAR_2");motSlider[2].show();
     motSlider[3].setPosition(xMot+10,yMot-15);motSlider[3].setHeight(60);motSlider[3].setCaptionLabel("FRONT_L");motSlider[3].show(); 
   } else if (multiType == 10) { //HEX6 X
-    ellipse(-0.55*size,-size,size,size);ellipse(-0.55*size,size,size,size);ellipse(+0.55*size,-size,size,size);
-    ellipse(+0.55*size,size,size,size);ellipse(-size,0,size,size);ellipse(+size,0,size,size);
+//    ellipse(-0.55*size,-size,size,size);ellipse(-0.55*size,size,size,size);ellipse(+0.55*size,-size,size,size);
+//    ellipse(+0.55*size,size,size,size);ellipse(-size,0,size,size);ellipse(+size,0,size,size);
+    drawMotor(+0.55*size, +size, byteMP[0], 'L');
+    drawMotor(+0.55*size, -size, byteMP[1], 'L');
+    drawMotor(-0.55*size, +size, byteMP[2], 'R');
+    drawMotor(-0.55*size, -size, byteMP[3], 'R');
+    drawMotor(     +size, 0,     byteMP[4], 'R');
+    drawMotor(     -size, 0,     byteMP[5], 'L');
+
+    
     line(-0.55*size,-size,0,0);line(-0.55*size,size,0,0);line(+0.55*size,-size,0,0);line(+0.55*size,size,0,0);line(+size,0,0,0);  line(-size,0,0,0);
     noLights();text("HEXACOPTER X", -45,-50);camera();popMatrix();
 
@@ -849,9 +914,13 @@ void draw() {
     servoSliderH[5].setPosition(xMot+15,yMot+130);servoSliderH[5].setCaptionLabel("Yaw") ;servoSliderH[5].show();
     servoSliderV[6].setPosition(xMot+40,yMot)    ;servoSliderV[6].setCaptionLabel("COLL");servoSliderV[6].show();
   }  else if (multiType == 17) { //Vtail   
-    ellipse(-0.55*size,size,size,size); ellipse(+0.55*size,size,size,size);
+//    ellipse(-0.55*size,size,size,size); ellipse(+0.55*size,size,size,size);
+    drawMotor(+0.55*size, +size, byteMP[0], 'R');
+    drawMotor(     +size, -size, byteMP[1], 'L');
+    drawMotor(-0.55*size, +size, byteMP[2], 'L');
+    drawMotor(     -size, -size, byteMP[3], 'R');
     line(-0.55*size,size,0,0);line(+0.55*size,size,0,0);    
-    ellipse(-size, -size, size, size);ellipse(+size, -size, size, size);
+//    ellipse(-size, -size, size, size);ellipse(+size, -size, size, size);
     line(-size,-size, 0,0); line(+size,-size, 0,0);  
     noLights();
     textFont(font12);
@@ -859,6 +928,7 @@ void draw() {
     motSlider[0].setPosition(xMot+80,yMot+70 );motSlider[0].setHeight(60);motSlider[0].setCaptionLabel("REAR_R");motSlider[0].show();
     motSlider[1].setPosition(xMot+100,yMot-15);motSlider[1].setHeight(60);motSlider[1].setCaptionLabel("RIGHT" );motSlider[1].show();
     motSlider[2].setPosition(xMot+25,yMot+70 );motSlider[2].setHeight(60);motSlider[2].setCaptionLabel("REAR_L");motSlider[2].show();
+    drawMotor(+size, +0.55*size, byteMP[0], 'L');
     motSlider[3].setPosition(xMot+2,yMot-15  );motSlider[3].setHeight(60);motSlider[3].setCaptionLabel("LEFT"  );motSlider[3].show(); 
     
     motSlider[4].hide();motSlider[5].hide();

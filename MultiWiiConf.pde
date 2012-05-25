@@ -1,6 +1,7 @@
 import processing.serial.*; // serial library
 import controlP5.*; // controlP5 library
 import processing.opengl.*;
+import java.lang.StringBuffer;
 
 Serial g_serial;
 ControlP5 controlP5;
@@ -8,7 +9,7 @@ Textlabel txtlblWhichcom;
 ListBox commListbox;
 
 int CHECKBOXITEMS=11;
-int PIDITEMS=8;
+int PIDITEMS=9;
 int commListMax;
 
 cGraph g_graph;
@@ -200,14 +201,28 @@ void setup() {
   debug3Slider  =    controlP5.addSlider("debug3Slider",-32000,+32000,0,x+370,y6,50,10);debug3Slider.setDecimalPrecision(0);debug3Slider.setLabel("");
   debug4Slider  =    controlP5.addSlider("debug4Slider",-32000,+32000,0,x+490,y6,50,10);debug4Slider.setDecimalPrecision(0);debug4Slider.setLabel("");
 
-  for(int i=0;i<8;i++) {
+  for(int i=0;i<9;i++) {
     confP[i] = (controlP5.Numberbox) hideLabel(controlP5.addNumberbox("confP"+i,0,xParam+40,yParam+20+i*17,30,14));
     confP[i].setColorBackground(red_);confP[i].setMin(0);confP[i].setDirection(Controller.HORIZONTAL);confP[i].setDecimalPrecision(1);confP[i].setMultiplier(0.1);confP[i].setMax(20);
     confI[i] = (controlP5.Numberbox) hideLabel(controlP5.addNumberbox("confI"+i,0,xParam+75,yParam+20+i*17,40,14));
     confI[i].setColorBackground(red_);confI[i].setMin(0);confI[i].setDirection(Controller.HORIZONTAL);confI[i].setDecimalPrecision(3);confI[i].setMultiplier(0.001);confI[i].setMax(0.250);
     confD[i] = (controlP5.Numberbox) hideLabel(controlP5.addNumberbox("confD"+i,0,xParam+120,yParam+20+i*17,30,14));
-    confD[i].setColorBackground(red_);confD[i].setMin(0);confD[i].setDirection(Controller.HORIZONTAL);confD[i].setDecimalPrecision(0);confD[i].setMultiplier(1);confD[i].setMax(100);}
-  confI[7].hide();confD[7].hide();
+    confD[i].setColorBackground(red_);confD[i].setMin(0);confD[i].setDirection(Controller.HORIZONTAL);confD[i].setDecimalPrecision(0);confD[i].setMultiplier(1);confD[i].setMax(100);
+  }
+ 
+  confI[8].hide();confD[8].hide();confD[4].hide();
+  //change bounds for POS-4 POSR-5 and NAV-6
+  confP[4].setDecimalPrecision(2);confP[4].setMultiplier(0.01);confP[4].setMax(5);
+  confI[4].setDecimalPrecision(1);confI[4].setMultiplier(0.1);confI[4].setMax(2.5);
+  
+  confP[5].setDecimalPrecision(1);confP[5].setMultiplier(0.1);confP[5].setMax(25);
+  confI[5].setDecimalPrecision(2);confI[5].setMultiplier(0.01);confI[5].setMax(2.5);
+  confD[5].setDecimalPrecision(3);confD[5].setMultiplier(.001);confD[5].setMax(.250);
+  
+  confP[6].setDecimalPrecision(1);confP[6].setMultiplier(0.1);confP[6].setMax(25);
+  confI[6].setDecimalPrecision(2);confI[6].setMultiplier(0.01);confI[6].setMax(2.5);
+  confD[6].setDecimalPrecision(3);confD[6].setMultiplier(.001);confD[6].setMax(.250);
+
 
   rollPitchRate = (controlP5.Numberbox) hideLabel(controlP5.addNumberbox("rollPitchRate",0,xParam+160,yParam+30,30,14));rollPitchRate.setDecimalPrecision(2);rollPitchRate.setMultiplier(0.01);
   rollPitchRate.setDirection(Controller.HORIZONTAL);rollPitchRate.setMin(0);rollPitchRate.setMax(1);rollPitchRate.setColorBackground(red_);
@@ -319,7 +334,6 @@ byte checksum=0;
 int stateMSP=0,offset=0,dataSize=0,indTX=0;
 byte[] inBuf   = new byte[128],
        outBuf_ = new byte[128];
-String outBuf;
 
 void serialize16(int a) {
   byte t;
@@ -339,14 +353,17 @@ int mode;
 boolean toggleRead = false,toggleReset = false,toggleCalibAcc = false,toggleCalibMag = false,toggleWrite = false;
 
 void requestMSP(int msp) {
-  g_serial.write("$M<");
-  g_serial.write(byte(msp & 0xFF));
+  StringBuffer bf = new StringBuffer();
+  bf.append("$M<").append((char)(msp & 0xFF));
+  g_serial.write(bf.toString());
 }
 
 void requestMSP(int[] msps) {
+  StringBuffer bf = new StringBuffer();
   for (int m : msps) {
-    requestMSP(m);
+    bf.append("$M<").append((char)(m & 0xFF));
   }
+  g_serial.write(bf.toString());
 }
 
 void drawMotor(float x1, float y1, int mot_num, char dir) {   //Code by Danal
@@ -433,6 +450,20 @@ void draw() {
         byteI[i] = (round(confI[i].value()*1000));
         byteD[i] = (round(confD[i].value()));
       }
+
+      //POS-4 POSR-5 NAVR-6 use different dividers
+        byteP[4] = (round(confP[4].value()*100.0));
+        byteI[4] = (round(confI[4].value()*100.0));
+      
+        byteP[5] = (round(confP[5].value()*10.0));
+        byteI[5] = (round(confI[5].value()*100.0));
+        byteD[5] = (round(confD[5].value()*10000.0))/10;
+        
+        byteP[6] = (round(confP[6].value()*10.0));
+        byteI[6] = (round(confI[6].value()*100.0));
+        byteD[6] = (round(confD[6].value()*10000.0))/10;
+
+
       indTX=0;
       serialize8('$');serialize8('M');serialize8('<');serialize8(3*PIDITEMS);serialize8(MSP_SET_PID);
       checksum=0;
@@ -556,7 +587,36 @@ void draw() {
                 stateMSP = 0;
                 for( i=0;i<PIDITEMS;i++) {
                   byteP[i] = read8();byteI[i] = read8();byteD[i] = read8();
-                  confP[i].setValue(byteP[i]/10.0);confI[i].setValue(byteI[i]/1000.0);confD[i].setValue(byteD[i]);
+                  switch (i) {
+                   case 0: 
+			confP[i].setValue(byteP[i]/10.0);confI[i].setValue(byteI[i]/1000.0);confD[i].setValue(byteD[i]);
+			break;
+                   case 1:
+			confP[i].setValue(byteP[i]/10.0);confI[i].setValue(byteI[i]/1000.0);confD[i].setValue(byteD[i]);
+			break;
+                   case 2:
+			confP[i].setValue(byteP[i]/10.0);confI[i].setValue(byteI[i]/1000.0);confD[i].setValue(byteD[i]);
+			break;
+                   case 3:
+			confP[i].setValue(byteP[i]/10.0);confI[i].setValue(byteI[i]/1000.0);confD[i].setValue(byteD[i]);
+			break;
+                   case 7:
+			confP[i].setValue(byteP[i]/10.0);confI[i].setValue(byteI[i]/1000.0);confD[i].setValue(byteD[i]);
+			break;
+                   case 8:
+                      confP[i].setValue(byteP[i]/10.0);confI[i].setValue(byteI[i]/1000.0);confD[i].setValue(byteD[i]);
+                      break;
+                   //Different rates fot POS-4 POSR-5 NAVR-6
+                   case 4:
+                      confP[i].setValue(byteP[i]/100.0);confI[i].setValue(byteI[i]/100.0);confD[i].setValue(byteD[i]/1000.0);
+                      break;
+                   case 5:
+                      confP[i].setValue(byteP[i]/10.0);confI[i].setValue(byteI[i]/100.0);confD[i].setValue(byteD[i]/1000.0);
+                      break;                   
+                   case 6:
+                      confP[i].setValue(byteP[i]/10.0);confI[i].setValue(byteI[i]/100.0);confD[i].setValue(byteD[i]/1000.0);
+                      break;                   
+                  }
                   confP[i].setColorBackground(green_);
                   confI[i].setColorBackground(green_);
                   confD[i].setColorBackground(green_);
@@ -1087,10 +1147,11 @@ void draw() {
   text("PITCH",xParam+3,yParam+32+1*17);
   text("YAW",xParam+3,yParam+32+2*17);
   text("ALT",xParam+3,yParam+32+3*17);
-  text("VEL",xParam+3,yParam+32+4*17);
-  text("GPS",xParam+3,yParam+32+5*17);
-  text("LEVEL",xParam+1,yParam+32+6*17);
-  text("MAG",xParam+3,yParam+32+7*17); 
+  text("Pos",xParam+3,yParam+32+4*17);
+  text("PosR",xParam+3,yParam+32+5*17);
+  text("NavR",xParam+3,yParam+32+6*17);
+  text("LEVEL",xParam+1,yParam+32+7*17);
+  text("MAG",xParam+3,yParam+32+8*17);
   text("Throttle PID",xParam+220,yParam+15);text("attenuation",xParam+220,yParam+30);
   text("AUX1",xBox+55,yBox+5);text("AUX2",xBox+105,yBox+5);
   textFont(font8);

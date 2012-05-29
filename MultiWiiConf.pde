@@ -14,7 +14,7 @@ Textlabel txtlblWhichcom;
 ListBox commListbox;
 
 static int CHECKBOXITEMS=11;
-static int PIDITEMS=9;
+static int PIDITEMS=10;
 int commListMax;
 
 cGraph g_graph;
@@ -220,6 +220,7 @@ void setup() {
   }
  
   confI[8].hide();confD[8].hide();confD[4].hide();
+  confP[9].hide();confI[9].hide();confD[9].hide();
   //change bounds for POS-4 POSR-5 and NAV-6
   confP[4].setDecimalPrecision(2);confP[4].setMultiplier(0.01);confP[4].setMax(5);
   confI[4].setDecimalPrecision(1);confI[4].setMultiplier(0.1);confI[4].setMax(2.5);
@@ -628,6 +629,9 @@ void draw() {
 			confP[i].setValue(byteP[i]/10.0);confI[i].setValue(byteI[i]/1000.0);confD[i].setValue(byteD[i]);
 			break;
                    case 8:
+                      confP[i].setValue(byteP[i]/10.0);confI[i].setValue(byteI[i]/1000.0);confD[i].setValue(byteD[i]);
+                      break;
+                   case 9:
                       confP[i].setValue(byteP[i]/10.0);confI[i].setValue(byteI[i]/1000.0);confD[i].setValue(byteD[i]);
                       break;
                    //Different rates fot POS-4 POSR-5 NAVR-6

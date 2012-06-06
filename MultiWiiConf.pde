@@ -13,7 +13,7 @@ ControlP5 controlP5;
 Textlabel txtlblWhichcom; 
 ListBox commListbox;
 
-static int CHECKBOXITEMS=11;
+static int CHECKBOXITEMS=13;
 static int PIDITEMS=10;
 int commListMax;
 
@@ -89,7 +89,7 @@ CheckBox checkbox[] = new CheckBox[CHECKBOXITEMS];
 int activation[] = new int[CHECKBOXITEMS];
 
 Button buttonCheckbox[] = new Button[CHECKBOXITEMS];
-String buttonCheckboxLabel[] = {   "LEVEL",  "BARO",  "MAG",  "CAMSTAB",  "CAMTRIG",  "ARM",  "GPS HOME",  "GPS HOLD",  "PASSTHRU",  "HEADFREE",  "BEEPER", }; 
+String buttonCheckboxLabel[] = {   "LEVEL",  "BARO",  "MAG",  "CAMSTAB",  "CAMTRIG",  "ARM",  "GPS HOME",  "GPS HOLD",  "PASSTHRU",  "HEADFREE",  "BEEPER", "LEDMAX", "LLIGHTS" }; 
 PFont font8,font12,font15;
 
 // coded by Eberhard Rensch

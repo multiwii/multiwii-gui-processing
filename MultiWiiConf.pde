@@ -580,9 +580,11 @@ void draw() {
           inBuf[offset++] = (byte)(c&0xFF);
       } else if (c_state == HEADER_CMD && offset >= dataSize) {
         /* compare calculated and transferred checksum */
-        if (checksum == (c&0xFF)) {
+        if ((checksum&0xFF) == (c&0xFF)) {
           /* we got a valid response packet, evaluate it */
           evaluateCommand(cmd, (int)dataSize);
+        } else {
+          System.out.println("invalid checksum for command "+((int)(cmd&0xFF))+": "+(checksum&0xFF)+" expected, got "+(int)(c&0xFF));
         }
         c_state = IDLE;
       }

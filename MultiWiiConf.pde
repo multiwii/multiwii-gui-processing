@@ -413,9 +413,13 @@ void requestMSP(int msp, Character[] payload) {
 }
 
 void sendRequestMSP(List<Byte> msp) {
+  byte[] arr = new byte[msp.size()];
+  int i = 0;
   for (byte b: msp) {
-    g_serial.write(b&0xFF);
+    arr[i++] = b;
   }
+  /* send the complete byte sequence in one go */
+  g_serial.write(arr);
 }
         
 void drawMotor(float x1, float y1, int mot_num, char dir) {   //Code by Danal

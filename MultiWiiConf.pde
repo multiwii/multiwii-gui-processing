@@ -12,7 +12,7 @@ ControlP5 controlP5;
 Textlabel txtlblWhichcom; 
 ListBox commListbox;
 
-static int CHECKBOXITEMS=14;
+static int CHECKBOXITEMS=0;
 static int PIDITEMS=10;
 int commListMax;
 
@@ -84,12 +84,36 @@ float mot[] = new float[8],
 
 int cycleTime,i2cError;
 
-CheckBox checkbox[] = new CheckBox[CHECKBOXITEMS];
-int activation[] = new int[CHECKBOXITEMS];
+CheckBox checkbox[];
+int activation[];
 
-Button buttonCheckbox[] = new Button[CHECKBOXITEMS];
-String buttonCheckboxLabel[] = {   "LEVEL",  "BARO",  "MAG",  "CAMSTAB",  "CAMTRIG",  "ARM",  "GPS HOME",  "GPS HOLD",  "PASSTHRU",  "HEADFREE",  "BEEPER", "LEDMAX", "LLIGHTS", "HEAD ADJ" };
+Button buttonCheckbox[];
 PFont font8,font12,font15;
+
+void create_checkboxes(String[] names) {
+  /* destroy old buttons */
+  for (int i=0; i<CHECKBOXITEMS; i++) {
+    buttonCheckbox[i].remove();
+    checkbox[i].remove();
+  }
+  int i=0;
+  /* create new list entries and buttons */
+  checkbox = new CheckBox[names.length];
+  buttonCheckbox = new Button[names.length];
+  activation = new int[names.length];
+  for (String name : names) {
+    buttonCheckbox[i] = controlP5.addButton("bcb"+i,1,xBox-30,yBox+20+13*i,68,12);
+    buttonCheckbox[i].setColorBackground(red_);buttonCheckbox[i].setLabel(name);
+    checkbox[i] =  controlP5.addCheckBox("cb"+i,xBox+40,yBox+20+13*i);
+    checkbox[i].setColorActive(color(255));checkbox[i].setColorBackground(color(120));
+    checkbox[i].setItemsPerRow(12);checkbox[i].setSpacingColumn(10);
+    checkbox[i].setLabel("");
+    for (int j=1; j<=12; j++) checkbox[i].addItem(i + "_cb_" + j, j);
+    checkbox[i].hideLabels();
+    i++;
+  }
+  CHECKBOXITEMS = names.length;
+}
 
 // coded by Eberhard Rensch
 // Truncates a long port name for better (readable) display in the GUI
@@ -250,16 +274,7 @@ void setup() {
   throttle_EXPO = controlP5.addNumberbox("T EXPO",0,xParam+40,yParam+197,30,14);throttle_EXPO.setDecimalPrecision(2);throttle_EXPO.setMultiplier(0.01);throttle_EXPO.setLabel("");
   throttle_EXPO.setDirection(Controller.HORIZONTAL);throttle_EXPO.setMin(0);throttle_EXPO.setMax(1);throttle_EXPO.setColorBackground(red_);
 
-  for(int i=0;i<CHECKBOXITEMS;i++) {
-    buttonCheckbox[i] = controlP5.addButton("bcb"+i,1,xBox-30,yBox+20+13*i,68,12);
-    buttonCheckbox[i].setColorBackground(red_);buttonCheckbox[i].setLabel(buttonCheckboxLabel[i]);
-    checkbox[i] =  controlP5.addCheckBox("cb"+i,xBox+40,yBox+20+13*i);
-    checkbox[i].setColorActive(color(255));checkbox[i].setColorBackground(color(120));
-    checkbox[i].setItemsPerRow(12);checkbox[i].setSpacingColumn(10);
-    checkbox[i].setLabel("");
-    for (int j=1; j<=12; j++) checkbox[i].addItem(i + "_cb_" + j, j);
-    checkbox[i].hideLabels();   
-  }
+
   
   buttonREAD =          controlP5.addButton("READ",1,xParam+5,yParam+260,50,16);buttonREAD.setColorBackground(red_);
   buttonRESET =         controlP5.addButton("RESET",1,xParam+60,yParam+260,60,16);buttonRESET.setColorBackground(red_);
@@ -452,7 +467,7 @@ void draw() {
     }
     if (toggleRead) {
       toggleRead=false;
-      int[] requests = {MSP_RC_TUNING, MSP_PID, MSP_BOX, MSP_MISC};
+      int[] requests = {MSP_BOXNAMES, MSP_RC_TUNING, MSP_PID, MSP_BOX, MSP_MISC};
       requestMSP(requests);
       buttonWRITE.setColorBackground(green_);
     }
@@ -1169,7 +1184,7 @@ public void evaluateCommand(byte cmd, int dataSize) {
 	  }
 	} break;
     case MSP_BOXNAMES:
-	/* not yet implemented */
+        create_checkboxes(new String(inBuf, 0, dataSize).split(";"));
 	break;
     case MSP_MISC:
 	intPowerTrigger = read16();

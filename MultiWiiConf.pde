@@ -7,6 +7,8 @@ import javax.swing.JFileChooser; // Saving dialogue
 import javax.swing.filechooser.FileFilter; // for our configuration file filter "*.mwi"
 import javax.swing.JOptionPane; // for message dialogue
 
+// TODO add new msp :  pid description with bound and scale
+
 Serial g_serial;
 ControlP5 controlP5;
 Textlabel txtlblWhichcom; 
@@ -156,10 +158,8 @@ void setup() {
   txtlblWhichcom = controlP5.addTextlabel("txtlblWhichcom","No Port Selected",5,65); // textlabel(name,text,x,y)
   
   buttonSAVE = controlP5.addButton("bSAVE",1,5,45,40,19); buttonSAVE.setLabel("SAVE"); buttonSAVE.setColorBackground(red_);
-  
-  buttonIMPORT = controlP5.addButton("bIMPORT",1,50,45,40,19); buttonIMPORT.setLabel("LOAD"); buttonIMPORT.setColorBackground(red_);
-  
-    
+  buttonIMPORT = controlP5.addButton("bIMPORT",1,50,45,40,19); buttonIMPORT.setLabel("LOAD"); buttonIMPORT.setColorBackground(red_);   
+ 
   buttonSTART = controlP5.addButton("bSTART",1,xGraph+110,yGraph-25,40,19); buttonSTART.setLabel("START"); buttonSTART.setColorBackground(red_);
   buttonSTOP = controlP5.addButton("bSTOP",1,xGraph+160,yGraph-25,40,19); buttonSTOP.setLabel("STOP"); buttonSTOP.setColorBackground(red_);
 
@@ -256,7 +256,6 @@ void setup() {
   confI[6].setDecimalPrecision(2);confI[6].setMultiplier(0.01);confI[6].setMax(2.5);
   confD[6].setDecimalPrecision(3);confD[6].setMultiplier(.001);confD[6].setMax(.250);
 
-
   rollPitchRate = (controlP5.Numberbox) hideLabel(controlP5.addNumberbox("rollPitchRate",0,xParam+160,yParam+30,30,14));rollPitchRate.setDecimalPrecision(2);rollPitchRate.setMultiplier(0.01);
   rollPitchRate.setDirection(Controller.HORIZONTAL);rollPitchRate.setMin(0);rollPitchRate.setMax(1);rollPitchRate.setColorBackground(red_);
   yawRate = (controlP5.Numberbox) hideLabel(controlP5.addNumberbox("yawRate",0,xParam+160,yParam+54,30,14));yawRate.setDecimalPrecision(2);yawRate.setMultiplier(0.01);
@@ -273,8 +272,6 @@ void setup() {
   throttle_MID.setDirection(Controller.HORIZONTAL);throttle_MID.setMin(0);throttle_MID.setMax(1);throttle_MID.setColorBackground(red_);
   throttle_EXPO = controlP5.addNumberbox("T EXPO",0,xParam+40,yParam+197,30,14);throttle_EXPO.setDecimalPrecision(2);throttle_EXPO.setMultiplier(0.01);throttle_EXPO.setLabel("");
   throttle_EXPO.setDirection(Controller.HORIZONTAL);throttle_EXPO.setMin(0);throttle_EXPO.setMax(1);throttle_EXPO.setColorBackground(red_);
-
-
   
   buttonREAD =          controlP5.addButton("READ",1,xParam+5,yParam+260,50,16);buttonREAD.setColorBackground(red_);
   buttonRESET =         controlP5.addButton("RESET",1,xParam+60,yParam+260,60,16);buttonRESET.setColorBackground(red_);
@@ -386,7 +383,6 @@ private String requestMSP(int[] msps) {
   return (bf.toString());
 }
 
-
 //send msp with payload 
 private String requestMSP(final int msp, final Character[] payload) {
   if(msp < 0) {
@@ -411,7 +407,7 @@ private String requestMSP(final int msp, final Character[] payload) {
   }
  bf.append(char(int(checksum)));
  
-  return(bf.toString());        
+ return(bf.toString());        
 }
 
 void sendRequestMSP(String msp){
@@ -483,14 +479,13 @@ void draw() {
     }
     if (toggleRead) {
       toggleRead=false;
-      int[] requests = {MSP_BOXNAMES, MSP_PIDNAMES, MSP_RC_TUNING, MSP_PID, MSP_BOX, MSP_MISC };
+      //int[] requests = {MSP_BOXNAMES, MSP_PIDNAMES, MSP_RC_TUNING, MSP_PID, MSP_BOX, MSP_MISC };
       sendRequestMSP(requestMSP(MSP_BOXNAMES));
       sendRequestMSP(requestMSP(MSP_PIDNAMES));
       sendRequestMSP(requestMSP(MSP_RC_TUNING));
       sendRequestMSP(requestMSP(MSP_PID));
       sendRequestMSP(requestMSP(MSP_BOX));
-      sendRequestMSP(requestMSP(MSP_MISC));
-     
+      sendRequestMSP(requestMSP(MSP_MISC));    
       buttonWRITE.setColorBackground(green_);
     }
     if (toggleCalibAcc) {
@@ -513,9 +508,7 @@ void draw() {
       payload.add(char( round(dynamic_THR_PID.value()*100)) );  
       payload.add(char( round(throttle_MID.value()*100)) );   
       payload.add(char( round(throttle_EXPO.value()*100)) );  
-      sendRequestMSP(requestMSP(MSP_SET_RC_TUNING,payload.toArray( new Character[payload.size()]) ));
-
-      
+      sendRequestMSP(requestMSP(MSP_SET_RC_TUNING,payload.toArray( new Character[payload.size()]) )); 
 
       // MSP_SET_PID
       payload = new ArrayList<Character>();

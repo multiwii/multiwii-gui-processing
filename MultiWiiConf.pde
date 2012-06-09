@@ -368,66 +368,57 @@ int read8()  {return inBuf[p++]&0xff;}
 
 int mode;
 boolean toggleRead = false,toggleReset = false,toggleCalibAcc = false,toggleCalibMag = false,toggleWrite = false;
-
-// send msp without payload 
-private String requestMSP(int msp) {
-     return   requestMSP( msp, null);
+//send msp without payload
+private List<Byte> requestMSP(int msp) {
+    return  requestMSP( msp, null);
 }
 
-//send multiple msp without payload 
-private String requestMSP(int[] msps) {
-   StringBuffer bf = new StringBuffer();
-  for (int m : msps) {
-    bf.append(requestMSP(m, null));
-  }
-  return (bf.toString());
+//send multiple msp without payload
+private List<Byte> requestMSP (int[] msps) {
+List<Byte> s = new LinkedList<Byte>();
+for (int m : msps) {
+ s.addAll(requestMSP(m, null));
+}
+return s;
 }
 
-//send msp with payload 
-private String requestMSP(final int msp, final Character[] payload) {
-  if(msp < 0) {
-    return null; 
-  }
-  
-  byte checksum=0;
-  char pl_size = char( ((payload != null ? int(payload.length) : 0)) );
-  
-  StringBuffer bf = new StringBuffer().append(MSP_HEADER).append(pl_size).append(char(msp));
-
-  checksum ^= int(pl_size);
-  checksum ^= int(msp);
-  
-  if (payload != null){
-   
-    for (char c :payload){
-      bf.append(c);
-      checksum ^= int(c);
-    }
-    
-  }
- bf.append(char(int(checksum)));
- 
- return(bf.toString());        
+//send msp with payload
+private List<Byte> requestMSP (int msp, Character[] payload) {
+if(msp < 0) {
+ return null;
+}
+List<Byte> bf = new LinkedList<Byte>();
+for (byte c : MSP_HEADER.getBytes()) {
+ bf.add( c );
 }
 
-void sendRequestMSP(String msp){
-  if (msp == null){
-    return;
-  }
-  try{
-    g_serial.write(msp.getBytes("ISO-8859-1"));
-  }catch(UnsupportedEncodingException a){
-    // Everything from 0x0000 through 0x007F are exactly the same as ASCII. 
-    // Everything from 0x0000 through 0x00FF is the same as ISO Latin 1. 
-    try{
-      a.printStackTrace();  
-      g_serial.write(msp.getBytes("ASCII"));
-      }catch(UnsupportedEncodingException a1){
-        // or try without suitable charset -> unpredictable result bad
-        // g_serial.write(bf.toString()) 
-        throw new RuntimeException("ASCII encoding is required for serial communication",a1);
-      }
-   }
+byte checksum=0;
+byte pl_size = (byte)((payload != null ? int(payload.length) : 0)&0xFF);
+bf.add(pl_size);
+checksum ^= (pl_size&0xFF);
+
+bf.add((byte)(msp & 0xFF));
+checksum ^= (msp&0xFF);
+
+if (payload != null) {
+ for (char c :payload){
+   bf.add((byte)(c&0xFF));
+   checksum ^= (c&0xFF);
+ }
+}
+
+bf.add(checksum);
+return (bf);
+}
+
+void sendRequestMSP(List<Byte> msp) {
+byte[] arr = new byte[msp.size()];
+int i = 0;
+for (byte b: msp) {
+ arr[i++] = b;
+}
+/* send the complete byte sequence in one go */
+g_serial.write(arr);
 }
 
 void drawMotor(float x1, float y1, int mot_num, char dir) {   //Code by Danal

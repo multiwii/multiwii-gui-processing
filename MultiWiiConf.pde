@@ -18,6 +18,9 @@ static int CHECKBOXITEMS=0;
 static int PIDITEMS=10;
 int commListMax;
 
+/* time (ms) to wait between requests */
+static int request_interval = 10;
+
 cGraph g_graph;
 int windowsX    = 1000;       int windowsY    = 540;
 int xGraph      = 10;         int yGraph      = 325;
@@ -91,6 +94,30 @@ int activation[];
 
 Button buttonCheckbox[];
 PFont font8,font12,font15;
+
+Queue<List<Byte>> sendQueue = new LinkedList<List<Byte>>();
+
+Thread sendThread = new Thread(new Runnable() {
+  public void run() {
+    try {
+      while (true) {
+        List<Byte> s = null;
+        synchronized(sendQueue) {
+          if (sendQueue.isEmpty()) {
+            sendQueue.wait();
+          } else {
+            s = sendQueue.poll();
+          }
+        }
+        if (s != null)
+          transmit(s);
+        try {
+          Thread.sleep(10);
+        } catch(InterruptedException e) {};
+       }
+    } catch(Exception e) {};
+  }
+});
 
 void create_checkboxes(String[] names) {
   /* destroy old buttons */
@@ -298,6 +325,8 @@ void setup() {
  
   confPowerTrigger = controlP5.addNumberbox("",0,xGraph+50,yGraph-29,40,14);confPowerTrigger.setDecimalPrecision(0);confPowerTrigger.setMultiplier(10);
   confPowerTrigger.setDirection(Controller.HORIZONTAL);confPowerTrigger.setMin(0);confPowerTrigger.setMax(65535);confPowerTrigger.setColorBackground(red_);
+
+  sendThread.start();
 }
 
 
@@ -368,57 +397,63 @@ int read8()  {return inBuf[p++]&0xff;}
 
 int mode;
 boolean toggleRead = false,toggleReset = false,toggleCalibAcc = false,toggleCalibMag = false,toggleWrite = false;
-//send msp without payload
-private List<Byte> requestMSP(int msp) {
-    return  requestMSP( msp, null);
+
+void queueMSP(int msp) {
+  queueMSP(msp, null);
 }
 
-//send multiple msp without payload
-private List<Byte> requestMSP (int[] msps) {
-List<Byte> s = new LinkedList<Byte>();
-for (int m : msps) {
- s.addAll(requestMSP(m, null));
-}
-return s;
+void queueMSP(int[] msps) {
+  for (int m : msps) {
+    queueMSP(m);
+  }
 }
 
-//send msp with payload
-private List<Byte> requestMSP (int msp, Character[] payload) {
-if(msp < 0) {
- return null;
+void queueMSP (int msp, Character[] payload) {
+  if(msp < 0) {
+    return;
+  }
+  List<Byte> bf = new LinkedList<Byte>();
+  for (byte c : MSP_HEADER.getBytes()) {
+    bf.add( c );
+  }
+
+  byte checksum=0;
+  byte pl_size = (byte)((payload != null ? int(payload.length) : 0)&0xFF);
+  bf.add(pl_size);
+  checksum ^= (pl_size&0xFF);
+
+  bf.add((byte)(msp & 0xFF));
+  checksum ^= (msp&0xFF);
+
+  if (payload != null) {
+    for (char c :payload){
+      bf.add((byte)(c&0xFF));
+      checksum ^= (c&0xFF);
+    }
+  }
+
+  bf.add(checksum);
+  queueMSP(bf);
 }
-List<Byte> bf = new LinkedList<Byte>();
-for (byte c : MSP_HEADER.getBytes()) {
- bf.add( c );
+
+void transmit(List<Byte> msp) {
+  byte[] arr = new byte[msp.size()];
+  int i = 0;
+  for (byte b: msp) {
+    arr[i++] = b;
+  }
+  /* send the complete byte sequence in one go */
+  g_serial.write(arr);
 }
 
-byte checksum=0;
-byte pl_size = (byte)((payload != null ? int(payload.length) : 0)&0xFF);
-bf.add(pl_size);
-checksum ^= (pl_size&0xFF);
-
-bf.add((byte)(msp & 0xFF));
-checksum ^= (msp&0xFF);
-
-if (payload != null) {
- for (char c :payload){
-   bf.add((byte)(c&0xFF));
-   checksum ^= (c&0xFF);
+void queueMSP(List<Byte> msp) {
+ synchronized(sendQueue) {
+   /* avoid queueing identical requests */
+   if (!sendQueue.contains(msp)) {
+     sendQueue.add(msp);
+   }
+   sendQueue.notify(); 
  }
-}
-
-bf.add(checksum);
-return (bf);
-}
-
-void sendRequestMSP(List<Byte> msp) {
-byte[] arr = new byte[msp.size()];
-int i = 0;
-for (byte b: msp) {
- arr[i++] = b;
-}
-/* send the complete byte sequence in one go */
-g_serial.write(arr);
 }
 
 void drawMotor(float x1, float y1, int mot_num, char dir) {   //Code by Danal
@@ -452,7 +487,7 @@ void draw() {
     if ((time-time2)>50 && ! toggleRead) {
       time2=time;
       int[] requests = {MSP_IDENT, MSP_MOTOR_PINS, MSP_STATUS, MSP_RAW_IMU, MSP_SERVO, MSP_MOTOR, MSP_RC, MSP_RAW_GPS, MSP_COMP_GPS, MSP_ALTITUDE, MSP_BAT, MSP_DEBUG};
-      sendRequestMSP(requestMSP(requests));
+      queueMSP(requests);
       
       accROLL.addVal(ax);accPITCH.addVal(ay);accYAW.addVal(az);gyroROLL.addVal(gx);gyroPITCH.addVal(gy);gyroYAW.addVal(gz);
       magxData.addVal(magx);magyData.addVal(magy);magzData.addVal(magz);
@@ -460,32 +495,27 @@ void draw() {
       debug1Data.addVal(debug1);debug2Data.addVal(debug2);debug3Data.addVal(debug3);debug4Data.addVal(debug4);
     }
     if ((time-time3)>20 && ! toggleRead) {
-      sendRequestMSP(requestMSP(MSP_ATTITUDE));
+      queueMSP(MSP_ATTITUDE);
       time3=time;
     }
     if (toggleReset) {
       toggleReset=false;
       toggleRead=true;
-      sendRequestMSP(requestMSP(MSP_RESET_CONF));
+      queueMSP(MSP_RESET_CONF);
     }
     if (toggleRead) {
       toggleRead=false;
-      //int[] requests = {MSP_BOXNAMES, MSP_PIDNAMES, MSP_RC_TUNING, MSP_PID, MSP_BOX, MSP_MISC };
-      sendRequestMSP(requestMSP(MSP_BOXNAMES));
-      sendRequestMSP(requestMSP(MSP_PIDNAMES));
-      sendRequestMSP(requestMSP(MSP_RC_TUNING));
-      sendRequestMSP(requestMSP(MSP_PID));
-      sendRequestMSP(requestMSP(MSP_BOX));
-      sendRequestMSP(requestMSP(MSP_MISC));    
+      int[] requests = {MSP_BOXNAMES, MSP_PIDNAMES, MSP_RC_TUNING, MSP_PID, MSP_BOX, MSP_MISC };
+      queueMSP(requests);
       buttonWRITE.setColorBackground(green_);
     }
     if (toggleCalibAcc) {
       toggleCalibAcc=false;
-      sendRequestMSP(requestMSP(MSP_ACC_CALIBRATION));
+      queueMSP(MSP_ACC_CALIBRATION);
     }
     if (toggleCalibMag) {
       toggleCalibMag=false;
-      sendRequestMSP(requestMSP(MSP_MAG_CALIBRATION));
+      queueMSP(MSP_MAG_CALIBRATION);
     }
     if (toggleWrite) {
       toggleWrite=false;
@@ -499,7 +529,7 @@ void draw() {
       payload.add(char( round(dynamic_THR_PID.value()*100)) );  
       payload.add(char( round(throttle_MID.value()*100)) );   
       payload.add(char( round(throttle_EXPO.value()*100)) );  
-      sendRequestMSP(requestMSP(MSP_SET_RC_TUNING,payload.toArray( new Character[payload.size()]) )); 
+      queueMSP(MSP_SET_RC_TUNING,payload.toArray( new Character[payload.size()]) ); 
 
       // MSP_SET_PID
       payload = new ArrayList<Character>();
@@ -526,7 +556,7 @@ void draw() {
           payload.add(char(byteI[i]));  
           payload.add(char(byteD[i])); 
       }
-      sendRequestMSP(requestMSP(MSP_SET_PID,payload.toArray(new Character[payload.size()])));
+      queueMSP(MSP_SET_PID,payload.toArray(new Character[payload.size()]));
 
       
       // MSP_SET_BOX
@@ -540,7 +570,7 @@ void draw() {
         payload.add(char (activation[i] % 256) );
         payload.add(char (activation[i] / 256)  );
       }
-      sendRequestMSP(requestMSP(MSP_SET_BOX,payload.toArray(new Character[payload.size()])));
+      queueMSP(MSP_SET_BOX,payload.toArray(new Character[payload.size()]));
      
       
       // MSP_SET_MISC
@@ -549,10 +579,10 @@ void draw() {
       payload.add(char(intPowerTrigger % 256));
       payload.add(char(intPowerTrigger / 256));
       
-      sendRequestMSP(requestMSP(MSP_SET_MISC,payload.toArray(new Character[payload.size()])));
+      queueMSP(MSP_SET_MISC,payload.toArray(new Character[payload.size()]));
       
       // MSP_EEPROM_WRITE
-      sendRequestMSP(requestMSP(MSP_EEPROM_WRITE));
+      queueMSP(MSP_EEPROM_WRITE);
       
       // update model with view value
       updateModel();

@@ -324,6 +324,7 @@ private static final int
   MSP_MISC                 =114,
   MSP_MOTOR_PINS           =115,
   MSP_BOXNAMES             =116,
+  MSP_PIDNAMES             =117,
 
   MSP_SET_RAW_RC           =200,
   MSP_SET_RAW_GPS          =201,
@@ -471,7 +472,7 @@ void draw() {
     }
     if (toggleRead) {
       toggleRead=false;
-      int[] requests = {MSP_BOXNAMES, MSP_RC_TUNING, MSP_PID, MSP_BOX, MSP_MISC};
+      int[] requests = {MSP_BOXNAMES, MSP_PIDNAMES, MSP_RC_TUNING, MSP_PID, MSP_BOX, MSP_MISC};
       requestMSP(requests);
       buttonWRITE.setColorBackground(green_);
     }
@@ -1192,6 +1193,10 @@ public void evaluateCommand(byte cmd, int dataSize) {
     case MSP_BOXNAMES:
         create_checkboxes(new String(inBuf, 0, dataSize).split(";"));
 	break;
+    case MSP_PIDNAMES:
+        /* TODO create GUI elements from this message */
+        System.out.println("Got PIDNAMES: "+new String(inBuf, 0, dataSize));
+        break;
     case MSP_MISC:
 	intPowerTrigger = read16();
 	confPowerTrigger.setValue(intPowerTrigger);

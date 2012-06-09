@@ -472,7 +472,7 @@ void draw() {
       altData.addVal(alt);headData.addVal(head);
       debug1Data.addVal(debug1);debug2Data.addVal(debug2);debug3Data.addVal(debug3);debug4Data.addVal(debug4);
     }
-    if ((time-time3)>20) {
+    if ((time-time3)>20 && ! toggleRead) {
       sendRequestMSP(requestMSP(MSP_ATTITUDE));
       time3=time;
     }
@@ -484,7 +484,12 @@ void draw() {
     if (toggleRead) {
       toggleRead=false;
       int[] requests = {MSP_BOXNAMES, MSP_PIDNAMES, MSP_RC_TUNING, MSP_PID, MSP_BOX, MSP_MISC };
-      sendRequestMSP(requestMSP(requests));
+      sendRequestMSP(requestMSP(MSP_BOXNAMES));
+      sendRequestMSP(requestMSP(MSP_PIDNAMES));
+      sendRequestMSP(requestMSP(MSP_RC_TUNING));
+      sendRequestMSP(requestMSP(MSP_PID));
+      sendRequestMSP(requestMSP(MSP_BOX));
+      sendRequestMSP(requestMSP(MSP_MISC));
      
       buttonWRITE.setColorBackground(green_);
     }

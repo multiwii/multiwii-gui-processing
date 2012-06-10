@@ -96,26 +96,256 @@ Button buttonCheckbox[];
 PFont font8,font12,font15;
 
 Queue<List<Byte>> sendQueue = new LinkedList<List<Byte>>();
+Object request_mutex = new Object();
+int last_request_time = 0;
+
+class Reply {
+  private boolean err;
+  private int code;
+  private byte[] payload;
+
+
+  Reply(boolean err, int code, byte[] payload) {
+    this.err = err;
+    this.code = code;
+    this.payload = payload;
+    p = 0;
+  }
+
+  private int p;
+  private int read32() {return (payload[p++]&0xff) + ((payload[p++]&0xff)<<8) + ((payload[p++]&0xff)<<16) + ((payload[p++]&0xff)<<24); }
+  private int read16() {return (payload[p++]&0xff) + ((payload[p++])<<8); }
+  private int read8()  {return payload[p++]&0xff;}
+
+  public void evaluateCommand() {
+    int i;
+    if (err) {
+      System.err.println("Copter did not understand request type "+cmd);
+    }
+    p = 0;
+    switch(code) {
+      case MSP_IDENT:
+  	version = read8();
+  	multiType = read8(); break;
+      case MSP_STATUS:
+          cycleTime = read16();
+          i2cError = read16();
+          present = read16();
+          mode = read16();
+          if ((present&1) >0) {buttonAcc.setColorBackground(green_);} else {buttonAcc.setColorBackground(red_);tACC_ROLL.setState(false); tACC_PITCH.setState(false); tACC_Z.setState(false);}
+          if ((present&2) >0) {buttonBaro.setColorBackground(green_);} else {buttonBaro.setColorBackground(red_); tBARO.setState(false); }
+          if ((present&4) >0) {buttonMag.setColorBackground(green_);} else {buttonMag.setColorBackground(red_); tMAGX.setState(false); tMAGY.setState(false); tMAGZ.setState(false); }
+          if ((present&8) >0) {buttonGPS.setColorBackground(green_);} else {buttonGPS.setColorBackground(red_); tHEAD.setState(false);}
+          if ((present&16)>0) {buttonSonar.setColorBackground(green_);} else {buttonSonar.setColorBackground(red_);}
+          for(i=0;i<CHECKBOXITEMS;i++) {
+            if ((mode&(1<<i))>0) buttonCheckbox[i].setColorBackground(green_); else buttonCheckbox[i].setColorBackground(red_);
+          }
+          break;
+      case MSP_RAW_IMU:
+          ax = read16();ay = read16();az = read16();
+          gx = read16()/8;gy = read16()/8;gz = read16()/8;
+          magx = read16()/3;magy = read16()/3;magz = read16()/3; break;
+      case MSP_SERVO:
+          for(i=0;i<8;i++) servo[i] = read16(); break;
+      case MSP_MOTOR:
+          for(i=0;i<8;i++) mot[i] = read16(); break;
+      case MSP_RC:
+          rcRoll = read16();rcPitch = read16();rcYaw = read16();rcThrottle = read16();    
+          rcAUX1 = read16();rcAUX2 = read16();rcAUX3 = read16();rcAUX4 = read16(); break;
+      case MSP_RAW_GPS:
+          GPS_fix = read8();
+          GPS_numSat = read8();
+          GPS_latitude = read32();
+          GPS_longitude = read32();
+          GPS_altitude = read16();
+          GPS_speed = read16(); break;
+      case MSP_COMP_GPS:
+          GPS_distanceToHome = read16();
+          GPS_directionToHome = read16();
+          GPS_update = read8(); break;
+      case MSP_ATTITUDE:
+          angx = read16()/10;angy = read16()/10;
+          head = read16(); break;
+      case MSP_ALTITUDE:
+          alt = read32(); break;
+      case MSP_BAT:
+          bytevbat = read8();
+          pMeterSum = read16(); break;
+      case MSP_RC_TUNING:
+          byteRC_RATE = read8();byteRC_EXPO = read8();byteRollPitchRate = read8();
+          byteYawRate = read8();byteDynThrPID = read8();
+          byteThrottle_MID = read8();byteThrottle_EXPO = read8();
+          confRC_RATE.setValue(byteRC_RATE/100.0);
+          confRC_EXPO.setValue(byteRC_EXPO/100.0);
+          rollPitchRate.setValue(byteRollPitchRate/100.0);
+          yawRate.setValue(byteYawRate/100.0);
+          dynamic_THR_PID.setValue(byteDynThrPID/100.0);
+          throttle_MID.setValue(byteThrottle_MID/100.0);
+          throttle_EXPO.setValue(byteThrottle_EXPO/100.0);
+          confRC_RATE.setColorBackground(green_);confRC_EXPO.setColorBackground(green_);rollPitchRate.setColorBackground(green_);
+          yawRate.setColorBackground(green_);dynamic_THR_PID.setColorBackground(green_);
+          throttle_MID.setColorBackground(green_);throttle_EXPO.setColorBackground(green_);
+          updateModelMSP_SET_RC_TUNING();
+          break;
+      case MSP_ACC_CALIBRATION:
+          break;
+      case MSP_MAG_CALIBRATION:
+          break;
+      case MSP_PID:
+          for(i=0;i<PIDITEMS;i++) {
+            byteP[i] = read8();byteI[i] = read8();byteD[i] = read8();
+            switch (i) {
+             case 0: 
+                  confP[i].setValue(byteP[i]/10.0);confI[i].setValue(byteI[i]/1000.0);confD[i].setValue(byteD[i]);
+                  break;
+             case 1:
+                  confP[i].setValue(byteP[i]/10.0);confI[i].setValue(byteI[i]/1000.0);confD[i].setValue(byteD[i]);
+                  break;
+             case 2:
+                  confP[i].setValue(byteP[i]/10.0);confI[i].setValue(byteI[i]/1000.0);confD[i].setValue(byteD[i]);
+                  break;
+             case 3:
+                  confP[i].setValue(byteP[i]/10.0);confI[i].setValue(byteI[i]/1000.0);confD[i].setValue(byteD[i]);
+                  break;
+             case 7:
+                  confP[i].setValue(byteP[i]/10.0);confI[i].setValue(byteI[i]/1000.0);confD[i].setValue(byteD[i]);
+                  break;
+             case 8:
+                confP[i].setValue(byteP[i]/10.0);confI[i].setValue(byteI[i]/1000.0);confD[i].setValue(byteD[i]);
+                break;
+             case 9:
+                confP[i].setValue(byteP[i]/10.0);confI[i].setValue(byteI[i]/1000.0);confD[i].setValue(byteD[i]);
+                break;
+             //Different rates fot POS-4 POSR-5 NAVR-6
+             case 4:
+                confP[i].setValue(byteP[i]/100.0);confI[i].setValue(byteI[i]/100.0);confD[i].setValue(byteD[i]/1000.0);
+                break;
+             case 5:
+                confP[i].setValue(byteP[i]/10.0);confI[i].setValue(byteI[i]/100.0);confD[i].setValue(byteD[i]/1000.0);
+                break;                   
+             case 6:
+                confP[i].setValue(byteP[i]/10.0);confI[i].setValue(byteI[i]/100.0);confD[i].setValue(byteD[i]/1000.0);
+                break;                   
+            }
+            confP[i].setColorBackground(green_);
+            confI[i].setColorBackground(green_);
+            confD[i].setColorBackground(green_);
+          }
+          updateModelMSP_SET_PID();
+          break;
+      case MSP_BOX:
+          for( i=0;i<CHECKBOXITEMS;i++) {
+            activation[i] = read16();
+            for(int aa=0;aa<12;aa++) {
+              if ((activation[i]&(1<<aa))>0) checkbox[i].activate(aa); else checkbox[i].deactivate(aa);
+            }
+          } break;
+      case MSP_BOXNAMES:
+          create_checkboxes(new String(payload, 0, payload.length).split(";"));
+          break;
+      case MSP_PIDNAMES:
+          /* TODO create GUI elements from this message */
+          System.out.println("Got PIDNAMES: "+new String(payload, 0, payload.length));
+          break;
+      case MSP_MISC:
+          intPowerTrigger = read16();
+          confPowerTrigger.setValue(intPowerTrigger);
+          updateModelMSP_SET_MISC();
+          break;
+      case MSP_MOTOR_PINS:
+          for( i=0;i<8;i++) {
+            byteMP[i] = read8();
+          } break;
+      case MSP_DEBUG:
+          debug1 = read16();debug2 = read16();debug3 = read16();debug4 = read16(); break;
+      default:
+          System.err.println("Don't know how to handle reply "+code);
+    }
+  }
+}
+
+Queue<Reply> replyQueue = new LinkedList<Reply>();
+
+void process_serial_input() {
+  while (g_serial != null && g_serial.available()>0) {
+    byte[] buffer = g_serial.readBytes();
+    for (byte b : buffer) {
+      int c = b&0xFF;
+
+      if (c_state == IDLE) {
+        c_state = (c=='$') ? HEADER_START : IDLE;
+      } else if (c_state == HEADER_START) {
+        c_state = (c=='M') ? HEADER_M : IDLE;
+      } else if (c_state == HEADER_M) {
+	if (c == '>') {
+	  c_state = HEADER_ARROW;
+	} else if (c == '!') {
+	  c_state = HEADER_ERR;
+	} else {
+	  c_state = IDLE;
+	}
+      } else if (c_state == HEADER_ARROW || c_state == HEADER_ERR) {
+        /* is this an error message? */
+        err_rcvd = (c_state == HEADER_ERR);
+        /* now we are expecting the payload size */
+        dataSize = (c&0xFF);
+        /* reset index variables */
+        offset = 0;
+        checksum = 0;
+        checksum ^= (c&0xFF);
+        /* the command is to follow */
+        c_state = HEADER_SIZE;
+      } else if (c_state == HEADER_SIZE) {
+        cmd = (byte)(c&0xFF);
+        checksum ^= (c&0xFF);
+        c_state = HEADER_CMD;
+      } else if (c_state == HEADER_CMD && offset < dataSize) {
+          checksum ^= (c&0xFF);
+          inBuf[offset++] = (byte)(c&0xFF);
+      } else if (c_state == HEADER_CMD && offset >= dataSize) {
+        /* compare calculated and transferred checksum */
+        if ((checksum&0xFF) == (c&0xFF)) {
+          /* we got a valid response packet, store it for evaluation */
+          synchronized(replyQueue) {
+            replyQueue.add(new Reply(err_rcvd, (cmd&0xFF), Arrays.copyOf(inBuf, dataSize)));
+          }
+        } else {
+          System.err.println("invalid checksum for command "+((int)(cmd&0xFF))+": "+(checksum&0xFF)+" expected, got "+(int)(c&0xFF));
+          System.err.print("<"+(cmd&0xFF)+" "+(dataSize&0xFF)+"> {");
+          for (int i=0; i<dataSize; i++) {
+            if (i!=0) { System.err.print(' '); }
+            System.err.print((inBuf[i] & 0xFF));
+          }
+          System.err.println("} ["+c+"]");
+          System.err.println(new String(inBuf, 0, dataSize));
+        }
+        last_request_time = 0;
+        c_state = IDLE;
+      }
+    }
+  }
+}
 
 Thread sendThread = new Thread(new Runnable() {
   public void run() {
     try {
       while (true) {
-        List<Byte> s = null;
-        synchronized(sendQueue) {
-          if (sendQueue.isEmpty()) {
-            sendQueue.wait();
-          } else {
-            s = sendQueue.poll();
-          }
+        if (init_com==1) {
+          process_serial_input();
         }
-        if (s != null)
-          transmit(s);
-        try {
-          Thread.sleep(request_interval);
-        } catch(InterruptedException e) {};
+        
+        int now = millis();
+        /* prepare reply */
+        if (now - last_request_time > 1000) {
+          synchronized(sendQueue) {
+            if (! sendQueue.isEmpty()) {
+              transmit(sendQueue.poll());
+              last_request_time = 0;
+            }
+          }
        }
-    } catch(Exception e) {};
+      }
+    } finally {} // catch(Exception e) {};
   }
 });
 
@@ -387,13 +617,8 @@ boolean err_rcvd = false;
 byte checksum=0;
 byte cmd;
 int offset=0, dataSize=0;
-byte[] inBuf = new byte[256];
+byte[] inBuf = new byte[128];
 
-
-int p;
-int read32() {return (inBuf[p++]&0xff) + ((inBuf[p++]&0xff)<<8) + ((inBuf[p++]&0xff)<<16) + ((inBuf[p++]&0xff)<<24); }
-int read16() {return (inBuf[p++]&0xff) + ((inBuf[p++])<<8); }
-int read8()  {return inBuf[p++]&0xff;}
 
 int mode;
 boolean toggleRead = false,toggleReset = false,toggleCalibAcc = false,toggleCalibMag = false,toggleWrite = false;
@@ -452,7 +677,6 @@ void queueMSP(List<Byte> msp) {
    if (!sendQueue.contains(msp)) {
      sendQueue.add(msp);
    }
-   sendQueue.notify(); 
  }
 }
 
@@ -476,7 +700,7 @@ void drawMotor(float x1, float y1, int mot_num, char dir) {   //Code by Danal
 }
 
 private int present = 0;
-
+Object gui_mutex = new Object();
 void draw() {
   List<Character> payload;
   int i,aa;
@@ -505,8 +729,9 @@ void draw() {
     }
     if (toggleRead) {
       toggleRead=false;
-      int[] requests = {MSP_BOXNAMES, MSP_PIDNAMES, MSP_RC_TUNING, MSP_PID, MSP_BOX, MSP_MISC };
+      int[] requests = {MSP_BOXNAMES, MSP_RC_TUNING, MSP_PID, MSP_BOX, MSP_MISC };
       queueMSP(requests);
+      // queueMSP(MSP_PIDNAMES);
       buttonWRITE.setColorBackground(green_);
     }
     if (toggleCalibAcc) {
@@ -587,54 +812,15 @@ void draw() {
       // update model with view value
       updateModel();
     }
-
-    while (g_serial.available()>0) {
-      c = (g_serial.read());
-
-      if (c_state == IDLE) {
-        c_state = (c=='$') ? HEADER_START : IDLE;
-      } else if (c_state == HEADER_START) {
-        c_state = (c=='M') ? HEADER_M : IDLE;
-      } else if (c_state == HEADER_M) {
-	if (c == '>') {
-	  c_state = HEADER_ARROW;
-	} else if (c == '!') {
-	  c_state = HEADER_ERR;
-	} else {
-	  c_state = IDLE;
-	}
-      } else if (c_state == HEADER_ARROW || c_state == HEADER_ERR) {
-        /* is this an error message? */
-        err_rcvd = (c_state == HEADER_ERR);
-        /* now we are expecting the payload size */
-        dataSize = (c&0xFF);
-        /* reset index variables */
-        p = 0;
-        offset = 0;
-        checksum = 0;
-        checksum ^= (c&0xFF);
-        /* the command is to follow */
-        c_state = HEADER_SIZE;
-      } else if (c_state == HEADER_SIZE) {
-        cmd = (byte)(c&0xFF);
-        checksum ^= (c&0xFF);
-        c_state = HEADER_CMD;
-      } else if (c_state == HEADER_CMD && offset < dataSize) {
-          checksum ^= (c&0xFF);
-          inBuf[offset++] = (byte)(c&0xFF);
-      } else if (c_state == HEADER_CMD && offset >= dataSize) {
-        /* compare calculated and transferred checksum */
-        if ((checksum&0xFF) == (c&0xFF)) {
-          /* we got a valid response packet, evaluate it */
-          evaluateCommand(err_rcvd, cmd, (int)dataSize);
-        } else {
-          System.err.println("invalid checksum for command "+((int)(cmd&0xFF))+": "+(checksum&0xFF)+" expected, got "+(int)(c&0xFF));
-        }
-        c_state = IDLE;
-      }
+  }
+  
+  /* now process any received replies */
+  synchronized(replyQueue) {
+    while (! replyQueue.isEmpty()) {
+      replyQueue.poll().evaluateCommand();
     }
   }
-
+  
   background(80);
   textFont(font15);
   text("multiwii.com",0,16);
@@ -677,6 +863,7 @@ void draw() {
 
   rcStickThrottleSlider.setValue(rcThrottle);rcStickRollSlider.setValue(rcRoll);rcStickPitchSlider.setValue(rcPitch);rcStickYawSlider.setValue(rcYaw);
   rcStickAUX1Slider.setValue(rcAUX1);rcStickAUX2Slider.setValue(rcAUX2);rcStickAUX3Slider.setValue(rcAUX3);rcStickAUX4Slider.setValue(rcAUX4);
+  
 
   stroke(255); 
   a=radians(angx);
@@ -1109,150 +1296,6 @@ void draw() {
   popMatrix();
   if (versionMisMatch == 1) {textFont(font15);fill(#000000);text("GUI vs. Arduino: Version or Buffer size mismatch",180,420); return;}
 }
-
-public void evaluateCommand(boolean err, byte cmd, int dataSize) {
-  int i;
-  int icmd = (int)(cmd&0xFF);
-  if (err) {
-    System.err.println("Copter did not understand request type "+cmd);
-  }
-  switch(icmd) {
-    case MSP_IDENT:
-	version = read8();
-	multiType = read8(); break;
-    case MSP_STATUS:
-        cycleTime = read16();
-        i2cError = read16();
-        present = read16();
-        mode = read16();
-        if ((present&1) >0) {buttonAcc.setColorBackground(green_);} else {buttonAcc.setColorBackground(red_);tACC_ROLL.setState(false); tACC_PITCH.setState(false); tACC_Z.setState(false);}
-        if ((present&2) >0) {buttonBaro.setColorBackground(green_);} else {buttonBaro.setColorBackground(red_); tBARO.setState(false); }
-        if ((present&4) >0) {buttonMag.setColorBackground(green_);} else {buttonMag.setColorBackground(red_); tMAGX.setState(false); tMAGY.setState(false); tMAGZ.setState(false); }
-        if ((present&8) >0) {buttonGPS.setColorBackground(green_);} else {buttonGPS.setColorBackground(red_); tHEAD.setState(false);}
-        if ((present&16)>0) {buttonSonar.setColorBackground(green_);} else {buttonSonar.setColorBackground(red_);}
-        for(i=0;i<CHECKBOXITEMS;i++) {
-          if ((mode&(1<<i))>0) buttonCheckbox[i].setColorBackground(green_); else buttonCheckbox[i].setColorBackground(red_);
-        } break;
-    case MSP_RAW_IMU:
-        ax = read16();ay = read16();az = read16();
-        gx = read16()/8;gy = read16()/8;gz = read16()/8;
-        magx = read16()/3;magy = read16()/3;magz = read16()/3; break;
-    case MSP_SERVO:
-        for(i=0;i<8;i++) servo[i] = read16(); break;
-    case MSP_MOTOR:
-        for(i=0;i<8;i++) mot[i] = read16(); break;
-    case MSP_RC:
-        rcRoll = read16();rcPitch = read16();rcYaw = read16();rcThrottle = read16();    
-        rcAUX1 = read16();rcAUX2 = read16();rcAUX3 = read16();rcAUX4 = read16(); break;
-    case MSP_RAW_GPS:
-        GPS_fix = read8();
-        GPS_numSat = read8();
-        GPS_latitude = read32();
-        GPS_longitude = read32();
-        GPS_altitude = read16();
-        GPS_speed = read16(); break;
-    case MSP_COMP_GPS:
-        GPS_distanceToHome = read16();
-        GPS_directionToHome = read16();
-        GPS_update = read8(); break;
-    case MSP_ATTITUDE:
-        angx = read16()/10;angy = read16()/10;
-        head = read16(); break;
-    case MSP_ALTITUDE:
-        alt = read32(); break;
-    case MSP_BAT:
-        bytevbat = read8();
-        pMeterSum = read16(); break;
-    case MSP_RC_TUNING:
-        byteRC_RATE = read8();byteRC_EXPO = read8();byteRollPitchRate = read8();
-        byteYawRate = read8();byteDynThrPID = read8();
-        byteThrottle_MID = read8();byteThrottle_EXPO = read8();
-        confRC_RATE.setValue(byteRC_RATE/100.0);
-        confRC_EXPO.setValue(byteRC_EXPO/100.0);
-        rollPitchRate.setValue(byteRollPitchRate/100.0);
-        yawRate.setValue(byteYawRate/100.0);
-        dynamic_THR_PID.setValue(byteDynThrPID/100.0);
-        throttle_MID.setValue(byteThrottle_MID/100.0);
-        throttle_EXPO.setValue(byteThrottle_EXPO/100.0);
-        confRC_RATE.setColorBackground(green_);confRC_EXPO.setColorBackground(green_);rollPitchRate.setColorBackground(green_);
-        yawRate.setColorBackground(green_);dynamic_THR_PID.setColorBackground(green_);
-        throttle_MID.setColorBackground(green_);throttle_EXPO.setColorBackground(green_);
-        updateModelMSP_SET_RC_TUNING();
-        break;
-    case MSP_ACC_CALIBRATION:
-        break;
-    case MSP_MAG_CALIBRATION:
-        break;
-    case MSP_PID:
-        for(i=0;i<PIDITEMS;i++) {
-          byteP[i] = read8();byteI[i] = read8();byteD[i] = read8();
-          switch (i) {
-           case 0: 
-                confP[i].setValue(byteP[i]/10.0);confI[i].setValue(byteI[i]/1000.0);confD[i].setValue(byteD[i]);
-                break;
-           case 1:
-                confP[i].setValue(byteP[i]/10.0);confI[i].setValue(byteI[i]/1000.0);confD[i].setValue(byteD[i]);
-                break;
-           case 2:
-                confP[i].setValue(byteP[i]/10.0);confI[i].setValue(byteI[i]/1000.0);confD[i].setValue(byteD[i]);
-                break;
-           case 3:
-                confP[i].setValue(byteP[i]/10.0);confI[i].setValue(byteI[i]/1000.0);confD[i].setValue(byteD[i]);
-                break;
-           case 7:
-                confP[i].setValue(byteP[i]/10.0);confI[i].setValue(byteI[i]/1000.0);confD[i].setValue(byteD[i]);
-                break;
-           case 8:
-              confP[i].setValue(byteP[i]/10.0);confI[i].setValue(byteI[i]/1000.0);confD[i].setValue(byteD[i]);
-              break;
-           case 9:
-              confP[i].setValue(byteP[i]/10.0);confI[i].setValue(byteI[i]/1000.0);confD[i].setValue(byteD[i]);
-              break;
-           //Different rates fot POS-4 POSR-5 NAVR-6
-           case 4:
-              confP[i].setValue(byteP[i]/100.0);confI[i].setValue(byteI[i]/100.0);confD[i].setValue(byteD[i]/1000.0);
-              break;
-           case 5:
-              confP[i].setValue(byteP[i]/10.0);confI[i].setValue(byteI[i]/100.0);confD[i].setValue(byteD[i]/1000.0);
-              break;                   
-           case 6:
-              confP[i].setValue(byteP[i]/10.0);confI[i].setValue(byteI[i]/100.0);confD[i].setValue(byteD[i]/1000.0);
-              break;                   
-          }
-          confP[i].setColorBackground(green_);
-          confI[i].setColorBackground(green_);
-          confD[i].setColorBackground(green_);
-        }
-        updateModelMSP_SET_PID();
-        break;
-    case MSP_BOX:
-        for( i=0;i<CHECKBOXITEMS;i++) {
-          activation[i] = read16();
-          for(int aa=0;aa<12;aa++) {
-            if ((activation[i]&(1<<aa))>0) checkbox[i].activate(aa); else checkbox[i].deactivate(aa);
-          }
-        } break;
-    case MSP_BOXNAMES:
-        create_checkboxes(new String(inBuf, 0, dataSize).split(";"));
-        break;
-    case MSP_PIDNAMES:
-        /* TODO create GUI elements from this message */
-        System.out.println("Got PIDNAMES: "+new String(inBuf, 0, dataSize));
-        break;
-    case MSP_MISC:
-        intPowerTrigger = read16();
-        confPowerTrigger.setValue(intPowerTrigger);
-        updateModelMSP_SET_MISC();
-        break;
-    case MSP_MOTOR_PINS:
-        for( i=0;i<8;i++) {
-          byteMP[i] = read8();
-        } break;
-    case MSP_DEBUG:
-        debug1 = read16();debug2 = read16();debug3 = read16();debug4 = read16(); break;
-  }
-}
-
 
 void ACC_ROLL(boolean theFlag) {axGraph = theFlag;}
 void ACC_PITCH(boolean theFlag) {ayGraph = theFlag;}

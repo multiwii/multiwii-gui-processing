@@ -378,11 +378,11 @@ public static final int
    HEADER_ARROW = 3,
    HEADER_SIZE = 4,
    HEADER_CMD = 5,
-   HEADER_PAYLOAD = 6,
-   HEADER_CHK = 6
+   HEADER_ERR = 6
 ;
 
 int c_state = IDLE;
+boolean err_rcvd = false;
 
 byte checksum=0;
 byte cmd;
@@ -596,8 +596,16 @@ void draw() {
       } else if (c_state == HEADER_START) {
         c_state = (c=='M') ? HEADER_M : IDLE;
       } else if (c_state == HEADER_M) {
-        c_state = (c=='>') ? HEADER_ARROW : IDLE;
-      } else if (c_state == HEADER_ARROW) {
+	if (c == '>') {
+	  c_state = HEADER_ARROW;
+	} else if (c == '!') {
+	  c_state = HEADER_ERR;
+	} else {
+	  c_state = IDLE;
+	}
+      } else if (c_state == HEADER_ARROW || c_state == HEADER_ERR) {
+        /* is this an error message? */
+        err_rcvd = (c_state == HEADER_ERR);
         /* now we are expecting the payload size */
         dataSize = (c&0xFF);
         /* reset index variables */
@@ -618,9 +626,9 @@ void draw() {
         /* compare calculated and transferred checksum */
         if ((checksum&0xFF) == (c&0xFF)) {
           /* we got a valid response packet, evaluate it */
-          evaluateCommand(cmd, (int)dataSize);
+          evaluateCommand(err_rcvd, cmd, (int)dataSize);
         } else {
-          System.out.println("invalid checksum for command "+((int)(cmd&0xFF))+": "+(checksum&0xFF)+" expected, got "+(int)(c&0xFF));
+          System.err.println("invalid checksum for command "+((int)(cmd&0xFF))+": "+(checksum&0xFF)+" expected, got "+(int)(c&0xFF));
         }
         c_state = IDLE;
       }
@@ -1102,9 +1110,12 @@ void draw() {
   if (versionMisMatch == 1) {textFont(font15);fill(#000000);text("GUI vs. Arduino: Version or Buffer size mismatch",180,420); return;}
 }
 
-public void evaluateCommand(byte cmd, int dataSize) {
+public void evaluateCommand(boolean err, byte cmd, int dataSize) {
   int i;
   int icmd = (int)(cmd&0xFF);
+  if (err) {
+    System.err.println("Copter did not understand request type "+cmd);
+  }
   switch(icmd) {
     case MSP_IDENT:
 	version = read8();

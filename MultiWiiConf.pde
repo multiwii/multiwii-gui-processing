@@ -120,7 +120,8 @@ class Reply {
   public void evaluateCommand() {
     int i;
     if (err) {
-      System.err.println("Copter did not understand request type "+cmd);
+      System.err.println("Copter did not understand request type "+code);
+      return;
     }
     p = 0;
     switch(code) {

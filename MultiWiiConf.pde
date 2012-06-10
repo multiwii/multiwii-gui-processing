@@ -19,7 +19,7 @@ static int PIDITEMS=10;
 int commListMax;
 
 /* time (ms) to wait between requests */
-static int request_interval = 10;
+static int request_interval = 20;
 
 cGraph g_graph;
 int windowsX    = 1000;       int windowsY    = 540;
@@ -112,7 +112,7 @@ Thread sendThread = new Thread(new Runnable() {
         if (s != null)
           transmit(s);
         try {
-          Thread.sleep(10);
+          Thread.sleep(request_interval);
         } catch(InterruptedException e) {};
        }
     } catch(Exception e) {};

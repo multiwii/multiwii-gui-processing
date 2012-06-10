@@ -309,6 +309,8 @@ void process_serial_input() {
           synchronized(replyQueue) {
             replyQueue.add(new Reply(err_rcvd, (cmd&0xFF), Arrays.copyOf(inBuf, dataSize)));
           }
+          /* now that new data is avilable, we should redraw the window soon */
+	  redraw();
         } else {
           System.err.println("invalid checksum for command "+((int)(cmd&0xFF))+": "+(checksum&0xFF)+" expected, got "+(int)(c&0xFF));
           System.err.print("<"+(cmd&0xFF)+" "+(dataSize&0xFF)+"> {");

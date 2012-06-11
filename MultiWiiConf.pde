@@ -340,12 +340,16 @@ Thread sendThread = new Thread(new Runnable() {
         int now = millis();
         /* prepare reply */
         if (now - last_request_time > 1000) {
+          if (last_request_time != 0) {
+            System.err.println("TIMEOUT");
+          }
           synchronized(sendQueue) {
             if (! sendQueue.isEmpty()) {
               transmit(sendQueue.poll());
               last_request_time = 0;
             }
           }
+          try { Thread.sleep(5); } catch (Exception e) {}
        }
       }
     } finally {} // catch(Exception e) {};

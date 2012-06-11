@@ -265,6 +265,14 @@ class Reply {
   }
 }
 
+private byte[] copyOf(byte[] in, int size) {
+  byte[] out = new byte[size];
+  for (int i=0; i<out.length && i<in.length; i++) {
+    out[i] = in[i];
+  }
+  return out;
+}
+
 Queue<Reply> replyQueue = new LinkedList<Reply>();
 
 void process_serial_input() {
@@ -308,7 +316,7 @@ void process_serial_input() {
         if ((checksum&0xFF) == (c&0xFF)) {
           /* we got a valid response packet, store it for evaluation */
           synchronized(replyQueue) {
-            replyQueue.add(new Reply(err_rcvd, (cmd&0xFF), Arrays.copyOf(inBuf, dataSize)));
+            replyQueue.add(new Reply(err_rcvd, (cmd&0xFF), copyOf(inBuf, dataSize)));
           }
           /* now that new data is avilable, we should redraw the window soon */
 	  redraw();

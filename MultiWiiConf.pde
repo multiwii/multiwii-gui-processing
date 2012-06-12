@@ -75,7 +75,9 @@ grey_ = color(30, 30, 30);
 boolean graphEnable = false;
 
 int version,versionMisMatch;
-float gx,gy,gz,ax,ay,az,magx,magy,magz,alt,head,refHead,angx,angy,debug1,debug2,debug3,debug4;
+/* bit mask indicating whether MAG_HOLD and/or HEADFREE is active */
+int headMode;
+float gx,gy,gz,ax,ay,az,magx,magy,magz,alt,head,magHead,refHead,angx,angy,debug1,debug2,debug3,debug4;
 int GPS_distanceToHome, GPS_directionToHome,
     GPS_numSat,GPS_fix,GPS_update,GPS_altitude,GPS_speed,
     GPS_latitude,GPS_longitude,
@@ -169,6 +171,12 @@ class Reply {
             angx = read16()/10;
             angy = read16()/10;
             head = read16();
+            refHead = read16();
+            break;
+        case MSP_HEADING:
+	    headMode = read8();
+            head = read16();
+	    magHead = read16();
             refHead = read16();
             break;
         case MSP_ALTITUDE:
@@ -603,6 +611,7 @@ private static final int
   MSP_MOTOR_PINS           =115,
   MSP_BOXNAMES             =116,
   MSP_PIDNAMES             =117,
+  MSP_HEADING              =118,
 
   MSP_SET_RAW_RC           =200,
   MSP_SET_RAW_GPS          =201,
@@ -742,6 +751,7 @@ void draw() {
     }
     if ((time-time3)>20 && ! toggleRead) {
       queueMSP(MSP_ATTITUDE);
+      queueMSP(MSP_HEADING);
       time3=time;
     }
     if (toggleReset) {
@@ -1183,12 +1193,24 @@ void draw() {
   strokeWeight(1.5);fill(0);stroke(0);ellipse(0,  0,   2*size+7, 2*size+7);
 
   strokeWeight(2);
-  stroke(128, 128, 255);
+
+  if ((headMode & 1<<1) != 0) { // HEADFREE active
+    stroke(128, 128, 255);
+  } else {
+    stroke(128, 255, 128);
+  }
   rotate(refHead*PI/180);
   line(0,size, 0,-size); line(0,-size, -5 ,-size+10); line(0,-size, +5 ,-size+10);
   rotate(-refHead*PI/180);
-  stroke(255);
 
+  if ((headMode & 1<<0) != 0) { // MAG_HOLD active
+    stroke(255, 0, 0);
+    rotate(magHead*PI/180);
+    line(0,size, 0,-size); line(0,-size, -5 ,-size+10); line(0,-size, +5 ,-size+10);
+    rotate(-magHead*PI/180);
+  }
+
+  stroke(255);
   strokeWeight(1.5);
   rotate(head*PI/180);
   line(0,size, 0,-size); line(0,-size, -5 ,-size+10); line(0,-size, +5 ,-size+10);

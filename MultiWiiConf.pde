@@ -453,7 +453,7 @@ public void evaluateCommand(byte cmd, int dataSize) {
         rcRoll = read16();rcPitch = read16();rcYaw = read16();rcThrottle = read16();    
         rcAUX1 = read16();rcAUX2 = read16();rcAUX3 = read16();rcAUX4 = read16(); break;
     case MSP_RAW_GPS:
-        GPS_fix = read8();
+        GPS_fix = read8();println(dataSize);
         GPS_numSat = read8();
         GPS_latitude = read32();
         GPS_longitude = read32();
@@ -716,10 +716,11 @@ void draw() {
         /* compare calculated and transferred checksum */
         if ((checksum&0xFF) == (c&0xFF)) {
           if (err_rcvd) {
-            //System.err.println("Copter did not understand request type "+err_rcvd);
+            //System.err.println("Copter did not understand request type "+c);
+          } else {
+            /* we got a valid response packet, evaluate it */
+            evaluateCommand(cmd, (int)dataSize);
           }
-          /* we got a valid response packet, evaluate it */
-          evaluateCommand(cmd, (int)dataSize);
         } else {
           System.out.println("invalid checksum for command "+((int)(cmd&0xFF))+": "+(checksum&0xFF)+" expected, got "+(int)(c&0xFF));
           System.out.print("<"+(cmd&0xFF)+" "+(dataSize&0xFF)+"> {");
@@ -1172,6 +1173,7 @@ void draw() {
     val = rccommand*70/1000;
     point(xSens2+i,ySens2+(70-val)*3.5/7);
   }
+  line(xSens2+(max(1100,rcThrottle)-1100)*70/900,ySens2+25,xSens2+(max(1100,rcThrottle)-1100)*70/900,ySens2+35);
 
   fill(255);
   textFont(font15);    

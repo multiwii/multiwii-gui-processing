@@ -423,10 +423,10 @@ public void evaluateCommand(byte cmd, int dataSize) {
   int icmd = (int)(cmd&0xFF);
   switch(icmd) {
     case MSP_IDENT:
-	version = read8();
-	multiType = read8();
-	read8(); // MSP version
-	read32();// capability
+        version = read8();
+        multiType = read8();
+        read8(); // MSP version
+        read32();// capability
         break;
     case MSP_STATUS:
         cycleTime = read16();
@@ -1308,10 +1308,34 @@ public void bSAVE() {
   updateModel();
   SwingUtilities.invokeLater(new Runnable(){
     public void run() {
-      final JFileChooser fc = new JFileChooser();
+     final JFileChooser fc = new JFileChooser() {
+
+        private static final long serialVersionUID = 7919427933588163126L;
+
+        public void approveSelection() {
+            File f = getSelectedFile();
+            if (f.exists() && getDialogType() == SAVE_DIALOG) {
+                int result = JOptionPane.showConfirmDialog(this,
+                        "The file exists, overwrite?", "Existing file",
+                        JOptionPane.YES_NO_CANCEL_OPTION);
+                switch (result) {
+                case JOptionPane.YES_OPTION:
+                    super.approveSelection();
+                    return;
+                case JOptionPane.CANCEL_OPTION:
+                    cancelSelection();
+                    return;
+                default:
+                    return;
+                }
+            }
+            super.approveSelection();
+        }
+    };
+
       fc.setDialogType(JFileChooser.SAVE_DIALOG);
       fc.setFileFilter(new MwiFileFilter());
-      int returnVal = fc.showOpenDialog(null);
+      int returnVal = fc.showSaveDialog(null);
       if (returnVal == JFileChooser.APPROVE_OPTION) {
         File file = fc.getSelectedFile();
         

@@ -337,6 +337,7 @@ private static final int
 
   MSP_EEPROM_WRITE         =250,
 
+  MSP_DEBUGMSG             =253,
   MSP_DEBUG                =254
 ;
 
@@ -556,6 +557,14 @@ public void evaluateCommand(byte cmd, int dataSize) {
         for( i=0;i<8;i++) {
           byteMP[i] = read8();
         } break;
+    case MSP_DEBUGMSG:
+        while(dataSize-- > 0) {
+          char c = (char)read8();
+          if (c != 0) {
+            System.out.print( c );
+          }
+        }
+        break;
     case MSP_DEBUG:
         debug1 = read16();debug2 = read16();debug3 = read16();debug4 = read16(); break;
     default:
@@ -584,7 +593,7 @@ void draw() {
 
     if ((time-time2)>40 && ! toggleRead && ! toggleWrite) {
       time2=time;
-      int[] requests = {MSP_IDENT, MSP_MOTOR_PINS, MSP_STATUS, MSP_RAW_IMU, MSP_SERVO, MSP_MOTOR, MSP_RC, MSP_RAW_GPS, MSP_COMP_GPS, MSP_ALTITUDE, MSP_BAT, MSP_DEBUG};
+      int[] requests = {MSP_IDENT, MSP_MOTOR_PINS, MSP_STATUS, MSP_RAW_IMU, MSP_SERVO, MSP_MOTOR, MSP_RC, MSP_RAW_GPS, MSP_COMP_GPS, MSP_ALTITUDE, MSP_BAT, MSP_DEBUGMSG, MSP_DEBUG};
       sendRequestMSP(requestMSP(requests));
     }
     if ((time-time3)>20 && ! toggleRead && ! toggleWrite) {

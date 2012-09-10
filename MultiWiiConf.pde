@@ -923,7 +923,27 @@ void draw() {
     motSlider[1].setPosition(xMot+90,yMot-15);motSlider[1].setHeight(60);motSlider[1].setCaptionLabel("FRONT_R");motSlider[1].show();
     motSlider[2].setPosition(xMot+30,yMot+75);motSlider[2].setHeight(60);motSlider[2].setCaptionLabel("REAR_2");motSlider[2].show();
     motSlider[3].setPosition(xMot+10,yMot-15);motSlider[3].setHeight(60);motSlider[3].setCaptionLabel("FRONT_L");motSlider[3].show(); 
-  } else if (multiType == 10) { //HEX6 X
+  } else if (multiType == 18) { //HEX6 H
+//    ellipse(-0.55*size,-size,size,size);ellipse(-0.55*size,size,size,size);ellipse(+0.55*size,-size,size,size);
+//    ellipse(+0.55*size,size,size,size);ellipse(-size,0,size,size);ellipse(+size,0,size,size);
+    drawMotor(+size, +1.2*size, byteMP[0], 'L');
+    drawMotor(+size, -1.2*size, byteMP[1], 'R');
+    drawMotor(-size, +1.2*size, byteMP[2], 'L');
+    drawMotor(-size, -1.2*size, byteMP[3], 'R');
+    drawMotor(-size,         0, byteMP[4], 'L');
+    drawMotor(+size,         0, byteMP[5], 'R');
+   
+    line(+size, +1.2*size,+size, -1.2*size);line(-size, +1.2*size,-size, -1.2*size);
+    line(+size,0,0,0);  line(-size,0,0,0);
+    noLights();text("HEXACOPTER H", -45,-60);camera();popMatrix();
+
+    motSlider[0].setPosition(xMot+80,yMot+90);motSlider[0].setHeight(45);motSlider[0].setCaptionLabel("REAR_R");motSlider[0].show();
+    motSlider[1].setPosition(xMot+80,yMot-20);motSlider[1].setHeight(45);motSlider[1].setCaptionLabel("FRONT_R");motSlider[1].show();
+    motSlider[2].setPosition(xMot+25,yMot+90);motSlider[2].setHeight(45);motSlider[2].setCaptionLabel("REAR_L");motSlider[2].show();
+    motSlider[3].setPosition(xMot+25,yMot-20);motSlider[3].setHeight(45);motSlider[3].setCaptionLabel("FRONT_L");motSlider[3].show(); 
+    motSlider[4].setPosition(xMot+90,yMot+35);motSlider[4].setHeight(45);motSlider[4].setCaptionLabel("RIGHT");motSlider[4].show(); 
+    motSlider[5].setPosition(xMot+5,yMot+35);motSlider[5].setHeight(45);motSlider[5].setCaptionLabel("LEFT");motSlider[5].show(); 
+  }  else if (multiType == 10) { //HEX6 X Original
 //    ellipse(-0.55*size,-size,size,size);ellipse(-0.55*size,size,size,size);ellipse(+0.55*size,-size,size,size);
 //    ellipse(+0.55*size,size,size,size);ellipse(-size,0,size,size);ellipse(+size,0,size,size);
     drawMotor(+0.55*size, +size, byteMP[0], 'L');

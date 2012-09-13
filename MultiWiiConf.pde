@@ -927,8 +927,8 @@ void draw() {
 //    ellipse(-0.55*size,-size,size,size);ellipse(-0.55*size,size,size,size);ellipse(+0.55*size,-size,size,size);
 //    ellipse(+0.55*size,size,size,size);ellipse(-size,0,size,size);ellipse(+size,0,size,size);
     drawMotor(+size, +1.2*size, byteMP[0], 'L');
-    drawMotor(+size, -1.2*size, byteMP[1], 'R');
-    drawMotor(-size, +1.2*size, byteMP[2], 'L');
+    drawMotor(+size, -1.2*size, byteMP[1], 'L');
+    drawMotor(-size, +1.2*size, byteMP[2], 'R');
     drawMotor(-size, -1.2*size, byteMP[3], 'R');
     drawMotor(-size,         0, byteMP[4], 'L');
     drawMotor(+size,         0, byteMP[5], 'R');

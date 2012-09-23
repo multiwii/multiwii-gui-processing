@@ -64,12 +64,12 @@ Slider axSlider,aySlider,azSlider,gxSlider,gySlider,gzSlider , magxSlider,magySl
 Slider scaleSlider;
 
 Button buttonIMPORT,buttonSAVE,buttonREAD,buttonRESET,buttonWRITE,buttonCALIBRATE_ACC,buttonCALIBRATE_MAG,buttonSTART,buttonSTOP,
-       buttonAcc,buttonBaro,buttonMag,buttonGPS,buttonSonar,buttonOptic;
+       buttonAcc,buttonBaro,buttonMag,buttonGPS,buttonSonar,buttonOptic,buttonSpekBind;
 
 Toggle tACC_ROLL, tACC_PITCH, tACC_Z, tGYRO_ROLL, tGYRO_PITCH, tGYRO_YAW, tBARO,tHEAD, tMAGX, tMAGY, tMAGZ, 
         tDEBUG1, tDEBUG2, tDEBUG3, tDEBUG4;
 
-color yellow_ = color(200, 200, 20), green_ = color(30, 120, 30), red_ = color(120, 30, 30),
+color yellow_ = color(200, 200, 20), green_ = color(30, 120, 30), red_ = color(120, 30, 30), blue_ = color(50, 50, 100),
 grey_ = color(30, 30, 30);
 boolean graphEnable = false;
 
@@ -205,6 +205,7 @@ void setup() {
   tDEBUG2 =         controlP5.addToggle("DEBUG2",true,x+190,y6,20,10);tDEBUG2.setColorActive(color(150, 100, 50));tDEBUG2.setColorBackground(black);tDEBUG2.setLabel("");tDEBUG2.setValue(0);
   tDEBUG3 =         controlP5.addToggle("DEBUG3",true,x+310,y6,20,10);tDEBUG3.setColorActive(color(150, 100, 50));tDEBUG3.setColorBackground(black);tDEBUG3.setLabel("");tDEBUG3.setValue(0);
   tDEBUG4 =         controlP5.addToggle("DEBUG4",true,x+430,y6,20,10);tDEBUG4.setColorActive(color(150, 100, 50));tDEBUG4.setColorBackground(black);tDEBUG4.setLabel("");tDEBUG4.setValue(0);
+  buttonSpekBind = controlP5.addButton("bSpekBind",1,10,y6-10,70,15); buttonSpekBind.setColorBackground(blue_);buttonSpekBind.setLabel("Spek Bind");
 
   controlP5.addTextlabel("acclabel","ACC",xo,y1);
   controlP5.addTextlabel("accrolllabel","   ROLL",xo,y1+10);
@@ -342,6 +343,8 @@ private static final int
   MSP_MAG_CALIBRATION      =206,
   MSP_SET_MISC             =207,
   MSP_RESET_CONF           =208,
+  
+  MSP_SPEK_BIND            =240,
 
   MSP_EEPROM_WRITE         =250,
   
@@ -374,7 +377,7 @@ int read16() {return (inBuf[p++]&0xff) + ((inBuf[p++])<<8); }
 int read8()  {return inBuf[p++]&0xff;}
 
 int mode;
-boolean toggleRead = false,toggleReset = false,toggleCalibAcc = false,toggleCalibMag = false,toggleWrite = false;
+boolean toggleRead = false,toggleReset = false,toggleCalibAcc = false,toggleCalibMag = false,toggleWrite = false,toggleSpekBind = false;
 
 //send msp without payload
 private List<Byte> requestMSP(int msp) {
@@ -694,6 +697,13 @@ void draw() {
       sendRequestMSP(requestMSP(MSP_EEPROM_WRITE));
       
       updateModel(); // update model with view value
+    }
+
+    if (toggleSpekBind) {
+      toggleSpekBind=false;
+      sendRequestMSP(requestMSP(MSP_SPEK_BIND));
+      bSTOP();
+      InitSerial(9999);
     }
 
     while (g_serial.available()>0) {
@@ -1811,3 +1821,8 @@ public class MwiFileFilter extends FileFilter {
   } 
   public String getDescription() {return "*.mwi Multiwii configuration file";}   
 }
+
+public void bSpekBind() { //Bind a Spektrum Satellite
+  toggleSpekBind = true;
+}
+

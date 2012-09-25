@@ -961,9 +961,9 @@ void draw() {
     motSlider[3].setPosition(xMot+10,yMot-15);motSlider[3].setHeight(60);motSlider[3].setCaptionLabel("FRONT_L");motSlider[3].show(); 
 
   } else if (multiType == 18) { //HEX6 H
-    drawMotor(+size, +1.2*size, byteMP[0], 'L');
+    drawMotor(+size, +1.2*size, byteMP[0], 'R');
     drawMotor(+size, -1.2*size, byteMP[1], 'L');
-    drawMotor(-size, +1.2*size, byteMP[2], 'R');
+    drawMotor(-size, +1.2*size, byteMP[2], 'L');
     drawMotor(-size, -1.2*size, byteMP[3], 'R');
     drawMotor(-size,         0, byteMP[4], 'L');
     drawMotor(+size,         0, byteMP[5], 'R');

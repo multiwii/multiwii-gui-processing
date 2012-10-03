@@ -76,6 +76,7 @@ boolean graphEnable = false;
 int version,versionMisMatch;
 float gx,gy,gz,ax,ay,az,magx,magy,magz,alt,head,angx,angy,debug1,debug2,debug3,debug4;
 float angyLevelControl, angCalc;
+int horizonInstrSize;
 int i, j, blink;
 boolean blinkFlag;
 int GPS_distanceToHome, GPS_directionToHome,
@@ -1145,34 +1146,43 @@ void draw() {
   // ---------------------------------------------------------------------------------------------
   // Magnetron Combi Fly Level Control
   // ---------------------------------------------------------------------------------------------
-  angyLevelControl=((angy<-50) ? -50 : (angy>50) ? 50 : angy);
+  horizonInstrSize=68;
+  angyLevelControl=((angy<-horizonInstrSize) ? -horizonInstrSize : (angy>horizonInstrSize) ? horizonInstrSize : angy);
   pushMatrix();
   translate(xLevelObj,yLevelObj);
   noStroke();
   // instrument background
   fill(50,50,50);
   ellipse(0,0,150,150);
-  //arc(0,0,150,150,0,PI);
-  //rect(-75,0,75,-75);
   // full instrument
   rotate(-a);
   rectMode(CORNER);
   // outer border
   strokeWeight(1);
   stroke(90,90,90);
-  rect(-52,-52,104,104); //border ext
+  //border ext
+  arc(0,0,140,140,0,TWO_PI);
   stroke(190,190,190);
-  rect(-51,-51,102,102); //border int
+  //border int
+  arc(0,0,138,138,0,TWO_PI);
   // inner quadrant
   strokeWeight(1);
   stroke(255,255,255);
-  fill(30,140,200); 
-  rect(-50,-50,100,100); //sky 
-  fill(100,50,30); 
-  rect(-50,0-angyLevelControl,100,50+angyLevelControl); //earth
+  fill(124,73,31);
+  //earth
+  float angle = acos(angyLevelControl/horizonInstrSize);
+  arc(0,0,136,136,0,TWO_PI);
+  fill(38,139,224); 
+  //sky 
+  arc(0,0,136,136,HALF_PI-angle+PI,HALF_PI+angle+PI);
+  float x = sin(angle)*horizonInstrSize;
+  if (angy>0) 
+    fill(124,73,31);
+  noStroke();   
+  triangle(0,0,x,-angyLevelControl,-x,-angyLevelControl);
   // inner lines
   strokeWeight(1);
-  for(i=0;i<6;i++) {
+  for(i=0;i<8;i++) {
     j=i*15;
     if (angy<=(35-j) && angy>=(-65-j)) {
       stroke(255,255,255); line(-30,-15-j-angy,30,-15-j-angy); // up line
@@ -1204,26 +1214,19 @@ void draw() {
     text("0", 34, 4-angy); // center
     text("0", -39, 4-angy); // center
   }
-  // inner circle
-  noStroke();
-  fill(255,255,255,50);
-  ellipse(0,0,100,100);
-  arc(0,0,50,50,PI,TWO_PI);
+
   // lateral arrows
   strokeWeight(1);
   // down fixed triangle
   stroke(60,60,60);
-  fill(180,180,180,90);
-  triangle(-55,-8,-55,8,-42,0);
-  triangle(55,-8,55,8,42,0);
-  // upper mobile tringle
-  stroke(10,10,10);
   fill(180,180,180,255);
-  triangle(-55,-8-angyLevelControl,-55,8-angyLevelControl,-42,-angyLevelControl);
-  triangle(55,-8-angyLevelControl,55,8-angyLevelControl,42,-angyLevelControl);
+
+  triangle(-horizonInstrSize,-8,-horizonInstrSize,8,-55,0);
+  triangle(horizonInstrSize,-8,horizonInstrSize,8,55,0);
+
   // center
   strokeWeight(1);
-  stroke(255,120,10);
+  stroke(255,0,0);
   line(-20,0,-5,0); line(-5,0,-5,5);
   line(5,0,20,0); line(5,0,5,5);
   line(0,-5,0,5);

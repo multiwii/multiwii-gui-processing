@@ -35,6 +35,7 @@ boolean axGraph =true,ayGraph=true,azGraph=true,gxGraph=true,gyGraph=true,gzGrap
         debug1Graph = false,debug2Graph = false,debug3Graph = false,debug4Graph = false;
 
 int multiType;  // 1 for tricopter, 2 for quad+, 3 for quadX, ...
+int multiCapability = 0; // Bitflags stating what capabilities are/are not present in the compiled code. 
 int byteMP[] = new int[8];  // Motor Pins.  Varies by multiType and Arduino model (pro Mini, Mega, etc).
 
 cDataArray accPITCH   = new cDataArray(200), accROLL    = new cDataArray(200), accYAW     = new cDataArray(200),
@@ -64,7 +65,7 @@ Slider axSlider,aySlider,azSlider,gxSlider,gySlider,gzSlider , magxSlider,magySl
 Slider scaleSlider;
 
 Button buttonIMPORT,buttonSAVE,buttonREAD,buttonRESET,buttonWRITE,buttonCALIBRATE_ACC,buttonCALIBRATE_MAG,buttonSTART,buttonSTOP,buttonSETTING,
-       buttonAcc,buttonBaro,buttonMag,buttonGPS,buttonSonar,buttonOptic,buttonSpekBind;
+       buttonAcc,buttonBaro,buttonMag,buttonGPS,buttonSonar,buttonOptic,buttonRXbind;
 
 Toggle tACC_ROLL, tACC_PITCH, tACC_Z, tGYRO_ROLL, tGYRO_PITCH, tGYRO_YAW, tBARO,tHEAD, tMAGX, tMAGY, tMAGZ, 
         tDEBUG1, tDEBUG2, tDEBUG3, tDEBUG4;
@@ -206,7 +207,6 @@ void setup() {
   tDEBUG2 =         controlP5.addToggle("DEBUG2",true,x+190,y6,20,10);tDEBUG2.setColorActive(color(150, 100, 50));tDEBUG2.setColorBackground(black);tDEBUG2.setLabel("");tDEBUG2.setValue(0);
   tDEBUG3 =         controlP5.addToggle("DEBUG3",true,x+310,y6,20,10);tDEBUG3.setColorActive(color(150, 100, 50));tDEBUG3.setColorBackground(black);tDEBUG3.setLabel("");tDEBUG3.setValue(0);
   tDEBUG4 =         controlP5.addToggle("DEBUG4",true,x+430,y6,20,10);tDEBUG4.setColorActive(color(150, 100, 50));tDEBUG4.setColorBackground(black);tDEBUG4.setLabel("");tDEBUG4.setValue(0);
-  buttonSpekBind = controlP5.addButton("bSpekBind",1,10,y6-10,70,15); buttonSpekBind.setColorBackground(blue_);buttonSpekBind.setLabel("Spek Bind");
 
   controlP5.addTextlabel("acclabel","ACC",xo,y1);
   controlP5.addTextlabel("accrolllabel","   ROLL",xo,y1+10);
@@ -386,7 +386,7 @@ int read16() {return (inBuf[p++]&0xff) + ((inBuf[p++])<<8); }
 int read8()  {return inBuf[p++]&0xff;}
 
 int mode;
-boolean toggleRead = false,toggleReset = false,toggleCalibAcc = false,toggleCalibMag = false,toggleWrite = false,toggleSpekBind = false,toggleSetSetting = false;
+boolean toggleRead = false,toggleReset = false,toggleCalibAcc = false,toggleCalibMag = false,toggleWrite = false,toggleRXbind = false,toggleSetSetting = false;
 
 //send msp without payload
 private List<Byte> requestMSP(int msp) {
@@ -447,7 +447,10 @@ public void evaluateCommand(byte cmd, int dataSize) {
         version = read8();
         multiType = read8();
         read8(); // MSP version
-        read32();// capability
+        multiCapability = read32();// capability
+        if ((multiCapability&1)>0) {
+          buttonRXbind = controlP5.addButton("bRXbind",1,10,yGraph+205-10,55,10); buttonRXbind.setColorBackground(blue_);buttonRXbind.setLabel("RX Bind");
+        }
         break;
     case MSP_STATUS:
         cycleTime = read16();
@@ -720,8 +723,8 @@ void draw() {
       updateModel(); // update model with view value
     }
 
-    if (toggleSpekBind) {
-      toggleSpekBind=false;
+    if (toggleRXbind) {
+      toggleRXbind=false;
       sendRequestMSP(requestMSP(MSP_SPEK_BIND));
       bSTOP();
       InitSerial(9999);
@@ -1849,7 +1852,7 @@ public class MwiFileFilter extends FileFilter {
   public String getDescription() {return "*.mwi Multiwii configuration file";}   
 }
 
-public void bSpekBind() { //Bind a Spektrum Satellite
-  toggleSpekBind = true;
+public void bRXbind() { //Bind a Spektrum Satellite
+  toggleRXbind = true;
 }
 

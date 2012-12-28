@@ -78,8 +78,7 @@ int version,versionMisMatch;
 float gx,gy,gz,ax,ay,az,magx,magy,magz,alt,head,angx,angy,debug1,debug2,debug3,debug4;
 float angyLevelControl, angCalc;
 int horizonInstrSize;
-int i, j, blink;
-boolean blinkFlag;
+int i, j;
 int GPS_distanceToHome, GPS_directionToHome,
     GPS_numSat,GPS_fix,GPS_update,GPS_altitude,GPS_speed,
     GPS_latitude,GPS_longitude,
@@ -353,7 +352,7 @@ private static final int
   MSP_RESET_CONF           =208,
   MSP_SELECT_SETTING       =210,
   
-  MSP_SPEK_BIND            =240,
+  MSP_BIND                 =240,
 
   MSP_EEPROM_WRITE         =250,
   
@@ -725,7 +724,7 @@ void draw() {
 
     if (toggleRXbind) {
       toggleRXbind=false;
-      sendRequestMSP(requestMSP(MSP_SPEK_BIND));
+      sendRequestMSP(requestMSP(MSP_BIND));
       bSTOP();
       InitSerial(9999);
     }
@@ -800,12 +799,6 @@ void draw() {
   text("V",16,35);text(version, 27, 35);
   text(i2cError,xGraph+410,yGraph-10);
   text(cycleTime,xGraph+290,yGraph-10);
-
-  // Magnetron blink flag
-  if ((blink+500)<=millis()) {
-    blink=millis();
-    blinkFlag=!blinkFlag;
-  }
 
   // ---------------------------------------------------------------------------------------------
   // GPS DATA
@@ -1312,26 +1305,18 @@ void draw() {
   fill(255,255,0);
   text(GPS_directionToHome + "°",xCompass-6-size*2.1,yCompass+7+size*2);
   // GPS fix
-  if (GPS_update==0) {
-    fill(120,120,120);
+  if (GPS_fix==0) {
+     fill(127,0,0);
   } else {
-    if (GPS_fix==0) {
-       fill(255-(blinkFlag ? 0 : 127),0,0);
-    } else {
-       fill(0,255,0);
-    }
+     fill(0,255,0);
   }
   //ellipse(xCompass+3+size*2.1,yCompass+3+size*2,12,12);
   rect(xCompass-28+size*2.1,yCompass+1+size*2,xCompass+9+size*2.1,yCompass+13+size*2);
   textFont(font9);
-  if (GPS_update==0) {
-    fill(30,30,30);
+  if (GPS_fix==0) {
+    fill(255,255,0);
   } else {
-    if (GPS_fix==0) {
-      fill(255,255,0);
-    } else {
-      fill(0,50,0);
-    }
+    fill(0,50,0);
   }
   text("GPS_fix",xCompass-27+size*2.1,yCompass+10+size*2);
 

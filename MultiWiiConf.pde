@@ -560,7 +560,8 @@ public void evaluateCommand(byte cmd, int dataSize) {
         break;
     case MSP_RAW_IMU:
         ax = read16();ay = read16();az = read16();
-        gx = read16()/8;gy = read16()/8;gz = read16()/8;
+        if (ActiveTab=="motors"){gx = read16();gy = read16();gz = read16();
+         }else{gx = read16()/8;gy = read16()/8;gz = read16()/8;}
         magx = read16()/3;magy = read16()/3;magz = read16()/3; break;
     case MSP_SERVO:
         for(i=0;i<8;i++) servo[i] = read16(); break;
@@ -1345,6 +1346,33 @@ if(!hideDraw){
     motToggle[2].setPosition(xMot+40-MotToggleMove,yMot+75).show();
     motToggle[3].setPosition(xMot+10-MotToggleMove,yMot-15).show();
 
+  } else if (multiType == 20) { //Dualcopter
+    float Span = size*1.3;  
+    float VingRoot = Span*0.25;  
+    // Wing
+    //line(0,0,  Span,0);   line(Span,0, Span, VingRoot);       line(Span, VingRoot, 0,VingRoot); 
+    //line(0,0,  -Span,0);   line(-Span,0, -Span, VingRoot);       line(-Span, VingRoot, 0,VingRoot);    
+    // Stab
+    line(0,VingRoot,  (size*0.4),size);   line(-(size*0.4),size+5,  (size*0.4),size+5); 
+    line(0,VingRoot,  -(size*0.4),size);
+    line(-(size*0.4),size,  -(size*0.4),size+5); line((size*0.4),size,  (size*0.4),size+5);     
+    // Body  
+    line(-2,size,  -2,-size+5); line(2,size,  2,-size+5); line( -2,-size+5,  2,-size+5);    
+    // Fin 
+    line(0,VingRoot-3,0,  0,size,15);  line(0,size,15,  0,size+5,15);line(0,size+5,15,  0,size+5,0);   
+    line(0,VingRoot-3,0,  0,size,-15); line(0,size,-15,  0,size+5,-15);line(0,size+5,-15,  0,size+5,0);       
+    noLights();
+    textFont(font12);
+    text("Dualcopter", -40,-50);camera();popMatrix();
+  
+    servoSliderH[3].setPosition(xMot,yMot-5) .setCaptionLabel("N/A").show();
+    servoSliderH[4].setPosition(xMot,yMot+25).setCaptionLabel("PITCH").show();
+    servoSliderH[5].setPosition(xMot,yMot+55).setCaptionLabel("ROLL").show();    
+    servoSliderH[6].setPosition(xMot,yMot+85).setCaptionLabel("M 1").show();
+    servoSliderH[7].setPosition(xMot,yMot+115).setCaptionLabel("M 0").show();    
+    
+    motToggle[0].setPosition(xMot-MotToggleMove,yMot+30).setCaptionLabel("").show();
+    motToggle[1].setPosition(xMot+100-MotToggleMove,yMot+30).setCaptionLabel("").show();
   } else {
     noLights();camera();popMatrix();
   }
@@ -1743,7 +1771,7 @@ public void controlEvent(ControlEvent theEvent) {
     for(int i=0;i<8;i++) {
       servoSliderH[i].moveTo(ActiveTab);
       servoSliderV[i].moveTo(ActiveTab); 
-      motSlider[i].moveTo(ActiveTab);  
+      motSlider[i].moveTo(ActiveTab);   
       
     }
       scaleSlider.moveTo(ActiveTab);

@@ -535,7 +535,7 @@ public void evaluateCommand(byte cmd, int dataSize) {
         // LOG_PERMANENT
         if(MConf[4]<1){confINF[5].hide();confINF[4].hide();}else{confINF[5].show();confINF[4].show();}
         //mag_decliniation
-        MConf[6]= read16();if(MConf[6]>0){confINF[6].setValue((float)(MConf[6]-1000)/10).show();}
+        MConf[6]= read16();confINF[6].setValue((float)MConf[6]/10).show();
         // VBAT
         int q = read8();if(toggleVbat){VBat[0].setValue(q).setColorBackground(green_);toggleVbat=false;
         for( i=1;i<4;i++) VBat[i].setValue(read8()/10.0).setColorBackground(green_);}
@@ -844,7 +844,7 @@ void draw() {
       // MSP_SET_MISC_CONF
       payload = new ArrayList<Character>();
       for( i=0;i<4;i++) {int q= (int)(confINF[i].value()); payload.add(char (q % 256) ); payload.add(char (q / 256)  ); }
-      int nn= round(confINF[6].value()*10)+1000; payload.add(char (nn % 256) ); payload.add(char (nn / 256)  );      
+      int nn= round(confINF[6].value()*10); payload.add(char (nn - ((nn>>8)<<8) )); payload.add(char (nn>>8));      
       nn= round(VBat[0].value()); payload.add(char (nn)); // VBatscale
       for( i=1;i<4;i++) { int q= int(VBat[i].value()*10); payload.add(char (q)); }
       

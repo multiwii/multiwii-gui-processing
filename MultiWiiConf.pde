@@ -411,7 +411,6 @@ private static final int
   MSP_BOXNAMES             =116,
   MSP_PIDNAMES             =117,
   MSP_SERVO_CONF           =120,
-  MSP_MISC_CONF            =121,
 
   MSP_SET_RAW_RC           =200,
   MSP_SET_RAW_GPS          =201,
@@ -424,7 +423,6 @@ private static final int
   MSP_RESET_CONF           =208,
   MSP_SELECT_SETTING       =210,
   MSP_SET_HEAD             =211, // Not used
-  MSP_SET_MISC_CONF        =213,
   MSP_SET_MOTOR            =214,
   
   MSP_BIND                 =240,
@@ -527,21 +525,6 @@ public void evaluateCommand(byte cmd, int dataSize) {
           buttonRXbind = controlP5.addButton("bRXbind",1,10,yGraph+205-10,55,10); buttonRXbind.setColorBackground(blue_);buttonRXbind.setLabel("RX Bind");
         }
         break;
-    case MSP_MISC_CONF:
-        //int minthrottle,maxthrottle,mincommand,midrc,armedNum,lifetime,mag_decliniation ;
-        for (i=0;i<5;i++) { MConf[i]= read16(); confINF[i].setValue((int)MConf[i]).show(); }
-        MConf[5]= read32(); confINF[5].setValue((int)MConf[5]);
-        for (i=1;i<5;i++) confINF[i].setColorBackground(grey_).setMin((int)MConf[i]).setMax((int)MConf[i]);
-        // LOG_PERMANENT
-        if(MConf[4]<1){confINF[5].hide();confINF[4].hide();}else{confINF[5].show();confINF[4].show();}
-        //mag_decliniation
-        MConf[6]= read16();confINF[6].setValue((float)MConf[6]/10).show();
-        // VBAT
-        int q = read8();if(toggleVbat){VBat[0].setValue(q).setColorBackground(green_);toggleVbat=false;
-        for( i=1;i<4;i++) VBat[i].setValue(read8()/10.0).setColorBackground(green_);}
-        if(q > 1) {for( i=0;i<5;i++) VBat[i].show();}
-        controlP5.addTab("Config").show();
-     break;
     case MSP_STATUS:
         cycleTime = read16();
         i2cError = read16();
@@ -676,6 +659,21 @@ public void evaluateCommand(byte cmd, int dataSize) {
         intPowerTrigger = read16();
         confPowerTrigger.setValue(intPowerTrigger);
         updateModelMSP_SET_MISC();
+        
+        //int minthrottle,maxthrottle,mincommand,midrc,armedNum,lifetime,mag_decliniation ;
+        for (i=0;i<5;i++) { MConf[i]= read16(); confINF[i].setValue((int)MConf[i]).show(); }
+        MConf[5]= read32(); confINF[5].setValue((int)MConf[5]);
+        for (i=1;i<5;i++) confINF[i].setColorBackground(grey_).setMin((int)MConf[i]).setMax((int)MConf[i]);
+        // LOG_PERMANENT
+        if(MConf[4]<1){confINF[5].hide();confINF[4].hide();}else{confINF[5].show();confINF[4].show();}
+        //mag_decliniation
+        MConf[6]= read16();confINF[6].setValue((float)MConf[6]/10).show();
+        // VBAT
+        int q = read8();if(toggleVbat){VBat[0].setValue(q).setColorBackground(green_);toggleVbat=false;
+        for( i=1;i<4;i++) VBat[i].setValue(read8()/10.0).setColorBackground(green_);}
+        if(q > 1) {for( i=0;i<5;i++) VBat[i].show();}
+        controlP5.addTab("Config").show();
+        
         break;
     case MSP_MOTOR_PINS:
         for( i=0;i<8;i++) {
@@ -732,7 +730,7 @@ void draw() {
     }
     if (toggleRead) {
       toggleRead=false;
-      int[] requests = {MSP_BOXNAMES, MSP_RC_TUNING, MSP_PID, MSP_BOX, MSP_MISC, MSP_IDENT, MSP_MOTOR_PINS,MSP_MISC_CONF }; // MSP_PIDNAMES
+      int[] requests = {MSP_BOXNAMES, MSP_RC_TUNING, MSP_PID, MSP_BOX, MSP_MISC, MSP_IDENT, MSP_MOTOR_PINS }; // MSP_PIDNAMES
       sendRequestMSP(requestMSP(requests));
       buttonWRITE.setColorBackground(green_);
       buttonSETTING.setColorBackground(green_);
@@ -837,19 +835,14 @@ void draw() {
       intPowerTrigger = (round(confPowerTrigger.value()));
       payload.add(char(intPowerTrigger % 256));
       payload.add(char(intPowerTrigger / 256));
-      
-      sendRequestMSP(requestMSP(MSP_SET_MISC,payload.toArray(new Character[payload.size()])));
-      
-      
-      // MSP_SET_MISC_CONF
-      payload = new ArrayList<Character>();
+
       for( i=0;i<4;i++) {int q= (int)(confINF[i].value()); payload.add(char (q % 256) ); payload.add(char (q / 256)  ); }
       int nn= round(confINF[6].value()*10); payload.add(char (nn - ((nn>>8)<<8) )); payload.add(char (nn>>8));      
       nn= round(VBat[0].value()); payload.add(char (nn)); // VBatscale
       for( i=1;i<4;i++) { int q= int(VBat[i].value()*10); payload.add(char (q)); }
       
-      sendRequestMSP(requestMSP(MSP_SET_MISC_CONF,payload.toArray( new Character[payload.size()]) ));
-      
+      sendRequestMSP(requestMSP(MSP_SET_MISC,payload.toArray(new Character[payload.size()])));
+
       // MSP_EEPROM_WRITE
       sendRequestMSP(requestMSP(MSP_EEPROM_WRITE));
       

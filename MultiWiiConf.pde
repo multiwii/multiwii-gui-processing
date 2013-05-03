@@ -289,7 +289,7 @@ void setup() {
   confINF[0].setLabel("Minthrottle").setMin(1000).setMax(1400).moveTo("Config");
   confINF[1].setLabel("MAXhrottle").setMin(1700).setMax(2000).moveTo("Config");
   confINF[2].setLabel("Min command").setMin(900).setMax(1200).moveTo("Config");
-  confINF[3].setLabel("MIDRC").setMin(1300).setMax(1700).moveTo("Config");
+  confINF[3].setLabel("Failsafe_throttle").setMin(1300).setMax(1700).moveTo("Config");
   confINF[4].setLabel("Armed count").setMin(0).setMax(1000).setColorBackground(red_).moveTo("Config");
   confINF[5].setLabel("Acc ArmedTime").setMin(0).setMax(36000).setColorBackground(red_).moveTo("Config");
   confINF[6].setLabel("MAG Decl").setMin(-20).setMax(20).setDecimalPrecision(1).setMultiplier(.1).moveTo("Config");
@@ -656,6 +656,19 @@ public void evaluateCommand(byte cmd, int dataSize) {
         //System.out.println("Got PIDNAMES: "+new String(inBuf, 0, dataSize));
         break;
     case MSP_MISC:
+        //intPowerTrigger1 (16bit)
+        //conf.minthrottle (16bit)
+        //MAXTHROTTLE (16bit)
+        //MINCOMMAND (16bit)
+        //conf.failsafe_throttle (16bit)
+        //plog.arm (16bit)
+        //plog.lifetime + (plog.armed_time / 1000000) (32bit)
+        //conf.mag_declination (16bit)
+        //conf.vbatscale; (8bit)
+        //conf.vbatlevel_warn1; (8bit)
+        //conf.vbatlevel_warn2; (8bit)
+        //conf.vbatlevel_crit; (8bit)
+       
         intPowerTrigger = read16();
         confPowerTrigger.setValue(intPowerTrigger);
         updateModelMSP_SET_MISC();
@@ -831,12 +844,26 @@ void draw() {
      
       
       // MSP_SET_MISC
+        //intPowerTrigger1 (16bit)
+        //conf.minthrottle (16bit)
+        //MAXTHROTTLE (16bit)
+        //MINCOMMAND (16bit)
+        //conf.failsafe_throttle (16bit)
+        //plog.arm (16bit) not used
+        //plog.lifetime + (plog.armed_time / 1000000) (32bit) not used
+        //conf.mag_declination (16bit)
+        //conf.vbatscale; (8bit)
+        //conf.vbatlevel_warn1; (8bit)
+        //conf.vbatlevel_warn2; (8bit)
+        //conf.vbatlevel_crit; (8bit)
+        
       payload = new ArrayList<Character>();
       intPowerTrigger = (round(confPowerTrigger.value()));
-      payload.add(char(intPowerTrigger % 256));
+      payload.add(char(intPowerTrigger % 256)); //intPowerTrigger
       payload.add(char(intPowerTrigger / 256));
-
+      
       for( i=0;i<4;i++) {int q= (int)(confINF[i].value()); payload.add(char (q % 256) ); payload.add(char (q / 256)  ); }
+      payload.add(char(0));payload.add(char(0));payload.add(char(0));payload.add(char(0));payload.add(char(0));payload.add(char(0));
       int nn= round(confINF[6].value()*10); payload.add(char (nn - ((nn>>8)<<8) )); payload.add(char (nn>>8));      
       nn= round(VBat[0].value()); payload.add(char (nn)); // VBatscale
       for( i=1;i<4;i++) { int q= int(VBat[i].value()*10); payload.add(char (q)); }

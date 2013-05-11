@@ -709,7 +709,7 @@ public void evaluateCommand(byte cmd, int dataSize) {
 }
 
 private int present = 0;
-int time,time2,time3,time4;
+int time,time2,time3,time4,time5,time6;
 
 void draw() {
   List<Character> payload;
@@ -726,15 +726,26 @@ void draw() {
       altData.addVal(alt);headData.addVal(head);
       debug1Data.addVal(debug1);debug2Data.addVal(debug2);debug3Data.addVal(debug3);debug4Data.addVal(debug4);
     }
-
-    if ((time-time2)>40 && ! toggleRead && ! toggleWrite && ! toggleSetSetting) {
-      time2=time;
-      int[] requests = {MSP_STATUS, MSP_RAW_IMU, MSP_SERVO, MSP_MOTOR, MSP_RC, MSP_RAW_GPS, MSP_COMP_GPS, MSP_ALTITUDE, MSP_ANALOG, MSP_DEBUGMSG, MSP_DEBUG};
-      sendRequestMSP(requestMSP(requests));
-    }
-    if ((time-time3)>20 && ! toggleRead && ! toggleWrite && ! toggleSetSetting) {
-      sendRequestMSP(requestMSP(MSP_ATTITUDE));
-      time3=time;
+    if (! toggleRead && ! toggleWrite && ! toggleSetSetting) {
+      if ((time-time6)>200) {
+        time6=time;
+        int[] requests = { MSP_RAW_GPS, MSP_COMP_GPS, MSP_ANALOG};
+        sendRequestMSP(requestMSP(requests));
+      }
+      if ((time-time5)>100) {
+        time5=time;
+        int[] requests = { MSP_ALTITUDE};
+        sendRequestMSP(requestMSP(requests));
+      }
+      if ((time-time2)>40) {
+        time2=time;
+        int[] requests = {MSP_STATUS, MSP_RAW_IMU, MSP_SERVO, MSP_MOTOR, MSP_RC,MSP_DEBUG};
+        sendRequestMSP(requestMSP(requests));
+      }
+      if ((time-time3)>25) {
+        time3=time;
+        sendRequestMSP(requestMSP(MSP_ATTITUDE));
+      }
     }
     if (toggleReset) {
       toggleReset=false;

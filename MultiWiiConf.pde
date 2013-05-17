@@ -358,6 +358,7 @@ void create_checkboxes(String[] names) {
 // Truncates a long port name for better (readable) display in the GUI
 String shortifyPortName(String portName, int maxlen)  {
   String shortName = portName;
+  if(shortName.startsWith("/dev/cu.")) shortName = "";// only collect the corresponding tty. devices
   return shortName;
   /*
   if(shortName.startsWith("/dev/")) shortName = shortName.substring(5);  

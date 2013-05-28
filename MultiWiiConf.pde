@@ -14,6 +14,9 @@ import java.io.*;
 
 // TODO add new msp :  pid description with bound and scale
 
+// debugfunctions
+boolean SerialRC_Debug = false;//true;//    Show/Hide serialRC Button in tabs
+
 PrintWriter output;
 BufferedReader reader;
 String portnameFile="SerialPort.txt"; // Name of file for Autoconnect.
@@ -32,7 +35,7 @@ static int CHECKBOXITEMS=0;
 static int PIDITEMS=10;
 int commListMax;
 int tabHeight=20; // Extra height needed for Tabs
-int Centerlimits[]  = {1200,1700}; // Endpoints of ServoCenterSliders 
+int Centerlimits[]  = {1200,1800}; // Endpoints of ServoCenterSliders 
 
 cGraph g_graph;
 int windowsX    = 1000;       int windowsY    = 540+tabHeight;
@@ -598,7 +601,7 @@ void setup() {
   buttonCALIBRATE_ACC = controlP5.addButton("CALIB_ACC",  1,  xParam+210, yParam+260, 70, 16).setColorBackground(red_);
   buttonCALIBRATE_MAG = controlP5.addButton("CALIB_MAG",  1,  xParam+130, yParam+260, 70, 16).setColorBackground(red_);
   buttonSETTING =       controlP5.addButton("SETTING"  ,  1,  xParam+410, yParam+260, 105, 16) .setColorBackground(red_).setLabel("SELECT SETTING");//.hide();
-  btnRCSERIAL  =        controlP5.addButton("RCSERIAL" ,  1,  xGraph+310, yGraph-60,70,19) .setLabel("RC SERIAL").setColorBackground(red_).moveTo("ServoSettings");//.hide();
+  btnRCSERIAL  =        controlP5.addButton("RCSERIAL" ,  1,  xGraph+310, yGraph-60,70,19) .setLabel("RC SERIAL").setColorBackground(red_).moveTo("ServoSettings").hide();
   buttonGimbal =        controlP5.addButton("GIMBAL"   ,  1,  xParam+5,   yParam+200,55,16).setColorBackground(green_).hide().moveTo("ServoSettings");
   btnTrigger   =        controlP5.addButton("TRIGGER"  , 1,   xParam+65,   yParam+200,75,16).setColorBackground(green_).hide().moveTo("ServoSettings");
   btMagDecl    =        controlP5.addButton("MagDecl"  ,  1,  xParam+350, yParam+100, 180, 16).setColorBackground(grey_).moveTo("Config").setLabel("magnetic-declination.com");
@@ -1060,7 +1063,7 @@ public void evaluateCommand(byte cmd, int dataSize) {
 }
 
 private int present = 0;
-int time,time2,time3,time4,time5,time6,time7;
+int time,time2,time3,time4,time5,time6,time7,time8;
 
 void draw() {
   List<Character> payload;
@@ -1070,7 +1073,7 @@ void draw() {
   if (init_com==1 && graph_on==1) {
     time=millis();
 
-    if ((time-time4)>40 && !toggleRead && !toggleLive ) {// && !toggleLive to decrease latency with liveServos
+    if ((time-time4)>40 && !toggleRead && !toggleLive  && !toggleRCSERIAL) {// && !toggleLive to decrease latency with liveServos
       time4=time;
       accROLL.addVal(ax);accPITCH.addVal(ay);accYAW.addVal(az);gyroROLL.addVal(gx);gyroPITCH.addVal(gy);gyroYAW.addVal(gz);
       magxData.addVal(magx);magyData.addVal(magy);magzData.addVal(magz);
@@ -1079,32 +1082,33 @@ void draw() {
     }
     
     if (! toggleRead && !toggleWrite && !toggleSetSetting ) {
-      if ((time-time6)>200) {
-        time6=time;
-        int[] requests = { MSP_RAW_GPS, MSP_COMP_GPS, MSP_ANALOG};
-        sendRequestMSP(requestMSP(requests));
-      }
-      if ((time-time5)>100) {
-        time5=time;
-        int[] requests = { MSP_ALTITUDE};
-        sendRequestMSP(requestMSP(requests));
-      }
       if ((time-time2)>40  ){
         time2=time;
-        int[] requests = {MSP_STATUS, MSP_RAW_IMU, MSP_SERVO, MSP_MOTOR};
+        int[] requests = { MSP_RAW_IMU, MSP_SERVO, MSP_MOTOR};
       //int[] requests = {MSP_STATUS, MSP_RAW_IMU, MSP_SERVO, MSP_MOTOR, MSP_RC,MSP_DEBUG};
         sendRequestMSP(requestMSP(requests));   
         if (!toggleRCSERIAL){
           // Makes Using TXsliders as SerialRC controll by pulling the slider.
           // And minimize latency.
-          int[] ExtraRequests = { MSP_RC, MSP_DEBUG}; 
+          int[] ExtraRequests = {MSP_STATUS, MSP_RC, MSP_DEBUG}; 
           sendRequestMSP(requestMSP(ExtraRequests));   
         }
       }
-      
-      if ((time-time3)>25 && !toggleRCSERIAL) {
-        time3=time;
-        sendRequestMSP(requestMSP(MSP_ATTITUDE));
+      if(!toggleRCSERIAL){// Decrease latency with SerialRC
+        if ((time-time3)>25 ) {
+          time3=time;
+          sendRequestMSP(requestMSP(MSP_ATTITUDE));
+        }
+        if ((time-time5)>100 ) {
+          time5=time;
+          int[] requests = { MSP_ALTITUDE};
+          sendRequestMSP(requestMSP(requests));
+        }
+        if ((time-time6)>200 ) {
+          time6=time;
+          int[] requests = { MSP_RAW_GPS, MSP_COMP_GPS, MSP_ANALOG};
+          sendRequestMSP(requestMSP(requests));
+        }
       }
     }
         if ((time-time7)>200  && ! toggleRead) {
@@ -1178,14 +1182,14 @@ void draw() {
     if (DynRC) { 
       for( i=0;i<8;i++) { TX_StickSlider[i].hide(); }
          TX_StickSlider[2].show().setSize(100,30).setNumberOfTickMarks(5).setColorTickMark(0); // Yawslider
-         TX_StickSlider[3].show().setSize(100,30); // Throslider
-         
+         TX_StickSlider[3].show().setSize(100,30); // Throslider         
       }else{
         TX_StickSlider[2].setNumberOfTickMarks(500); // Yawslider
         for( i=0;i<8;i++)  TX_StickSlider[i].show().setSize(100,10);
       }
-     
-    if (toggleRCSERIAL) {// MSP_SET_RAW_RC
+   if ((time-time8)>40  && ! toggleRead) {
+     time8=time;
+    if (toggleRCSERIAL) {// MSP_SET_RAW_RC  SerialRC
       payload = new ArrayList<Character>();
       for( i=0;i<8;i++) {  // Radio channels..
        int rcCH= (int)(TX_StickSlider[i].value()); 
@@ -1193,6 +1197,7 @@ void draw() {
       for( i=0;i<4;i++) {if(i != 3) TX_StickSlider[i].setValue(1500);}// Center after send
      sendRequestMSP(requestMSP(MSP_SET_RAW_RC,payload.toArray( new Character[payload.size()]) ));
      }
+   }
          
    //******************************************************************************************
     if ((toggleWriteServo || toggleWriteServoLive )&& !toggleRead) {   // MSP_SET_SERVO_CONF
@@ -2627,8 +2632,6 @@ public void controlEvent(ControlEvent theEvent) {
       buttonREAD.moveTo(ActiveTab);
       buttonRESET.moveTo(ActiveTab);
     }
-//    for( i=0;i<5;i++) Lables[i].moveTo(ActiveTab);
-    
     for( i=0;i<8;i++) {
       TX_StickSlider[i].moveTo(ActiveTab);
       motSlider[i]   .moveTo(ActiveTab);
@@ -2639,10 +2642,14 @@ public void controlEvent(ControlEvent theEvent) {
       if( tabN !=3 ) { txtlblWhichcom.moveTo(ActiveTab);commListbox.moveTo(ActiveTab);}
       if( tabN ==2 && gimbal && !gimbalConfig) toggleRead=true;
       if( tabN !=2 ){ toggleLive=false; buttonWRITE.show();}
-      if( tabN !=2 || tabN !=3|| tabN !=4){ toggleRCSERIAL = false; }
-      if( tabN ==2 || tabN ==3 && motorcheck)  {  btnRCSERIAL.moveTo(ActiveTab);} //TODO remove    tabN ==2 ||
-      if( tabN ==4 ){  btnRCSERIAL.moveTo(ActiveTab);DynRC=true;}
       if( tabN ==1 ){hideDraw=false;}else{hideDraw=true;} // Hide grapics in all other tabs
+      
+      if( tabN ==4 ){  btnRCSERIAL.moveTo(ActiveTab).show();DynRC=true;}else{btnRCSERIAL.hide();}
+      
+      if(SerialRC_Debug){
+        if( tabN !=2 || tabN !=3|| tabN !=4){ toggleRCSERIAL = false; }
+        if( tabN ==2 || tabN ==3 && motorcheck)  {  btnRCSERIAL.moveTo(ActiveTab).show();} //TODO remove
+      }
     }
 }
 

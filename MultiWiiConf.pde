@@ -72,6 +72,8 @@ int wingDir[]        = new int[8];  // Flying wing
 int wingPos[]        = new int[8];
 int In[]             = new int[8];
 
+Textlabel TxtMIX[]   = new Textlabel[6];
+
 int multiType;  // 1 for tricopter, 2 for quad+, 3 for quadX, ...
 // Alias for multiTypes
 int TRI           =1;
@@ -112,7 +114,7 @@ boolean axGraph =true,ayGraph=true,azGraph=true,gxGraph=true,gyGraph=true,gzGrap
         flaps=false,InitServos=true;
 
 boolean toggleServo=false,toggleWriteServo=false,toggleWing=false,toggleWriteWing=false,toggleLive=false,toggleWriteServoLive=false,toggleWriteWingLive=false,
-        toggleSaveHeli=false,toggleWaitHeli=false,toggleMixer=false,toggleGimbal=false,
+        toggleSaveHeli=false,toggleWaitHeli=false,toggleGimbal=false,
 	graphEnabled = false,Mag_=false,gimbal=false, servoStretch=false,camTrigger=false,ExportServo=false,
         MEGA_HW_PWM_SERVOS=false,toggleTrigger=false,ServosActive=false;
 
@@ -145,9 +147,6 @@ Slider servoSliderH[]     = new Slider[8],
        motSlider[]        = new Slider[8],
        TX_StickSlider[]   = new Slider[8],
        GimbalSlider[]     = new Slider[12],
-       MixerSliderNick[]  = new Slider[3],
-       MixerSliderLeft[]  = new Slider[3],
-       MixerSliderRight[] = new Slider[3],
        ServoSliderC[]     = new Slider[8],
        ServoSliderMAX[]   = new Slider[8],
        ServoSliderMIN[]   = new Slider[8];
@@ -172,7 +171,7 @@ color yellow_ = color(200, 200, 20), green_ = color(30, 120, 30), red_ = color(1
 PFont font8, font9, font12, font15;
 
 CheckBox checkbox[], checkboxRev[];
-CheckBox Bbox,  Wbox;
+CheckBox Bbox,  Wbox,  Mbox;
 Button buttonCheckbox[], BtServo[], BtAUX[];
 Numberbox RateSlider[];
 
@@ -237,7 +236,7 @@ if(multiType == PPM_TO_SERVO || multiType == AIRPLANE ){
    TxtAux   = controlP5.addTextlabel("Alabel","Channel for Flaps").setPosition(xServ-120,yServ+20).hide().moveTo("ServoSettings");
    TxtRev    = controlP5.addTextlabel("txtlblRev","Norm/Rev").setPosition(xServ+10,yServ+20).hide().moveTo("ServoSettings");
  
-//****************** AirPlane ********************
+//****************** End of AirPlane ********************
 }
 
 if(multiType == FLYING_WING || multiType == TRI || multiType == BI  || multiType == DUALCOPTER || multiType == SINGLECOPTER){ //ServoGraphics For FlyingWng & TRI & BI || multiType == DUALCOPTER
@@ -289,11 +288,10 @@ LabelPos=60;
    TxtRevW   = controlP5.addTextlabel("Revlabel","Change Gyro/Acc Direction"  ).setPosition(xServ-165,yServ+30).hide().moveTo("ServoSettings"); 
    TxtRevR   = controlP5.addTextlabel("Revtx","Change Dir in TX To Match"  ).setPosition(xServ-170,yServ+LabelPos).hide().moveTo("ServoSettings"); 
 
-//****************** FlyingWng & TRI ********************
+//****************** End of FlyingWng & TRI ********************
 }
 
-
-// ServoGraphics For Heli 120
+// ServoGraphics For Heli 120 && 90
 if(multiType == HELI_120_CCPM || multiType == HELI_90_DEG ){
 controlP5.getTab("ServoSettings").show();
  TxtMin    = controlP5.addTextlabel("Minlabel","MIN").setPosition(xServ+85,yServ+20) .hide().moveTo("ServoSettings");
@@ -301,26 +299,26 @@ controlP5.getTab("ServoSettings").show();
  TxtMids   = controlP5.addTextlabel("Mlabel","Offset servos").setPosition(xServ+190,yServ+20).hide().moveTo("ServoSettings");
  TxtRates  = controlP5.addTextlabel("label","Not Used").setPosition(xServ+75,yServ+20).hide().moveTo("ServoSettings");
  TxtRev    = controlP5.addTextlabel("txtlblRev","Servos").setPosition(xServ+10,yServ+20).hide().moveTo("ServoSettings");
-  
-
+ 
 // CCPM settings
- Step =0;
- int yMod=60;
- for (i=0;i<3;i++) { 
-  MixerSliderNick[i]  =  controlP5.addSlider("M_N "+i,-10,10,0,xServ+125 ,yServ+yMod+Step,40,12).setDecimalPrecision(0).setLabel("").hide().moveTo("ServoSettings");
-  MixerSliderLeft[i]  =  controlP5.addSlider("M_L "+i,-10,10,0,xServ+70,yServ+yMod+Step,40,12)  .setDecimalPrecision(0).setLabel("").hide().moveTo("ServoSettings");
-  MixerSliderRight[i] =  controlP5.addSlider("M_R "+i,-10,10,0,xServ+180,yServ+yMod+Step,40,12) .setDecimalPrecision(0).setLabel("").hide().moveTo("ServoSettings");
-  Step+=40; }
-  MixerSliderRight[0].setLabel("Collective").moveTo("ServoSettings");
-  MixerSliderRight[1].setLabel("Nick").moveTo("ServoSettings");
-  MixerSliderRight[2].setLabel("Roll").moveTo("ServoSettings");
-  
-  TxtSLeft  = controlP5.addTextlabel("Sn","Left") .setPosition(xServ+70, yServ+45).hide().moveTo("ServoSettings");
-  TxtSNick  = controlP5.addTextlabel("Sl","Nick") .setPosition(xServ+125,yServ+45).hide().moveTo("ServoSettings");
-  TxtSRight = controlP5.addTextlabel("Sr","Right").setPosition(xServ+180,yServ+45).hide().moveTo("ServoSettings");
-  TxtInfo2  = controlP5.addTextlabel("SNote","Negative Values Reverse Control..") .setPosition(xServ-160, yServ+65).moveTo("ServoSettings").hide();
-    
-  //******************Heli 120********************
+ // Mixer Boxes
+ int XPos=xServ+40;
+ int YPos=yServ-0; 
+ Mbox  = controlP5.addCheckBox("Wbox").setColorForeground(color(120)).setColorBackground(color(140)).setColorActive(color(255)).setColorLabel(color(255)).setSize(20, 10)
+       .setItemsPerRow(3).setSpacingColumn(15).setSpacingRow(10).setPosition(XPos-180  ,YPos+50)
+       .addItem("mix3_4", 254) .addItem("mix3_2", 254).addItem("mix3_1", 254)
+       .addItem("mix4_4", 254) .addItem("mix4_2", 254).addItem("mix4_1", 254)
+       .addItem("mix6_4", 254) .addItem("mix6_2", 254).addItem("mix6_1", 254)
+       .moveTo("ServoSettings").hideLabels().hide();
+ TxtMIX[0]   = controlP5.addTextlabel("mix1","NICK") .setPosition(XPos-220,YPos+50).moveTo("ServoSettings");
+ TxtMIX[1]   = controlP5.addTextlabel("mix2","LEFT") .setPosition(XPos-220,YPos+70).moveTo("ServoSettings");
+ TxtMIX[2]   = controlP5.addTextlabel("mix3","RIGHT").setPosition(XPos-220,YPos+90).moveTo("ServoSettings"); 
+ TxtMIX[3]   = controlP5.addTextlabel("mix4","COLL") .setPosition(XPos-195,YPos+30).moveTo("ServoSettings");
+ TxtMIX[4]   = controlP5.addTextlabel("mix5","NICK") .setPosition(XPos-155,YPos+30).moveTo("ServoSettings");
+ TxtMIX[5]   = controlP5.addTextlabel("mix6","ROLL") .setPosition(XPos-115,YPos+30).moveTo("ServoSettings");
+ for (i=0;i<6;i++) { TxtMIX[i].hide();}
+
+  //******************End of Heli********************
 }
 // Common Graphics for servos
   Step =0;
@@ -342,7 +340,6 @@ controlP5.getTab("ServoSettings").show();
   for (i=0;i<4;i++) BtAUX[i] = controlP5.addButton("Cau"+i,1,xServ-100,yServ+40+20*i,60,12).setColorBackground(red_).setLabel("  AUX "+(i+1)).moveTo("ServoSettings").hide();
   BtAUX[4] = controlP5.addButton("Cau4" ,1,xServ-100,yServ+120,60,12).setColorBackground(blue_).setLabel("Disable").moveTo("ServoSettings").hide();
   
-  sendRequestMSP(requestMSP(MSP_SERVO_CONF)); //higly ugly code
  //************************ End of servoGrapics********************** 
 }
 
@@ -409,12 +406,12 @@ void setup() {
   baudListbox = controlP5.addListBox("baudList",5,95+tabHeight,110,240).moveTo("Config"); // make a listbox with available Baudrates
   baudListbox.captionLabel().set("BAUD_RATE").setColorBackground(red_);
   baudListbox.addItem("9600"  ,9600); // addItem(name,value)
-  baudListbox.addItem("28800" ,28800); // addItem(name,value)
-  baudListbox.addItem("19200" ,19200); // addItem(name,value)
-  baudListbox.addItem("14400" ,14400); // addItem(name,value)
-  baudListbox.addItem("38400" ,38400); // addItem(name,value)
-  baudListbox.addItem("57600" ,57600); // addItem(name,value)
-  baudListbox.addItem("115200",115200); // addItem(name,value)
+  baudListbox.addItem("14400" ,14400);
+  baudListbox.addItem("19200" ,19200);
+  baudListbox.addItem("28800" ,28800);
+  baudListbox.addItem("38400" ,38400);
+  baudListbox.addItem("57600" ,57600);
+  baudListbox.addItem("115200",115200);
   
   // make a listbox and populate it with the available comm ports
   commListbox = controlP5.addListBox("portComList",5,95+tabHeight,110,240); 
@@ -580,9 +577,8 @@ void setup() {
   buttonRESET =         controlP5.addButton("RESET", 1, xParam+60,  yParam+260, 60, 16)  .setColorBackground(red_);
   buttonWRITE =         controlP5.addButton("WRITE", 1, xParam+290, yParam+260, 50, 16)  .setColorBackground(red_);
   buttonSERVO =         controlP5.addButton("SERVO", 1, xParam+5,   yParam+220, 55, 16)  .setColorBackground(red_).hide().moveTo("ServoSettings");
-  buttonCCPM  =         controlP5.addButton("MIXER", 1, xParam+5,   yParam+180, 90, 16)  .setColorBackground(red_).hide().moveTo("ServoSettings");
   buttonWing =          controlP5.addButton("WING" , 1, xParam+5,   yParam+220, 55, 16)  .setColorBackground(red_).hide().moveTo("ServoSettings");
-  buttonExport=         controlP5.addButton("Eport_Servo",1,  xParam+5,  yParam+10, 100,19)   .setLabel("Save to file").setColorBackground(green_).moveTo("ServoSettings").hide();
+  buttonExport=         controlP5.addButton("Eport_Servo",1,  xParam+5,  yParam+10, 100,19)   .setLabel("Export to file").setColorBackground(green_).moveTo("ServoSettings").hide();
  
   SaveSERVO =           controlP5.addButton("SAVE_Servo", 1 , xParam+290, yParam+260, 55, 16).setColorBackground(green_).hide().setLabel("  Save").moveTo("ServoSettings");
   SaveWing  =           controlP5.addButton("SAVE_WING",  1 , xParam+290, yParam+260, 55, 16).setColorBackground(green_).hide().setLabel("  Save").moveTo("ServoSettings");
@@ -964,6 +960,17 @@ public void evaluateCommand(byte cmd, int dataSize) {
            }else{ Bbox.activate(i); RateSlider[i].setValue(abs(servoRATE[i]));}
          }
            if ((servoRATE[5]&1)<1) {Bbox.deactivate(5);}else{Bbox.activate(5);} // YawReverse
+           if(multiType == HELI_120_CCPM) { //bbb
+             if ((servoRATE[3]&1)<1) {Mbox.deactivate(2);}else{Mbox.activate(2);} // roll
+             if ((servoRATE[3]&2)<1) {Mbox.deactivate(1);}else{Mbox.activate(1);} // nick
+             if ((servoRATE[3]&4)<1) {Mbox.deactivate(0);}else{Mbox.activate(0);} // coll
+             if ((servoRATE[4]&1)<1) {Mbox.deactivate(5);}else{Mbox.activate(5);} //
+             if ((servoRATE[4]&2)<1) {Mbox.deactivate(4);}else{Mbox.activate(4);} //
+             if ((servoRATE[4]&4)<1) {Mbox.deactivate(3);}else{Mbox.activate(3);} //
+             if ((servoRATE[6]&1)<1) {Mbox.deactivate(8);}else{Mbox.activate(8);} //
+             if ((servoRATE[6]&2)<1) {Mbox.deactivate(7);}else{Mbox.activate(7);} //
+             if ((servoRATE[6]&4)<1) {Mbox.deactivate(6);}else{Mbox.activate(6);} //
+           }
          
        }else if (multiType == PPM_TO_SERVO ) { // PPM_TO_SERVO
 	 for( i=0;i<8;i++){
@@ -1134,7 +1141,6 @@ void draw() {
       }
       buttonWRITE.setColorBackground(green_);
       buttonSERVO.setColorBackground(green_);
-      buttonCCPM.setColorBackground(green_);
       buttonSETTING.setColorBackground(green_);
       confSelectSetting.setColorBackground(green_);
       toggleRead=false;
@@ -1169,6 +1175,12 @@ void draw() {
           if ((int)Bbox.getArrayValue()[i]==1){ servoRATE[i] = abs(servoRATE[i]);}else{ servoRATE[i] = abs(servoRATE[i])*-1;}// Direction
   
           if(i==5 && ( multiType == HELI_120_CCPM || multiType == HELI_90_DEG) )servoRATE[5] =(int)Bbox.getArrayValue()[5]; // Yaw servo Direction
+          if( multiType == HELI_120_CCPM ){
+            if(i==3  ){servoRATE[3] = (int)Mbox.getArrayValue()[2]+(int)Mbox.getArrayValue()[1]*2+(int)Mbox.getArrayValue()[0]*4;}
+            if(i==4  ){servoRATE[4] = (int)Mbox.getArrayValue()[5]+(int)Mbox.getArrayValue()[4]*2+(int)Mbox.getArrayValue()[3]*4;}
+            if(i==6  ){servoRATE[6] = (int)Mbox.getArrayValue()[8]+(int)Mbox.getArrayValue()[7]*2+(int)Mbox.getArrayValue()[6]*4;}
+            //bbb
+          }
           payload.add(char(servoRATE[i])); // servoRATE
         }
       }
@@ -1309,7 +1321,7 @@ void draw() {
   }
 
     
-   if (toggleWing || toggleServo || toggleMixer || toggleGimbal || toggleTrigger){
+   if (toggleWing || toggleServo ||  toggleGimbal || toggleTrigger){
       buttonLIVE.show();
       SaveSERVO.show();
       ServosActive=true;
@@ -1381,8 +1393,7 @@ void draw() {
       
       intPowerTrigger = (round(confPowerTrigger.value()));
       payload.add(char(intPowerTrigger % 256)); payload.add(char(intPowerTrigger / 256)); //a
-      
-      //bbb
+
       
       // ThrVal   minthrottle,maxthrottle,mincommand,FSthrottle   b,c,d,e
       for( i=0;i<4;i++) {int q= (int)(confINF[i].value()); payload.add(char (q % 256) ); payload.add(char (q / 256)  ); }
@@ -1587,6 +1598,13 @@ void draw() {
   if (multiType == AIRPLANE || multiType == HELI_120_CCPM || multiType == PPM_TO_SERVO  || multiType == HELI_90_DEG ){
     TxtInfo.show();
     buttonSERVO.show(); 
+  if ( multiType == HELI_120_CCPM ){
+    if (toggleServo==true ){
+      for (i=0;i<6;i++) TxtMIX[i].show();Mbox.show();
+    }else{
+      for (i=0;i<6;i++) TxtMIX[i].hide();Mbox.hide();
+    }
+  }
     for (i=0;i<8;i++) {
       motSlider[i].setValue(mot[i]).hide();
       servoSliderH[i].setValue(servo[i]).hide(); 
@@ -1611,11 +1629,7 @@ void draw() {
         if( multiType == PPM_TO_SERVO){ServoSliderC[i].show();ServoSliderMIN[i].show();ServoSliderMAX[i].show();RateSlider[i].hide();}
         
         if( multiType == HELI_120_CCPM){
-          buttonCCPM.setLabel("CCPM Mixer");//.show();
           if(i>2) {ServoSliderMIN[i].show();ServoSliderMAX[i].show();TxtMin.show();TxtMax.show();}
-          if(i<3) {
-//            ServoSliderC[i].show();
-          }
         }
         if( multiType == HELI_90_DEG ){
           if(i<3) {
@@ -1644,21 +1658,8 @@ void draw() {
         }
       }
     }
-    if( multiType == HELI_120_CCPM){
-      if(toggleMixer){
-        for (i=0;i<3;i++) { MixerSliderNick[i] .show(); MixerSliderLeft[i] .show(); MixerSliderRight[i].show(); }
-        buttonSERVO.setLabel("SERVO"); 
-        TxtSLeft.show();TxtSNick.show();TxtSRight.show();TxtInfo2.show();
-      }else{
-        for (i=0;i<3;i++) { MixerSliderNick[i] .hide(); MixerSliderLeft[i] .hide(); MixerSliderRight[i].hide();   }
-        TxtSLeft.hide();TxtSNick.hide();TxtSRight.hide();TxtInfo2.hide();
-      }
-   }
   }
-  
- 
-  for (i=0;i<8;i++) { // TODO Something
-  }
+
   
   stroke(255);
   a=radians(angx);
@@ -2614,11 +2615,11 @@ public void SETTING() {
 }
 void GIMBAL(){
   toggleGimbal = !toggleGimbal;
-  if(toggleGimbal){toggleServo=false;toggleWing=false;toggleMixer=false;toggleTrigger=false;}
+  if(toggleGimbal){toggleServo=false;toggleWing=false;toggleTrigger=false;}
 }
 void TRIGGER(){
   toggleTrigger=!toggleTrigger;
-  if(toggleTrigger){toggleServo=false;toggleWing=false;toggleMixer=false;toggleGimbal=false;}
+  if(toggleTrigger){toggleServo=false;toggleWing=false;toggleGimbal=false;}
 }
 
 public void READ() {
@@ -2633,13 +2634,6 @@ public void RESET() {
 
 public void WRITE() {
   toggleWrite = true;
-}
-
-public void MIXER() {
-  toggleMixer = !toggleMixer;
-  toggleServo = false;
-  toggleGimbal = false;
-  toggleTrigger=false;
 }
 
 public void LIVE_SERVO() {
@@ -2665,7 +2659,6 @@ public void SERVO() {
   toggleGimbal = false;
   toggleTrigger=false;
   toggleRead=true;
-  if(multiType==15){toggleMixer=false; }
 }
 
 public void CALIB_ACC() {toggleCalibAcc = true;}

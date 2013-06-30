@@ -185,12 +185,12 @@ void create_GimbalGraphics(){
   GimbalSlider[0] = controlP5.addSlider("Tilt_Min" ,sMin,1500,0,xServ+10,Step+80,60,10)  .setDecimalPrecision(0).hide().moveTo("ServoSettings");
   GimbalSlider[1] = controlP5.addSlider("Tilt_Max" ,1500,sMax,0,xServ+150 ,Step+80,60,10).setDecimalPrecision(0).hide().moveTo("ServoSettings");
   GimbalSlider[2] = controlP5.addSlider("Channel " ,1200,1700,0,xServ+100,Step+60,90,10) .setDecimalPrecision(0).hide().moveTo("ServoSettings");
-  GimbalSlider[3] = controlP5.addSlider("Tilt_Prop",-20,20,0,xServ+100,Step+100, 60,10)  .setDecimalPrecision(0).hide().moveTo("ServoSettings");
+  GimbalSlider[3] = controlP5.addSlider("Tilt_Prop",-100,100,0,xServ+100,Step+100, 60,10)  .setDecimalPrecision(0).hide().moveTo("ServoSettings");
   Step+=90;
   GimbalSlider[4] = controlP5.addSlider("Roll_Min" ,sMin,1500,0,xServ+10,Step+80,60,10)  .setDecimalPrecision(0).hide().moveTo("ServoSettings");
   GimbalSlider[5] = controlP5.addSlider("Roll_Max" ,1500,sMax,0,xServ+150 ,Step+80,60,10).setDecimalPrecision(0).hide().moveTo("ServoSettings");
   GimbalSlider[6] = controlP5.addSlider("Channel" ,1200,1700,0,xServ+100,Step+60,90,10)  .setDecimalPrecision(0).hide().moveTo("ServoSettings");
-  GimbalSlider[7] = controlP5.addSlider("Roll_Prop",-20,20,0,xServ+100,Step+100, 60,10)  .setDecimalPrecision(0).hide().moveTo("ServoSettings");
+  GimbalSlider[7] = controlP5.addSlider("Roll_Prop",-100,100,0,xServ+100,Step+100, 60,10)  .setDecimalPrecision(0).hide().moveTo("ServoSettings");
   
   GimbalSlider[8] = controlP5.addSlider("Trig_LO" ,500,2000,0,xServ+10,Step+80,60,10)   .setDecimalPrecision(0).hide().moveTo("ServoSettings");
   GimbalSlider[9] = controlP5.addSlider("Trig_HI" ,1000,sMax,0,xServ+150 ,Step+80,60,10) .setDecimalPrecision(0).hide().moveTo("ServoSettings");

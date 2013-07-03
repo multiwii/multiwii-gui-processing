@@ -898,7 +898,7 @@ public void evaluateCommand(byte cmd, int dataSize) {
 	   ServoSliderMAX[i].setValue(ServoMAX[i]);
 	   ServoSliderC[i].setValue(ServoMID[i]);
            if (servoRATE[i]>127){ // Reverse/Rate servos
-             Bbox.deactivate(i); RateSlider[i].setValue(abs(servoRATE[i]-256));
+             Bbox.deactivate(i); RateSlider[i].setValue((servoRATE[i]-256));
            }else{
              Bbox.activate(i); RateSlider[i].setValue(abs(servoRATE[i]));
            }
@@ -911,7 +911,7 @@ public void evaluateCommand(byte cmd, int dataSize) {
            ServoSliderMAX[i].setValue(ServoMAX[i]);
            ServoSliderC[i].setValue(ServoMID[i]);
            if (servoRATE[i]>127){ // Reverse/Rate servos
-             wingDir[i]=-1; RateSlider[i].setValue(abs(servoRATE[i]-256));
+             wingDir[i]=-1; RateSlider[i].setValue((servoRATE[i]-256));
            }else{ wingDir[i]=1; RateSlider[i].setValue(abs(servoRATE[i])); } // Servo Direction
          }
          
@@ -956,7 +956,7 @@ public void evaluateCommand(byte cmd, int dataSize) {
            ServoSliderC[i].setValue(ServoMID[i]);
            
            if (servoRATE[i]>127){ // Reverse/Rate servos
-             Bbox.deactivate(i); RateSlider[i].setValue(abs(servoRATE[i]-256));
+             Bbox.deactivate(i); RateSlider[i].setValue((servoRATE[i]-256));
            }else{ Bbox.activate(i); RateSlider[i].setValue(abs(servoRATE[i]));}
          }
            if ((servoRATE[5]&1)<1) {Bbox.deactivate(5);}else{Bbox.activate(5);} // YawReverse
@@ -979,7 +979,7 @@ public void evaluateCommand(byte cmd, int dataSize) {
 	   ServoSliderC[i]  .setValue(ServoMID[i]);
 	 // Reverse/Rate servos
            if (servoRATE[i]>127){
-             Bbox.deactivate(i); RateSlider[i].setValue(abs(servoRATE[i]-256));
+             Bbox.deactivate(i); RateSlider[i].setValue((servoRATE[i]-256));
            }else{Bbox.activate(i); RateSlider[i].setValue(abs(servoRATE[i]));}
          }
        }
@@ -988,20 +988,29 @@ public void evaluateCommand(byte cmd, int dataSize) {
          if(!gimbalConfig)create_GimbalGraphics(); 
          // Switch beween Channels or Centerpos.
          if(ServoMID[0]>1200) {GimbalSlider[2] .setMin(1200).setMax(1700); }else{GimbalSlider[2] .setMin(0).setMax(12);}
-         if(ServoMID[1]>1200) {GimbalSlider[6] .setMin(1200).setMax(1700);} else{GimbalSlider[6] .setMin(0).setMax(12);}
+         if(ServoMID[1]>1200) {GimbalSlider[6] .setMin(1200).setMax(1700); }else{GimbalSlider[6] .setMin(0).setMax(12);}
          if(ServoMID[2]>1000) {GimbalSlider[10].setMin(1000).setMax(30000);}else{GimbalSlider[10].setMin(0).setMax(12);}
-         GimbalSlider[0] .setValue((int)ServoMIN[0]);
-         GimbalSlider[1] .setValue((int)ServoMAX[0]);
-         GimbalSlider[2] .setValue((int)ServoMID[0]);
-         GimbalSlider[3] .setValue((int)servoRATE[0]);
-         GimbalSlider[4] .setValue((int)ServoMIN[1]);
-         GimbalSlider[5] .setValue((int)ServoMAX[1]);
-         GimbalSlider[6] .setValue((int)ServoMID[1]);
-         GimbalSlider[7] .setValue((int)servoRATE[1]);
-         GimbalSlider[8] .setValue((int)ServoMIN[2]);
-         GimbalSlider[9] .setValue((int)ServoMAX[2]);
-         GimbalSlider[10].setValue((int)ServoMID[2]);
-         GimbalSlider[11].setValue((int)servoRATE[2]);
+
+         
+         i=0;
+         GimbalSlider[0] .setValue((int)ServoMIN[i]);
+         GimbalSlider[1] .setValue((int)ServoMAX[i]);
+         GimbalSlider[2] .setValue((int)ServoMID[i]);
+         if (servoRATE[i]>127){ GimbalSlider[3].setValue((servoRATE[i]-256));
+         }else{ GimbalSlider[3].setValue(abs(servoRATE[i]));}
+         
+         i=1;
+         GimbalSlider[4] .setValue((int)ServoMIN[i]);
+         GimbalSlider[5] .setValue((int)ServoMAX[i]);
+         GimbalSlider[6] .setValue((int)ServoMID[i]);         
+         if (servoRATE[i]>127){ GimbalSlider[7].setValue((servoRATE[i]-256));
+         }else{GimbalSlider[7].setValue(abs(servoRATE[i]));}
+         
+         i=2;
+         GimbalSlider[8] .setValue((int)ServoMIN[i]);
+         GimbalSlider[9] .setValue((int)ServoMAX[i]);
+         GimbalSlider[10].setValue((int)ServoMID[i]);
+         GimbalSlider[11].setValue((int)servoRATE[i]);
        }
        if (camTrigger){
        if(ServoMID[2]>1200) {ServoSliderC[2].setMin(Centerlimits[0]).setMax(Centerlimits[1]);}else{ServoSliderC[2].setMin(0).setMax(12);}       

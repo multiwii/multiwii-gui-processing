@@ -185,12 +185,12 @@ void create_GimbalGraphics(){
   GimbalSlider[0] = controlP5.addSlider("Tilt_Min" ,sMin,1500,0,xServ+10,Step+80,60,10)  .setDecimalPrecision(0).hide().moveTo("ServoSettings");
   GimbalSlider[1] = controlP5.addSlider("Tilt_Max" ,1500,sMax,0,xServ+150 ,Step+80,60,10).setDecimalPrecision(0).hide().moveTo("ServoSettings");
   GimbalSlider[2] = controlP5.addSlider("Channel " ,1200,1700,0,xServ+100,Step+60,90,10) .setDecimalPrecision(0).hide().moveTo("ServoSettings");
-  GimbalSlider[3] = controlP5.addSlider("Tilt_Prop",-100,100,0,xServ+100,Step+100, 60,10)  .setDecimalPrecision(0).hide().moveTo("ServoSettings");
+  GimbalSlider[3] = controlP5.addSlider("Tilt_Prop",-125,125,0,xServ+100,Step+100, 60,10)  .setDecimalPrecision(0).hide().moveTo("ServoSettings");
   Step+=90;
   GimbalSlider[4] = controlP5.addSlider("Roll_Min" ,sMin,1500,0,xServ+10,Step+80,60,10)  .setDecimalPrecision(0).hide().moveTo("ServoSettings");
   GimbalSlider[5] = controlP5.addSlider("Roll_Max" ,1500,sMax,0,xServ+150 ,Step+80,60,10).setDecimalPrecision(0).hide().moveTo("ServoSettings");
   GimbalSlider[6] = controlP5.addSlider("Channel" ,1200,1700,0,xServ+100,Step+60,90,10)  .setDecimalPrecision(0).hide().moveTo("ServoSettings");
-  GimbalSlider[7] = controlP5.addSlider("Roll_Prop",-100,100,0,xServ+100,Step+100, 60,10)  .setDecimalPrecision(0).hide().moveTo("ServoSettings");
+  GimbalSlider[7] = controlP5.addSlider("Roll_Prop",-125,125,0,xServ+100,Step+100, 60,10)  .setDecimalPrecision(0).hide().moveTo("ServoSettings");
   
   GimbalSlider[8] = controlP5.addSlider("Trig_LO" ,500,2000,0,xServ+10,Step+80,60,10)   .setDecimalPrecision(0).hide().moveTo("ServoSettings");
   GimbalSlider[9] = controlP5.addSlider("Trig_HI" ,1000,sMax,0,xServ+150 ,Step+80,60,10) .setDecimalPrecision(0).hide().moveTo("ServoSettings");
@@ -334,7 +334,7 @@ controlP5.getTab("ServoSettings").show();
    
     RateSlider[i] = (controlP5.Numberbox) hideLabel(controlP5.addNumberbox("Rate"+i,0,xServ+70,yServ+40+i*20,100,14));
     RateSlider[i].setColorBackground(yellow_);RateSlider[i].setDirection(Controller.HORIZONTAL);
-    RateSlider[i].setDecimalPrecision(0);RateSlider[i].setMultiplier(1);RateSlider[i].setMin(0).setMax(100).hide().moveTo("ServoSettings");
+    RateSlider[i].setDecimalPrecision(0);RateSlider[i].setMultiplier(1);RateSlider[i].setMin(0).setMax(125).hide().moveTo("ServoSettings");
   }
   
   for (i=0;i<4;i++) BtAUX[i] = controlP5.addButton("Cau"+i,1,xServ-100,yServ+40+20*i,60,12).setColorBackground(red_).setLabel("  AUX "+(i+1)).moveTo("ServoSettings").hide();
@@ -898,7 +898,7 @@ public void evaluateCommand(byte cmd, int dataSize) {
 	   ServoSliderMAX[i].setValue(ServoMAX[i]);
 	   ServoSliderC[i].setValue(ServoMID[i]);
            if (servoRATE[i]>127){ // Reverse/Rate servos
-             Bbox.deactivate(i); RateSlider[i].setValue((servoRATE[i]-256));
+             Bbox.deactivate(i); RateSlider[i].setValue(abs(servoRATE[i]-256));
            }else{
              Bbox.activate(i); RateSlider[i].setValue(abs(servoRATE[i]));
            }
@@ -979,7 +979,7 @@ public void evaluateCommand(byte cmd, int dataSize) {
 	   ServoSliderC[i]  .setValue(ServoMID[i]);
 	 // Reverse/Rate servos
            if (servoRATE[i]>127){
-             Bbox.deactivate(i); RateSlider[i].setValue((servoRATE[i]-256));
+             Bbox.deactivate(i); RateSlider[i].setValue(abs(servoRATE[i]-256));
            }else{Bbox.activate(i); RateSlider[i].setValue(abs(servoRATE[i]));}
          }
        }
@@ -1782,13 +1782,13 @@ void draw() {
     if(toggleWing){
       int Step=yServ+10;
       int ServoN =4;
-      ServoSliderC[ServoN]  .setPosition(xServ+100 ,Step+0+60);//show().setCaptionLabel("  Center")
-      ServoSliderMIN[ServoN].show().setCaptionLabel("  Min") .setPosition(xServ+100  ,Step+0+80);
+      ServoSliderC[ServoN]  .setPosition(xServ+100 ,Step+0+60).show().setCaptionLabel("  Center");
+      ServoSliderMIN[ServoN].show().setCaptionLabel("  Min") .setPosition(xServ+100 ,Step+0+80);
       ServoSliderMAX[ServoN].show().setCaptionLabel("  Max") .setPosition(xServ+180 ,Step+0+80);
       Step+=20;
       ServoN =5;
-      ServoSliderC[ServoN]    .setPosition(xServ+100 ,Step+80+60);//.show().setCaptionLabel("  Center")
-      ServoSliderMIN[ServoN].show().setCaptionLabel("  Min") .setPosition(xServ+100  ,Step+80+80);
+      ServoSliderC[ServoN]    .setPosition(xServ+100 ,Step+80+60).show().setCaptionLabel("  Center");
+      ServoSliderMIN[ServoN].show().setCaptionLabel("  Min") .setPosition(xServ+100 ,Step+80+80);
       ServoSliderMAX[ServoN].show().setCaptionLabel("  Max") .setPosition(xServ+180 ,Step+80+80);
     }
     
@@ -1852,11 +1852,11 @@ void draw() {
 	
     if(toggleWing){
       int Step=yServ;
-      ServoSliderC[3].show().setPosition(xServ+100 ,Step+0+60);//.setCaptionLabel("  Center")
+      ServoSliderC[3].show().setPosition(xServ+100 ,Step+0+60);//.setCaptionLabel("  Center");
       ServoSliderMIN[3].show().setCaptionLabel("  Min") .setPosition(xServ+100  ,Step+0+80);
       ServoSliderMAX[3].show().setCaptionLabel("  Max") .setPosition(xServ+180 ,Step+0+80);
       Step+=10;
-      ServoSliderC[4].show().setPosition(xServ+100 ,Step+80+60);// .show().setCaptionLabel("  Center") 
+      ServoSliderC[4].show().setPosition(xServ+100 ,Step+80+60);// .show().setCaptionLabel("  Center");
       ServoSliderMIN[4].show().setCaptionLabel("  Min") .setPosition(xServ+100  ,Step+80+80);
       ServoSliderMAX[4].show().setCaptionLabel("  Max") .setPosition(xServ+180 ,Step+80+80);
     }

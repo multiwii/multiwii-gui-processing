@@ -616,9 +616,9 @@ void setup() {
     VBat[i].setColorBackground(red_).setMin(0).setMax(20).setDirection(Controller.HORIZONTAL).setDecimalPrecision(1).setMultiplier(1).moveTo("Config").hide();
   }
   VBat[0].setCaptionLabel("VBatscale").setDecimalPrecision(0).setMin(0).setMax(200);
-  VBat[1].setCaptionLabel("Warning 1");
-  VBat[2].setCaptionLabel("Warning 2");
-  VBat[3].setCaptionLabel("Critical");
+  VBat[1].setCaptionLabel("Warning 1").setMultiplier(0.1);
+  VBat[2].setCaptionLabel("Warning 2").setMultiplier(0.1);
+  VBat[3].setCaptionLabel("Critical").setMultiplier(0.1);
   VBat[4].setCaptionLabel("Volt").setColorBackground(red_).setDecimalPrecision(2);
   VBat[5].setCaptionLabel("RSSI").setColorBackground(red_).setDecimalPrecision(0).setMin(0).setMax(1023);
    

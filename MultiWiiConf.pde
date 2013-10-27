@@ -607,7 +607,7 @@ void setup() {
 
   for( i=0;i<8;i++) {
     motToggle[i]     = controlP5.addToggle("M"+i,false,xMot-100,yMot+15,20,15).moveTo("Motors").hide();
-    motSlider[i]     = controlP5.addSlider("motSlider"+i,1000,2000,1500,0,0,10,100).setDecimalPrecision(0).hide();
+    motSlider[i]     = controlP5.addSlider("motSlider"+i,900,2000,1500,0,0,10,100).setDecimalPrecision(0).hide();
     servoSliderH[i]  = controlP5.addSlider("ServoH"+i,1000,2000,1500,0,0,100,10).setDecimalPrecision(0).hide();
     servoSliderV[i]  = controlP5.addSlider("ServoV"+i,1000,2000,1500,0,0,10,100).setDecimalPrecision(0).hide();
   }

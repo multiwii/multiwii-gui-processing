@@ -672,7 +672,7 @@ private static final int
   MSP_SET_MOTOR            =214,
   
   
-  MSP_BIND                 =240,
+  MSP_BIND                 =241,
 
   MSP_EEPROM_WRITE         =250,
   

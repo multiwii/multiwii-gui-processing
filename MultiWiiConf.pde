@@ -56,7 +56,7 @@ int byteRC_RATE,byteRC_EXPO, byteRollPitchRate,byteYawRate,
     GPS_distanceToHome, GPS_directionToHome,
     GPS_numSat, GPS_fix, GPS_update, GPS_altitude, GPS_speed,
     GPS_latitude, GPS_longitude,
-    init_com, graph_on, pMeterSum, intPowerTrigger, bytevbat;
+    init_com, graph_on, pMeterSum, intPowerTrigger, bytevbat, amperage, rssi ;
     
 int multiCapability = 0; // Bitflags stating what capabilities are/are not present in the compiled code.
 int byteMP[] = new int[8];  // Motor Pins.  Varies by multiType and Arduino model (pro Mini, Mega, etc).
@@ -594,14 +594,14 @@ void setup() {
   
 
 // Sliders for Transmitter
-  TX_StickSlider[RCRoll ] =  controlP5.addSlider("Roll",1000,2000,1500,xRC,yRC+15,100,10) .setDecimalPrecision(0);
-  TX_StickSlider[RCPitch] =  controlP5.addSlider("Pitch",1000,2000,1500,xRC,yRC+30,100,10).setDecimalPrecision(0);
-  TX_StickSlider[RCThro ] =  controlP5.addSlider("Throt",1000,2000,1500,xRC,yRC,100,10)   .setDecimalPrecision(0);
-  TX_StickSlider[RCYaw ]  =  controlP5.addSlider("Yaw",1000,2000,1500,xRC,yRC+45,100,10)  .setDecimalPrecision(0);
-  TX_StickSlider[RCAUX1]  =  controlP5.addSlider("AUX1",1000,2000,1500,xRC,yRC+60,100,10) .setDecimalPrecision(0);
-  TX_StickSlider[RCAUX2]  =  controlP5.addSlider("AUX2",1000,2000,1500,xRC,yRC+75,100,10) .setDecimalPrecision(0);
-  TX_StickSlider[RCAUX3]  =  controlP5.addSlider("AUX3",1000,2000,1500,xRC,yRC+90,100,10) .setDecimalPrecision(0);
-  TX_StickSlider[RCAUX4]  =  controlP5.addSlider("AUX4",1000,2000,1500,xRC,yRC+105,100,10).setDecimalPrecision(0);
+  TX_StickSlider[RCRoll ] =  controlP5.addSlider("Roll", 900,2100,1500,xRC,yRC+15,100,10)  .setDecimalPrecision(0);
+  TX_StickSlider[RCPitch] =  controlP5.addSlider("Pitch",900,2100,1500,xRC,yRC+30,100,10)  .setDecimalPrecision(0);
+  TX_StickSlider[RCThro ] =  controlP5.addSlider("Throt",900,2100,1500,xRC,yRC,100,10)     .setDecimalPrecision(0);
+  TX_StickSlider[RCYaw ]  =  controlP5.addSlider("Yaw",  900,2100,1500,xRC,yRC+45,100,10)  .setDecimalPrecision(0);
+  TX_StickSlider[RCAUX1]  =  controlP5.addSlider("AUX1", 1000,2000,1500,xRC,yRC+60,100,10) .setDecimalPrecision(0);
+  TX_StickSlider[RCAUX2]  =  controlP5.addSlider("AUX2", 1000,2000,1500,xRC,yRC+75,100,10) .setDecimalPrecision(0);
+  TX_StickSlider[RCAUX3]  =  controlP5.addSlider("AUX3", 1000,2000,1500,xRC,yRC+90,100,10) .setDecimalPrecision(0);
+  TX_StickSlider[RCAUX4]  =  controlP5.addSlider("AUX4", 1000,2000,1500,xRC,yRC+105,100,10).setDecimalPrecision(0);
 
   motorControlSlider      = controlP5.addSlider("Motors",1000,2000,1500,xParam+410, yParam,90,30)   .setDecimalPrecision(0).hide();
 
@@ -827,7 +827,8 @@ public void evaluateCommand(byte cmd, int dataSize) {
     case MSP_ANALOG:
         bytevbat = read8();
         pMeterSum = read16();
-        int rssi = read16(); if(rssi!=0)VBat[5].setValue(rssi).show();  // rssi
+        rssi = read16(); if(rssi!=0)VBat[5].setValue(rssi).show();  // rssi
+        amperage = read16(); // amperage
         VBat[4].setValue(bytevbat/10.0);    // Volt
         break;
     case MSP_RC_TUNING:
@@ -1539,6 +1540,7 @@ void draw() {
   text("I2C error:",xGraph+350,yGraph-10);
   text("Cycle Time:",xGraph+220,yGraph-10);
   text("Power:",xGraph-5,yGraph-30); text(pMeterSum,xGraph+50,yGraph-30);
+  text("Amp's:",xGraph-5,yGraph-45); text(amperage/1000.0,xGraph+50,yGraph-45);
   text("pAlarm:",xGraph-5,yGraph-15);
   text("Volt:",xGraph-5,yGraph-2);  text(bytevbat/10.0,xGraph+50,yGraph-2);
 

@@ -1540,7 +1540,7 @@ void draw() {
   text("I2C error:",xGraph+350,yGraph-10);
   text("Cycle Time:",xGraph+220,yGraph-10);
   text("Power:",xGraph-5,yGraph-30); text(pMeterSum,xGraph+50,yGraph-30);
-  text("Amp's:",xGraph-5,yGraph-45); text(amperage/1000.0,xGraph+50,yGraph-45);
+  text("Amp's:",xGraph-5,yGraph-45); text(amperage/10.0,xGraph+50,yGraph-45);
   text("pAlarm:",xGraph-5,yGraph-15);
   text("Volt:",xGraph-5,yGraph-2);  text(bytevbat/10.0,xGraph+50,yGraph-2);
 

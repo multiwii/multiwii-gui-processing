@@ -531,7 +531,7 @@ void setup() {
   confINF[3].setLabel("FS Thr").setMin(1200).setMax(2000).moveTo("Config");
   confINF[4].setLabel("Armed count").setMin(0).setMax(10000).setColorBackground(red_).moveTo("Config");
   confINF[5].setLabel("Acc ArmedTime").setMin(0).setMax(360000).setColorBackground(red_).moveTo("Config");
-  confINF[6].setLabel("MAG Decl").setMin(-20).setMax(20).setDecimalPrecision(1).setMultiplier(.1).moveTo("Config");
+  confINF[6].setLabel("MAG Decl").setMin(-30).setMax(30).setDecimalPrecision(1).setMultiplier(.1).moveTo("Config");
  
   confI[8].hide();confD[8].hide();confD[4].hide();
   confP[9].hide();confI[9].hide();confD[9].hide();

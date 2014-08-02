@@ -35,7 +35,7 @@ int tabHeight=20; // Extra height needed for Tabs
 int Centerlimits[]  = {1200,1800}; // Endpoints of ServoCenterSliders 
 
 cGraph g_graph;
-int windowsX    = 1000;       int windowsY    = 540+tabHeight;
+int windowsX    = 1000;       int windowsY    = 550+tabHeight;
 int xGraph      = 10;         int yGraph      = 325+tabHeight;
 int xObj        = 520;        int yObj        = 293+tabHeight;
 int xCompass    = 920;        int yCompass    = 341+tabHeight;
@@ -101,7 +101,8 @@ int SINGLECOPTER  =21;
 
 float gx, gy, gz, ax, ay, az, magx, magy, magz, alt, head, angx, angy,
       debug1, debug2, debug3, debug4,
-      angyLevelControl, angCalc;
+      angyLevelControl, angCalc,
+      pVersion;
 
 float mot[] = new float[8],
       servo[] = new float[8],
@@ -388,8 +389,11 @@ controlP5.Controller hideLabel(controlP5.Controller c) {
 }
 
 void setup() {
+  // Trying to make both worlds happy..
+  if( P3D == OPENGL ) pVersion = 2.0; else pVersion = 1.5;
+
   size(windowsX,windowsY,OPENGL);
-  frameRate(20); 
+  frameRate(20);
 
   font8 = createFont("Arial bold",8,false);
   font9 = createFont("Arial bold",9,false);
@@ -404,7 +408,10 @@ void setup() {
   
   // Baud list items
   baudListbox = controlP5.addListBox("baudList",5,95+tabHeight,110,240).moveTo("Config"); // make a listbox with available Baudrates
-  baudListbox.captionLabel().set("BAUD_RATE").setColorBackground(red_);
+  baudListbox.captionLabel().set("BAUD_RATE");
+  baudListbox.setColorBackground(red_);
+  baudListbox.setBarHeight(17);
+  
   baudListbox.addItem("9600"  ,9600); // addItem(name,value)
   baudListbox.addItem("14400" ,14400);
   baudListbox.addItem("19200" ,19200);
@@ -414,12 +421,17 @@ void setup() {
   baudListbox.addItem("115200",115200);
   
   // make a listbox and populate it with the available comm ports
-  commListbox = controlP5.addListBox("portComList",5,95+tabHeight,110,240); 
-  commListbox.captionLabel().set("PORT COM").setColorBackground(red_);
+  commListbox = controlP5.addListBox("portComList",5,105+tabHeight,110,120); 
+  commListbox.captionLabel().set("PORT COM");
+  commListbox.setColorBackground(red_);
+  commListbox.setBarHeight(17);
+  
   for( i=0;i<Serial.list().length;i++) {
     String pn = shortifyPortName(Serial.list()[i], 13);
-    if (pn.length() >0 ) commListbox.addItem(pn,i); // addItem(name,value)
-    commListMax = i;
+    //if( pn.startsWith("/dev/ttyUSB") ) {
+      if (pn.length() >0 ) commListbox.addItem(pn,i); // addItem(name,value)
+      commListMax = i;
+    //}
   }
   commListbox.addItem("Close Comm",++commListMax); // addItem(name,value)
   // text label for which comm port selected
@@ -438,9 +450,9 @@ void setup() {
   buttonSAVE   = controlP5.addButton("bSAVE",1,5,45+tabHeight,40,19).setLabel("SAVE").setColorBackground(red_);
   buttonIMPORT = controlP5.addButton("bIMPORT",1,50,45+tabHeight,40,19).setLabel("LOAD").setColorBackground(red_);
  
-  btnQConnect = controlP5.addButton("bQCONN",1,xGraph+0,yGraph-75,100,19).setLabel("  ReConnect").setColorBackground(red_);
-  buttonSTART  = controlP5.addButton("bSTART",1,xGraph+110,yGraph-25,40,19).setLabel("START").setColorBackground(red_);
-  buttonSTOP   = controlP5.addButton("bSTOP",1,xGraph+160,yGraph-25,40,19).setLabel("STOP").setColorBackground(red_);
+  btnQConnect = controlP5.addButton("bQCONN",1,xGraph+0,yGraph-105,100,19).setLabel("  ReConnect").setColorBackground(red_);
+  buttonSTART  = controlP5.addButton("bSTART",1,xGraph+110,yGraph-25,45,19).setLabel("START").setColorBackground(red_);
+  buttonSTOP   = controlP5.addButton("bSTOP",1,xGraph+160,yGraph-25,45,19).setLabel("STOP").setColorBackground(red_);
 
   buttonAcc   = controlP5.addButton("bACC",1,xButton,yButton,45,15).setColorBackground(red_).setLabel("ACC");
   buttonBaro  = controlP5.addButton("bBARO",1,xButton+50,yButton,45,15).setColorBackground(red_).setLabel("BARO");
@@ -477,24 +489,26 @@ void setup() {
   tDEBUG3 =         controlP5.addToggle("DEBUG3",true,x+310,y6,20,10).setColorActive(color(50, 0, 200)).setColorBackground(black).setLabel("").setValue(0);
   tDEBUG4 =         controlP5.addToggle("DEBUG4",true,x+430,y6,20,10).setColorActive(color(150, 100, 50)).setColorBackground(black).setLabel("").setValue(0);
 
-  controlP5.addTextlabel("acclabel","ACC",xo,y1);
-  controlP5.addTextlabel("accrolllabel","   ROLL",xo,y1+10);
-  controlP5.addTextlabel("accpitchlabel","   PITCH",xo,y1+20);
-  controlP5.addTextlabel("acczlabel","   Z",xo,y1+30);
-  controlP5.addTextlabel("gyrolabel","GYRO",xo,y2);
-  controlP5.addTextlabel("gyrorolllabel","   ROLL",xo,y2+10);
-  controlP5.addTextlabel("gyropitchlabel","   PITCH",xo,y2+20);
-  controlP5.addTextlabel("gyroyawlabel","   YAW",xo,y2+30);
-  controlP5.addTextlabel("maglabel","MAG",xo,y5);
-  controlP5.addTextlabel("magrolllabel","   ROLL",xo,y5+10);
-  controlP5.addTextlabel("magpitchlabel","   PITCH",xo,y5+20);
-  controlP5.addTextlabel("magyawlabel","   YAW",xo,y5+30);
-  controlP5.addTextlabel("altitudelabel","ALT",xo,y3);
-  controlP5.addTextlabel("headlabel","HEAD",xo,y4);
-  controlP5.addTextlabel("debug1","debug1",x+90,y6);
-  controlP5.addTextlabel("debug2","debug2",x+210,y6);
-  controlP5.addTextlabel("debug3","debug3",x+330,y6);
-  controlP5.addTextlabel("debug4","debug4",x+450,y6);
+  controlP5.addTextlabel( "alarmLabel", "Alarm:", xGraph -5, yGraph -32);
+
+  controlP5.addTextlabel("acclabel","ACC",xo,y1 -4);
+  controlP5.addTextlabel("accrolllabel","   ROLL",xo,y1+10).setFont(font9);
+  controlP5.addTextlabel("accpitchlabel","   PITCH",xo,y1+20).setFont(font9);
+  controlP5.addTextlabel("acczlabel","   Z",xo,y1+30).setFont(font9);
+  controlP5.addTextlabel("gyrolabel","GYRO",xo,y2 -4);
+  controlP5.addTextlabel("gyrorolllabel","   ROLL",xo,y2+10).setFont(font9);
+  controlP5.addTextlabel("gyropitchlabel","   PITCH",xo,y2+20).setFont(font9);
+  controlP5.addTextlabel("gyroyawlabel","   YAW",xo,y2+30).setFont(font9);
+  controlP5.addTextlabel("maglabel","MAG",xo,y5 -4);
+  controlP5.addTextlabel("magrolllabel","   ROLL",xo,y5+10).setFont(font9);
+  controlP5.addTextlabel("magpitchlabel","   PITCH",xo,y5+20).setFont(font9);
+  controlP5.addTextlabel("magyawlabel","   YAW",xo,y5+30).setFont(font9);
+  controlP5.addTextlabel("altitudelabel","ALT",xo,y3 -4);
+  controlP5.addTextlabel("headlabel","HEAD",xo,y4 -4);
+  controlP5.addTextlabel("debug1","debug1",x+90,y6 -2).setFont(font9);
+  controlP5.addTextlabel("debug2","debug2",x+210,y6 -2).setFont(font9);
+  controlP5.addTextlabel("debug3","debug3",x+330,y6 -2).setFont(font9);
+  controlP5.addTextlabel("debug4","debug4",x+450,y6 -2).setFont(font9);
 
   axSlider      =    controlP5.addSlider("axSlider",-1000,+1000,0,x+20,y1+10,50,10).setDecimalPrecision(0).setLabel("");
   aySlider      =    controlP5.addSlider("aySlider",-1000,+1000,0,x+20,y1+20,50,10).setDecimalPrecision(0).setLabel("");
@@ -584,7 +598,7 @@ void setup() {
   SaveWing  =           controlP5.addButton("SAVE_WING",  1 , xParam+290, yParam+260, 55, 16).setColorBackground(green_).hide().setLabel("  Save").moveTo("ServoSettings");
   buttonLIVE=           controlP5.addButton("LIVE_SERVO", 1 , xParam+65, yParam+220, 75, 16).setColorBackground(red_).setLabel("Go Live").hide().moveTo("ServoSettings");
   buttonCALIBRATE_ACC = controlP5.addButton("CALIB_ACC",  1,  xParam+210, yParam+260, 70, 16).setColorBackground(red_);
-  buttonCALIBRATE_MAG = controlP5.addButton("CALIB_MAG",  1,  xParam+130, yParam+260, 70, 16).setColorBackground(red_);
+  buttonCALIBRATE_MAG = controlP5.addButton("CALIB_MAG",  1,  xParam+130, yParam+260, 73, 16).setColorBackground(red_);
   buttonSETTING =       controlP5.addButton("SETTING"  ,  1,  xParam+410, yParam+260, 105, 16) .setColorBackground(red_).setLabel("SELECT SETTING");//.hide();
   buttonGimbal =        controlP5.addButton("GIMBAL"   ,  1,  xParam+5,   yParam+200,55,16).setColorBackground(green_).hide().moveTo("ServoSettings");
   btnTrigger   =        controlP5.addButton("TRIGGER"  , 1,   xParam+65,   yParam+200,75,16).setColorBackground(green_).hide().moveTo("ServoSettings");
@@ -1539,10 +1553,18 @@ void draw() {
 
   text("I2C error:",xGraph+350,yGraph-10);
   text("Cycle Time:",xGraph+220,yGraph-10);
-  text("Power:",xGraph-5,yGraph-30); text(pMeterSum,xGraph+50,yGraph-30);
-  text("Amp's:",xGraph-5,yGraph-45); text(amperage/10.0,xGraph+50,yGraph-45);
-  text("pAlarm:",xGraph-5,yGraph-15);
-  text("Volt:",xGraph-5,yGraph-2);  text(bytevbat/10.0,xGraph+50,yGraph-2);
+  
+  text("Power", xGraph -5, yGraph -65);
+  textFont(font9);
+  
+  text("   Voltage:", xGraph -5, yGraph -55);
+  text(bytevbat/10.0 + " V", xGraph +50, yGraph -55);
+  
+  text("   Current:", xGraph -5, yGraph -45);
+  text(amperage/10.0 + " A", xGraph +50, yGraph -45);
+  
+  text("   Total:", xGraph -5, yGraph -35);
+  text(pMeterSum * 1.0 + " mA", xGraph +50, yGraph -35);
 
   fill(255,255,255);
 
@@ -3077,6 +3099,17 @@ public void addTabs(){
   .setId(4)
   .hide()
   ;
+  
+  int tHeight = 20;
+  if( pVersion == 1.5 ) {
+    controlP5.window().setPositionOfTabs(6, 13);
+    tHeight = 17;
+  }
+  
+  controlP5.tab("default").setHeight(tHeight);
+  controlP5.tab("ServoSettings").setHeight(tHeight);
+  controlP5.tab("Config").setHeight(tHeight);
+  controlP5.tab("Motors").setHeight(tHeight);
  }
  
 // WebLinks

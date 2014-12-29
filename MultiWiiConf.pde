@@ -372,14 +372,12 @@ void create_checkboxes(String[] names) {
 String shortifyPortName(String portName, int maxlen)  {
   String shortName = portName;
   if(shortName.startsWith("/dev/cu.")) shortName = "";// only collect the corresponding tty. devices
-  return shortName;
-  /*
+
   if(shortName.startsWith("/dev/")) shortName = shortName.substring(5);  
   if(shortName.startsWith("tty.")) shortName = shortName.substring(4); // get rid of leading tty. part of device name
-  if(portName.length()>maxlen) shortName = shortName.substring(0,(maxlen-1)/2) + "~" +shortName.substring(shortName.length()-(maxlen-(maxlen-1)/2));
+  if(shortName.length()>maxlen) shortName = shortName.substring(0,(maxlen-1)/2) + "~" +shortName.substring(shortName.length()-(maxlen-(maxlen-1)/2));
   if(shortName.startsWith("cu.")) shortName = "";// only collect the corresponding tty. devices
   return shortName;
- */
 }
 
 controlP5.Controller hideLabel(controlP5.Controller c) {
@@ -1564,7 +1562,7 @@ void draw() {
   text(amperage/10.0 + " A", xGraph +50, yGraph -45);
   
   text("   Total:", xGraph -5, yGraph -35);
-  text(pMeterSum * 1.0 + " mA", xGraph +50, yGraph -35);
+  text(pMeterSum * 1.0 + " mAh", xGraph +50, yGraph -35);
 
   fill(255,255,255);
 

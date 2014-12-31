@@ -372,12 +372,16 @@ void create_checkboxes(String[] names) {
 String shortifyPortName(String portName, int maxlen)  {
   String shortName = portName;
   if(shortName.startsWith("/dev/cu.")) shortName = "";// only collect the corresponding tty. devices
-
+  return shortName;
+  // not compatible currently with reconnect feature
+  // http://www.multiwii.com/forum/viewtopic.php?f=8&t=4077&p=41692#p41692
+  /*
   if(shortName.startsWith("/dev/")) shortName = shortName.substring(5);  
   if(shortName.startsWith("tty.")) shortName = shortName.substring(4); // get rid of leading tty. part of device name
   if(shortName.length()>maxlen) shortName = shortName.substring(0,(maxlen-1)/2) + "~" +shortName.substring(shortName.length()-(maxlen-(maxlen-1)/2));
   if(shortName.startsWith("cu.")) shortName = "";// only collect the corresponding tty. devices
   return shortName;
+  */
 }
 
 controlP5.Controller hideLabel(controlP5.Controller c) {

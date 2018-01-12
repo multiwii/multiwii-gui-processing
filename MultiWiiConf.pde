@@ -394,7 +394,7 @@ void setup() {
   // Trying to make both worlds happy..
   if( P3D == OPENGL ) pVersion = 2.0; else pVersion = 1.5;
 
-  size(windowsX,windowsY,OPENGL);
+  size(1080,720,OPENGL);
   frameRate(20);
 
   font8 = createFont("Arial bold",8,false);
@@ -403,14 +403,14 @@ void setup() {
   font15 = createFont("Arial bold",15,false);
 
   controlP5 = new ControlP5(this); // initialize the GUI controls
-  controlP5.setControlFont(font12);
+  //controlP5.setControlFont(font12);
   addTabs();  
 
   g_graph  = new cGraph(xGraph+110,yGraph, 480, 200);
   
   // Baud list items
   baudListbox = controlP5.addListBox("baudList",5,95+tabHeight,110,240).moveTo("Config"); // make a listbox with available Baudrates
-  baudListbox.captionLabel().set("BAUD_RATE");
+  baudListbox.getCaptionLabel().set("BAUD_RATE");
   baudListbox.setColorBackground(red_);
   baudListbox.setBarHeight(17);
   
@@ -424,7 +424,7 @@ void setup() {
   
   // make a listbox and populate it with the available comm ports
   commListbox = controlP5.addListBox("portComList",5,105+tabHeight,110,120); 
-  commListbox.captionLabel().set("PORT COM");
+  commListbox.getCaptionLabel().set("PORT COM");
   commListbox.setColorBackground(red_);
   commListbox.setBarHeight(17);
   
@@ -1174,7 +1174,7 @@ void draw() {
       toggleSetSetting=false;
       toggleRead=true;
       payload = new ArrayList<Character>();
-      payload.add(char( round(confSelectSetting.value())) );
+      payload.add(char( round(confSelectSetting.getValue())) );
       sendRequestMSP(requestMSP(MSP_SELECT_SETTING,payload.toArray( new Character[payload.size()]) )); 
     }
     if (toggleCalibAcc) {
@@ -1192,11 +1192,11 @@ void draw() {
       payload = new ArrayList<Character>();
       if (multiType == AIRPLANE || multiType == PPM_TO_SERVO || multiType == HELI_120_CCPM || multiType == HELI_90_DEG){
         for( i=0;i<8;i++){
-          int q= (int)ServoSliderMIN[i].value(); payload.add(char (q % 256) ); payload.add(char (q / 256)  ); // Min
-          q= (int)ServoSliderMAX[i].value(); payload.add(char (q % 256) ); payload.add(char (q / 256)  ); // Max
-          q= (int)(ServoSliderC[i].value()); payload.add(char (q % 256) ); payload.add(char (q / 256)  ); // Servo centers
+          int q= (int)ServoSliderMIN[i].getValue(); payload.add(char (q % 256) ); payload.add(char (q / 256)  ); // Min
+          q= (int)ServoSliderMAX[i].getValue(); payload.add(char (q % 256) ); payload.add(char (q / 256)  ); // Max
+          q= (int)(ServoSliderC[i].getValue()); payload.add(char (q % 256) ); payload.add(char (q / 256)  ); // Servo centers
   
-          servoRATE[i] = int(RateSlider[i].value());
+          servoRATE[i] = int(RateSlider[i].getValue());
           if ((int)Bbox.getArrayValue()[i]==1){ servoRATE[i] = abs(servoRATE[i]);}else{ servoRATE[i] = abs(servoRATE[i])*-1;}// Direction
   
           if(i==5 && ( multiType == HELI_120_CCPM || multiType == HELI_90_DEG) )servoRATE[5] =(int)Bbox.getArrayValue()[5]; // Yaw servo Direction
@@ -1211,8 +1211,8 @@ void draw() {
       }
        //******************************************************************************************
       else{
-        for( i=0;i<8;i++){ servoRATE[i]=round(RateSlider[i].value()); payload.add(char(servoRATE[i]));}// servoRATE
-        for( i=0;i<8;i++) { int q= (int)(ServoSliderC[i].value())+512; payload.add(char (q % 256) ); payload.add(char (q / 256)  ); } // Servo centers...
+        for( i=0;i<8;i++){ servoRATE[i]=round(RateSlider[i].getValue()); payload.add(char(servoRATE[i]));}// servoRATE
+        for( i=0;i<8;i++) { int q= (int)(ServoSliderC[i].getValue())+512; payload.add(char (q % 256) ); payload.add(char (q / 256)  ); } // Servo centers...
         for( i=0;i<8;i++){ if ((int)Bbox.getArrayValue()[i]==1){ payload.add(char(11)); }else{ payload.add(char(9));} } // Direction
       }
       sendRequestMSP(requestMSP(MSP_SET_SERVO_CONF,payload.toArray( new Character[payload.size()]) ));
@@ -1260,11 +1260,11 @@ void draw() {
         }
         
         for( i=0;i<8;i++){
-          int q= (int)ServoSliderMIN[i].value(); payload.add(char (q % 256) ); payload.add(char (q / 256)  ); // Min
-          q= (int)ServoSliderMAX[i].value(); payload.add(char (q % 256) ); payload.add(char (q / 256)  ); // Max
-          q= (int)(ServoSliderC[i].value()); payload.add(char (q % 256) ); payload.add(char (q / 256)  ); // Servo centers
+          int q= (int)ServoSliderMIN[i].getValue(); payload.add(char (q % 256) ); payload.add(char (q / 256)  ); // Min
+          q= (int)ServoSliderMAX[i].getValue(); payload.add(char (q % 256) ); payload.add(char (q / 256)  ); // Max
+          q= (int)(ServoSliderC[i].getValue()); payload.add(char (q % 256) ); payload.add(char (q / 256)  ); // Servo centers
 
-          servoRATE[i] = int(RateSlider[i].value());
+          servoRATE[i] = int(RateSlider[i].getValue());
           
           payload.add(char(servoRATE[i])); // servoRATE
         }
@@ -1273,10 +1273,10 @@ void draw() {
       if(toggleGimbal || toggleTrigger){  // MSP_SET_SERVO_CONF
         payload = new ArrayList<Character>();
      
-        ServoMIN[0]=(int)GimbalSlider[0].value();  ServoMIN[1]=(int)GimbalSlider[4].value(); ServoMIN[2]=(int)GimbalSlider[8].value();
-        ServoMAX[0]=(int)GimbalSlider[1].value();  ServoMAX[1]=(int)GimbalSlider[5].value(); ServoMAX[2]=(int)GimbalSlider[9].value();
-        ServoMID[0]=(int)GimbalSlider[2].value();  ServoMID[1]=(int)GimbalSlider[6].value(); ServoMID[2]=(int)GimbalSlider[10].value();
-        servoRATE[0]=(int)GimbalSlider[3].value();servoRATE[1]=(int)GimbalSlider[7].value();servoRATE[2]=(int)GimbalSlider[11].value();
+        ServoMIN[0]=(int)GimbalSlider[0].getValue();  ServoMIN[1]=(int)GimbalSlider[4].getValue(); ServoMIN[2]=(int)GimbalSlider[8].getValue();
+        ServoMAX[0]=(int)GimbalSlider[1].getValue();  ServoMAX[1]=(int)GimbalSlider[5].getValue(); ServoMAX[2]=(int)GimbalSlider[9].getValue();
+        ServoMID[0]=(int)GimbalSlider[2].getValue();  ServoMID[1]=(int)GimbalSlider[6].getValue(); ServoMID[2]=(int)GimbalSlider[10].getValue();
+        servoRATE[0]=(int)GimbalSlider[3].getValue();servoRATE[1]=(int)GimbalSlider[7].getValue();servoRATE[2]=(int)GimbalSlider[11].getValue();
         
         for( i=0;i<8;i++) {
           int q;
@@ -1290,12 +1290,12 @@ void draw() {
   }
 
   if(gimbal && gimbalConfig ){
-       if((int)GimbalSlider[11].value()==1) { GimbalSlider[11].setCaptionLabel("Trig_Reversed"); }else{ GimbalSlider[11].setCaptionLabel("Trig_Normal");}
+       if((int)GimbalSlider[11].getValue()==1) { GimbalSlider[11].setCaptionLabel("Trig_Reversed"); }else{ GimbalSlider[11].setCaptionLabel("Trig_Normal");}
      int ValLow;
     for( i=2;i<11;i+=4){
       if(i > 8){ValLow=1001;}else{ValLow=1201;}
-      if (GimbalSlider[i].value() < ValLow ) {GimbalSlider[i].setMin(0).setMax(12);}
-      switch((int)GimbalSlider[i].value()) {
+      if (GimbalSlider[i].getValue() < ValLow ) {GimbalSlider[i].setMin(0).setMax(12);}
+      switch((int)GimbalSlider[i].getValue()) {
       case 0: GimbalSlider[i].setCaptionLabel("ROLL") ;break;
       case 1: GimbalSlider[i].setCaptionLabel("NICK") ;break;
       case 2: GimbalSlider[i].setCaptionLabel("YAW")  ;break;
@@ -1310,7 +1310,7 @@ void draw() {
       case 11:GimbalSlider[i].setCaptionLabel("AUX8") ;break;
       default:GimbalSlider[i].setCaptionLabel("MID") ;
       }
-      if (GimbalSlider[i].value() == 12 ){
+      if (GimbalSlider[i].getValue() == 12 ){
         GimbalSlider[i].setMin(ValLow-1).setMax(2000);
         if (i==10){GimbalSlider[i].setMin(ValLow-1).setMax(30000);}
         GimbalSlider[i].setValue(ValLow+1);
@@ -1321,8 +1321,8 @@ void draw() {
  if(ServosActive){
      int BreakPoint =Centerlimits[0]+1;
     for( i=0;i<8;i++){
-      if (ServoSliderC[i].value() < BreakPoint ) {ServoSliderC[i].setMin(0).setMax(12);}
-      switch((int)ServoSliderC[i].value()) {
+      if (ServoSliderC[i].getValue() < BreakPoint ) {ServoSliderC[i].setMin(0).setMax(12);}
+      switch((int)ServoSliderC[i].getValue()) {
       case 0: ServoSliderC[i].setCaptionLabel("ROLL") ;break;
       case 1: ServoSliderC[i].setCaptionLabel("NICK") ;break;
       case 2: ServoSliderC[i].setCaptionLabel("YAW")  ;break;
@@ -1337,7 +1337,7 @@ void draw() {
       case 11:ServoSliderC[i].setCaptionLabel("AUX8") ;break;
       default:ServoSliderC[i].setCaptionLabel("MID") ;
       }
-      if (ServoSliderC[i].value() == 12 ){
+      if (ServoSliderC[i].getValue() == 12 ){
         ServoSliderC[i].setMin(BreakPoint-1).setMax(Centerlimits[1]);
         ServoSliderC[i].setValue(BreakPoint+1);
       }
@@ -1363,34 +1363,34 @@ void draw() {
       
       // MSP_SET_RC_TUNING
       payload = new ArrayList<Character>();
-      payload.add(char( round(confRC_RATE.value()*100)) );
-      payload.add(char( round(confRC_EXPO.value()*100)) );
-      payload.add(char( round(rollPitchRate.value()*100)) );
-      payload.add(char( round(yawRate.value()*100)) );
-      payload.add(char( round(dynamic_THR_PID.value()*100)) );
-      payload.add(char( round(throttle_MID.value()*100)) );
-      payload.add(char( round(throttle_EXPO.value()*100)) );
+      payload.add(char( round(confRC_RATE.getValue()*100)) );
+      payload.add(char( round(confRC_EXPO.getValue()*100)) );
+      payload.add(char( round(rollPitchRate.getValue()*100)) );
+      payload.add(char( round(yawRate.getValue()*100)) );
+      payload.add(char( round(dynamic_THR_PID.getValue()*100)) );
+      payload.add(char( round(throttle_MID.getValue()*100)) );
+      payload.add(char( round(throttle_EXPO.getValue()*100)) );
       sendRequestMSP(requestMSP(MSP_SET_RC_TUNING,payload.toArray( new Character[payload.size()]) ));
 
       // MSP_SET_PID
       payload = new ArrayList<Character>();
       for(i=0;i<PIDITEMS;i++) {
-        byteP[i] = (round(confP[i].value()*10));
-        byteI[i] = (round(confI[i].value()*1000));
-        byteD[i] = (round(confD[i].value()));
+        byteP[i] = (round(confP[i].getValue()*10));
+        byteI[i] = (round(confI[i].getValue()*1000));
+        byteD[i] = (round(confD[i].getValue()));
       }
 
       //POS-4 POSR-5 NAVR-6 use different dividers
-      byteP[4] = (round(confP[4].value()*100.0));
-      byteI[4] = (round(confI[4].value()*100.0));
+      byteP[4] = (round(confP[4].getValue()*100.0));
+      byteI[4] = (round(confI[4].getValue()*100.0));
 
-      byteP[5] = (round(confP[5].value()*10.0));
-      byteI[5] = (round(confI[5].value()*100.0));
-      byteD[5] = (round(confD[5].value()*10000.0))/10;
+      byteP[5] = (round(confP[5].getValue()*10.0));
+      byteI[5] = (round(confI[5].getValue()*100.0));
+      byteD[5] = (round(confD[5].getValue()*10000.0))/10;
 
-      byteP[6] = (round(confP[6].value()*10.0));
-      byteI[6] = (round(confI[6].value()*100.0));
-      byteD[6] = (round(confD[6].value()*10000.0))/10;
+      byteP[6] = (round(confP[6].getValue()*10.0));
+      byteI[6] = (round(confI[6].getValue()*100.0));
+      byteD[6] = (round(confD[6].getValue()*10000.0))/10;
 
       for(i=0;i<PIDITEMS;i++) {
           payload.add(char(byteP[i]));  
@@ -1404,7 +1404,7 @@ void draw() {
       for(i=0;i<CHECKBOXITEMS;i++) {
         activation[i] = 0;
         for(aa=0;aa<12;aa++) {
-          activation[i] += (int)(checkbox[i].arrayValue()[aa]*(1<<aa));
+          activation[i] += (int)(checkbox[i].getArrayValue()[aa]*(1<<aa));
           //MWI.setProperty("box."+i+".aux"+i/3+"."+(aa%3),String.valueOf(checkbox[i].arrayValue()[aa]*(1<<aa)));
         }
         payload.add(char (activation[i] % 256) ); payload.add(char (activation[i] / 256)  );
@@ -1415,29 +1415,29 @@ void draw() {
       // MSP_SET_MISC
       payload = new ArrayList<Character>();
       
-      intPowerTrigger = (round(confPowerTrigger.value()));
+      intPowerTrigger = (round(confPowerTrigger.getValue()));
       payload.add(char(intPowerTrigger % 256)); payload.add(char(intPowerTrigger / 256)); //a
 
       
       // ThrVal   minthrottle,maxthrottle,mincommand,FSthrottle   b,c,d,e
-      for( i=0;i<4;i++) {int q= (int)(confINF[i].value()); payload.add(char (q % 256) ); payload.add(char (q / 256)  ); }
+      for( i=0;i<4;i++) {int q= (int)(confINF[i].getValue()); payload.add(char (q % 256) ); payload.add(char (q / 256)  ); }
       
       // PermanentLog
-      int nn= round(confINF[4].value()*10); payload.add(char (nn - ((nn>>8)<<8) )); payload.add(char (nn>>8));// f
+      int nn= round(confINF[4].getValue()*10); payload.add(char (nn - ((nn>>8)<<8) )); payload.add(char (nn>>8));// f
      
        
-       nn= round(confINF[5].value());
+       nn= round(confINF[5].getValue());
        payload.add(char (nn - ((nn>>8)<<8)));   payload.add(char (nn>>8)); // g 32b
        payload.add(char (nn - ((nn>>16)<<16))); payload.add(char (nn>>16));
       
       
       // MagDec
-      nn= round(confINF[6].value()*10); payload.add(char (nn - ((nn>>8)<<8) )); payload.add(char (nn>>8)); // h
+      nn= round(confINF[6].getValue()*10); payload.add(char (nn - ((nn>>8)<<8) )); payload.add(char (nn>>8)); // h
 
       
       // VBatscale
-      nn= round(VBat[0].value()); payload.add(char (nn)); // i
-      for( i=1;i<4;i++) { int q= int(VBat[i].value()*10); payload.add(char (q)); } // j,k,l
+      nn= round(VBat[0].getValue()); payload.add(char (nn)); // i
+      for( i=1;i<4;i++) { int q= int(VBat[i].getValue()*10); payload.add(char (q)); } // j,k,l
       
       sendRequestMSP(requestMSP(MSP_SET_MISC,payload.toArray(new Character[payload.size()])));
       
@@ -2427,8 +2427,8 @@ void draw() {
   stroke(0, 255, 0); if (ayGraph) g_graph.drawLine(accPITCH, -1000, +1000);
   stroke(0, 0, 255);
   if (azGraph) {
-    if (scaleSlider.value()<2){ g_graph.drawLine(accYAW, -1000, +1000);
-    } else{ g_graph.drawLine(accYAW, 200*scaleSlider.value()-1000,200*scaleSlider.value()+500);}
+    if (scaleSlider.getValue()<2){ g_graph.drawLine(accYAW, -1000, +1000);
+    } else{ g_graph.drawLine(accYAW, 200*scaleSlider.getValue()-1000,200*scaleSlider.getValue()+500);}
   }
   
   float altMin = (altData.getMinVal() + altData.getRange() / 2) - 100;
@@ -2464,8 +2464,8 @@ if(!hideDraw){
   int xSens1       = xParam + 80;
   int ySens1       = yParam + 220;
   stroke(255);
-  a=min(confRC_RATE.value(),1);
-  b=confRC_EXPO.value();
+  a=min(confRC_RATE.getValue(),1);
+  b=confRC_EXPO.getValue();
   strokeWeight(1);
   line(xSens1,ySens1,xSens1,ySens1+35);
   line(xSens1,ySens1+35,xSens1+70,ySens1+35);
@@ -2481,13 +2481,13 @@ if(!hideDraw){
     val = rccommand*70/1000;
     point(xSens1+i,ySens1+(70-val)*3.5/7);
   }
-  if (confRC_RATE.value()>1) { 
+  if (confRC_RATE.getValue()>1) { 
     stroke(220,100,100);
     ellipse(xSens1+70, ySens1, 7, 7);
   }
   
-  a=throttle_MID.value();
-  b=throttle_EXPO.value();
+  a=throttle_MID.getValue();
+  b=throttle_EXPO.getValue();
   
   int xSens2       = xParam + 80;
   int ySens2       = yParam + 180;
@@ -2589,8 +2589,8 @@ void DEBUG4(boolean theFlag) {debug4Graph = theFlag;}
 
 String ActiveTab="default";
 public void controlEvent(ControlEvent theEvent) {
-  if (theEvent.isGroup()) if (theEvent.name()=="portComList") InitSerial(theEvent.group().value()); // initialize the serial port selected
-  if (theEvent.isGroup()) if (theEvent.name()=="baudList") GUI_BaudRate=(int)(theEvent.group().value());  // Set GUI_BaudRate to selected.
+  if (theEvent.isGroup()) if (theEvent.name()=="portComList") InitSerial(theEvent.group().getValue()); // initialize the serial port selected
+  if (theEvent.isGroup()) if (theEvent.name()=="baudList") GUI_BaudRate=(int)(theEvent.group().getValue());  // Set GUI_BaudRate to selected.
   if (theEvent.isTab()) { ActiveTab= theEvent.getTab().getName();  println("Switched to: "+ActiveTab);
     int tabN= +theEvent.getTab().getId();
     scaleSlider.moveTo(ActiveTab);
@@ -2903,25 +2903,25 @@ public void updateModel(){
 }
 
 public void updateModelMSP_SET_RC_TUNING(){
-        MWI.setProperty("rc.rate",String.valueOf(confRC_RATE.value()));
-        MWI.setProperty("rc.expo",String.valueOf(confRC_EXPO.value()));
-        MWI.setProperty("rc.rollpitch.rate",String.valueOf(rollPitchRate.value()));
-        MWI.setProperty("rc.yaw.rate",String.valueOf(yawRate.value()));
-        MWI.setProperty("rc.throttle.rate",String.valueOf(dynamic_THR_PID.value()));
-        MWI.setProperty("rc.throttle.mid",String.valueOf(throttle_MID.value()));
-        MWI.setProperty("rc.throttle.expo",String.valueOf(throttle_EXPO.value()));
+        MWI.setProperty("rc.rate",String.valueOf(confRC_RATE.getValue()));
+        MWI.setProperty("rc.expo",String.valueOf(confRC_EXPO.getValue()));
+        MWI.setProperty("rc.rollpitch.rate",String.valueOf(rollPitchRate.getValue()));
+        MWI.setProperty("rc.yaw.rate",String.valueOf(yawRate.getValue()));
+        MWI.setProperty("rc.throttle.rate",String.valueOf(dynamic_THR_PID.getValue()));
+        MWI.setProperty("rc.throttle.mid",String.valueOf(throttle_MID.getValue()));
+        MWI.setProperty("rc.throttle.expo",String.valueOf(throttle_EXPO.getValue()));
 }
 
 public void updateModelMSP_SET_PID(){
 for( i=0;i<PIDITEMS;i++) {
-    MWI.setProperty("pid."+i+".p",String.valueOf(confP[i].value()));
-    MWI.setProperty("pid."+i+".i",String.valueOf(confI[i].value()));
-    MWI.setProperty("pid."+i+".d",String.valueOf(confD[i].value()));
+    MWI.setProperty("pid."+i+".p",String.valueOf(confP[i].getValue()));
+    MWI.setProperty("pid."+i+".i",String.valueOf(confI[i].getValue()));
+    MWI.setProperty("pid."+i+".d",String.valueOf(confD[i].getValue()));
   }
 }
 
 public void updateModelMSP_SET_MISC(){
-   MWI.setProperty("power.trigger",String.valueOf(round(confPowerTrigger.value())));
+   MWI.setProperty("power.trigger",String.valueOf(round(confPowerTrigger.getValue())));
 }
 
 
@@ -3026,9 +3026,9 @@ class cGraph {
     
     for( i=0; i<data.getCurSize()-1; ++i) {
       float x0 = i*graphMultX+m_gLeft;
-      float y0 = m_gTop-(((data.getVal(i)-(maxRange+minRange)/2)*scaleSlider.value()+(maxRange-minRange)/2)*graphMultY);
+      float y0 = m_gTop-(((data.getVal(i)-(maxRange+minRange)/2)*scaleSlider.getValue()+(maxRange-minRange)/2)*graphMultY);
       float x1 = (i+1)*graphMultX+m_gLeft;
-      float y1 = m_gTop-(((data.getVal(i+1)-(maxRange+minRange)/2 )*scaleSlider.value()+(maxRange-minRange)/2)*graphMultY);
+      float y1 = m_gTop-(((data.getVal(i+1)-(maxRange+minRange)/2 )*scaleSlider.getValue()+(maxRange-minRange)/2)*graphMultY);
       line(x0, y0, x1, y1);
     }
   }
@@ -3104,14 +3104,14 @@ public void addTabs(){
   
   int tHeight = 20;
   if( pVersion == 1.5 ) {
-    controlP5.window().setPositionOfTabs(6, 13);
+    controlP5.getWindow().setPositionOfTabs(6, 13);
     tHeight = 17;
   }
   
-  controlP5.tab("default").setHeight(tHeight);
-  controlP5.tab("ServoSettings").setHeight(tHeight);
-  controlP5.tab("Config").setHeight(tHeight);
-  controlP5.tab("Motors").setHeight(tHeight);
+  controlP5.addTab("default").setHeight(tHeight);
+  controlP5.addTab("ServoSettings").setHeight(tHeight);
+  controlP5.addTab("Config").setHeight(tHeight);
+  controlP5.addTab("Motors").setHeight(tHeight);
  }
  
 // WebLinks

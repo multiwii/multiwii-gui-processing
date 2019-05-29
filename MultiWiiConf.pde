@@ -394,16 +394,16 @@ void setup() {
   // Trying to make both worlds happy..
   if( P3D == OPENGL ) pVersion = 2.0; else pVersion = 1.5;
 
-  size(1080,720,OPENGL);
+  size(1000,570,OPENGL);
   frameRate(20);
 
-  font8 = createFont("Arial bold",8,false);
-  font9 = createFont("Arial bold",9,false);
-  font12 = createFont("Arial bold",12,false);
-  font15 = createFont("Arial bold",15,false);
+  font8 = createFont("Lucida Sans Regular",9,false);
+  font9 = createFont("Lucida Sans Regular",10,false);
+  font12 = createFont("Lucida Sans Regular",12,false);
+  font15 = createFont("Lucida Sans Regular",15,false);
 
   controlP5 = new ControlP5(this); // initialize the GUI controls
-  //controlP5.setControlFont(font12);
+//  controlP5 = new ControlP5(this, font8); // initialize the GUI controls
   addTabs();  
 
   g_graph  = new cGraph(xGraph+110,yGraph, 480, 200);
@@ -436,8 +436,9 @@ void setup() {
     //}
   }
   commListbox.addItem("Close Comm",++commListMax); // addItem(name,value)
+  commListbox.close();
   // text label for which comm port selected
-  txtlblWhichcom = controlP5.addTextlabel("txtlblWhichcom","No Port Selected",5,65+tabHeight); // textlabel(name,text,x,y)
+  txtlblWhichcom = controlP5.addTextlabel("txtlblWhichcom","No Port Selected",5,65+tabHeight); // textlabel(name,text,x,y) //<>//
   // Information textlabels
   TxtInfo   = controlP5.addTextlabel("SInf","Remember To Save Changes to Eeprom!!") .setPosition(xServ-30, yServ+210).hide().moveTo("ServoSettings");
   TxtInfo1  = controlP5.addTextlabel("xInf","Grey Values Is Set As #define In Config.h!!") .setPosition(xServ+0, yServ+210).moveTo("Config");
